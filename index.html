@@ -659,14 +659,12 @@ function renderLevels(day) {
 }
 
 // ===== 语音朗读 =====
+const audioEl = new Audio();
 function speakWord() {
   if (!currentWords[currentIndex]) return;
-  const text = currentWords[currentIndex].english;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  u.rate = 0.85;
-  window.speechSynthesis.speak(u);
+  const text = encodeURIComponent(currentWords[currentIndex].english);
+  audioEl.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${text}`;
+  audioEl.play().catch(() => {});
 }
 
 // ===== 闪卡测试 =====
