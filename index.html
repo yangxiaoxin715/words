@@ -104,6 +104,7 @@ body {
 .card-word {
   font-size: 72px; font-weight: 800;
   letter-spacing: -1px; text-align: center;
+  max-width: calc(100vw - 80px); overflow-wrap: break-word;
 }
 .speak-btn {
   font-size: 32px; background: none; border: none;
@@ -495,7 +496,11 @@ function showCard() {
   document.getElementById('cardChinese').textContent = '';
   document.getElementById('cardChinese').classList.add('hidden');
   document.getElementById('btnGroup').classList.add('hidden');
-  document.getElementById('cardWord').textContent = w.english;
+  const cardEl = document.getElementById('cardWord');
+  cardEl.textContent = w.english;
+  // 长词自动缩小字号
+  const len = w.english.length;
+  cardEl.style.fontSize = len <= 5 ? '72px' : len <= 8 ? '56px' : len <= 11 ? '44px' : '36px';
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${quizIndex + 1} / ${quizWords.length}`;
   document.getElementById('progressBar').style.width = `${(quizIndex / quizWords.length) * 100}%`;
