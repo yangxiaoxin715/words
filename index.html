@@ -638,12 +638,27 @@ function startNext() {
 }
 
 // ===== 语音朗读 =====
-const audioEl = new Audio();
+let enVoice = null;
+function loadVoice() {
+  const voices = speechSynthesis.getVoices();
+  // 优先选 iOS/Mac 上的高质量英文声音
+  enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha'))
+    || voices.find(v => v.lang === 'en-US' && !v.localService === false)
+    || voices.find(v => v.lang.startsWith('en'))
+    || null;
+}
+speechSynthesis.onvoiceschanged = loadVoice;
+loadVoice();
+
 function speakWord() {
   if (!currentWords[currentIndex]) return;
-  const text = encodeURIComponent(currentWords[currentIndex].english);
-  audioEl.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${text}`;
-  audioEl.play().catch(() => {});
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(currentWords[currentIndex].english);
+  u.lang = 'en-US';
+  u.rate = 0.8;
+  u.pitch = 1.0;
+  if (enVoice) u.voice = enVoice;
+  speechSynthesis.speak(u);
 }
 
 // ===== 闪卡测试 =====
@@ -710,7 +725,6 @@ function showCard() {
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
-  speakWord();
 }
 
 function flipCard() {
