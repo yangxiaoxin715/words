@@ -725,6 +725,7 @@ function showCard() {
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
+  speakWord();
 }
 
 function flipCard() {
