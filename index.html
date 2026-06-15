@@ -352,6 +352,7 @@ const CAPTURE_THRESHOLD = 3;
 // ===== 数据存储 =====
 // { wordKey: correctCount }  >= 3 = captured
 const STORAGE_KEY = 'wordHunter_data';
+const DIAG_KEY = 'wordHunter_diagDone';
 
 function getKey(w) { return w.english.toLowerCase().replace(/[^a-z0-9]/g, '_'); }
 
@@ -395,7 +396,7 @@ function renderHome() {
     btn.textContent = '👑 查看掌握地图';
     btn.className = 'start-btn all-done';
     btn.onclick = showMap;
-  } else if (!isDiagnosticDone(data)) {
+  } else if (!isDiagnosticDone()) {
     const seen = WORDS.filter(w => data.hasOwnProperty(getKey(w))).length;
     const left = TOTAL - seen;
     hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
@@ -442,13 +443,15 @@ let capturedBeforeRound = 0;
 
 const ROUND_SIZE = 20; // 后续每轮出词数
 
-function isDiagnosticDone(data) {
-  // 所有 200 词都至少见过一次（correctCount >= 0 且 key 存在）
-  return WORDS.every(w => data.hasOwnProperty(getKey(w)));
+function isDiagnosticDone() {
+  return localStorage.getItem(DIAG_KEY) === 'true';
+}
+function markDiagnosticDone() {
+  localStorage.setItem(DIAG_KEY, 'true');
 }
 
 function pickRoundWords(data) {
-  if (!isDiagnosticDone(data)) {
+  if (!isDiagnosticDone()) {
     // 首轮诊断未完成：只出还没见过的词
     return WORDS.filter(w => !data.hasOwnProperty(getKey(w)));
   }
@@ -574,7 +577,7 @@ function answer(result) {
   const data = loadData();
   const key = getKey(w);
   const prevValue = data[key];
-  const firstRound = !isDiagnosticDone(data);
+  const firstRound = !isDiagnosticDone();
 
   if (result === 'correct') {
     // 首轮诊断：答对直接捕获；后续轮次：逐次累加
@@ -633,6 +636,7 @@ function exitQuiz() {
 
 // ===== 战报 =====
 function showReport() {
+  if (!isDiagnosticDone()) markDiagnosticDone();
   const data = loadData();
   const capturedNow = getCapturedCount(data);
   const newCaptured = capturedNow - capturedBeforeRound;
@@ -720,6 +724,7 @@ function goHome() { renderHome(); }
 function confirmReset() {
   if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DIAG_KEY);
     renderHome();
   }
 }
