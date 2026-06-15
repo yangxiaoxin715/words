@@ -1,0 +1,3452 @@
+[
+  {
+    "english": "Dog",
+    "chinese": "狗",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Cat",
+    "chinese": "猫",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Fish",
+    "chinese": "鱼",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Pig",
+    "chinese": "猪",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Bird",
+    "chinese": "鸟",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Cow",
+    "chinese": "牛",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Mouse",
+    "chinese": "鼠",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Animal",
+    "chinese": "动物",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Car",
+    "chinese": "汽车",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Bus",
+    "chinese": "公共汽车",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "City",
+    "chinese": "城市",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Road",
+    "chinese": "路",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Hotel",
+    "chinese": "酒店",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Farm",
+    "chinese": "农场",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Room",
+    "chinese": "房间",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Park",
+    "chinese": "公园",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Shop",
+    "chinese": "商店",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Red",
+    "chinese": "红色",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Green",
+    "chinese": "绿色",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Blue",
+    "chinese": "蓝色",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Yellow",
+    "chinese": "黄色",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Pink",
+    "chinese": "粉色",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Orange",
+    "chinese": "橙色/橙子",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Black",
+    "chinese": "黑色",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Color",
+    "chinese": "颜色",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Egg",
+    "chinese": "蛋",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Bread",
+    "chinese": "面包",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Cake",
+    "chinese": "蛋糕",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Chicken",
+    "chinese": "鸡/鸡肉",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Apple",
+    "chinese": "苹果",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Banana",
+    "chinese": "香蕉",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Rice",
+    "chinese": "米饭",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Cup",
+    "chinese": "杯子",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Sugar",
+    "chinese": "糖",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Salt",
+    "chinese": "盐",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Food",
+    "chinese": "食物",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Coffee",
+    "chinese": "咖啡",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Tea",
+    "chinese": "茶",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Juice",
+    "chinese": "果汁",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Water",
+    "chinese": "水",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Milk",
+    "chinese": "牛奶",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Table",
+    "chinese": "桌子",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Chair",
+    "chinese": "椅子",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Bed",
+    "chinese": "床",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Window",
+    "chinese": "窗户",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Door",
+    "chinese": "门",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Pen",
+    "chinese": "笔",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Book",
+    "chinese": "书",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Key",
+    "chinese": "钥匙",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Wall",
+    "chinese": "墙",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Bag",
+    "chinese": "包",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Box",
+    "chinese": "盒子",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "River",
+    "chinese": "河",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Rain",
+    "chinese": "雨",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Tree",
+    "chinese": "树",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Sun",
+    "chinese": "太阳",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Moon",
+    "chinese": "月亮",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "World",
+    "chinese": "世界",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Forest",
+    "chinese": "森林",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Sky",
+    "chinese": "天空",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Lake",
+    "chinese": "湖",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Star",
+    "chinese": "星星",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Grass",
+    "chinese": "草",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Leaf",
+    "chinese": "叶子",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Hill",
+    "chinese": "山丘",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Son",
+    "chinese": "儿子",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Mother",
+    "chinese": "母亲",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Father",
+    "chinese": "父亲",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Baby",
+    "chinese": "宝宝",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Man",
+    "chinese": "男人",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Woman",
+    "chinese": "女人",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Boy",
+    "chinese": "男孩",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Girl",
+    "chinese": "女孩",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Child",
+    "chinese": "孩子",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Friend",
+    "chinese": "朋友",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Team",
+    "chinese": "队伍",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Ball",
+    "chinese": "球",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Game",
+    "chinese": "游戏",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Map",
+    "chinese": "地图",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Dot",
+    "chinese": "点",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Light",
+    "chinese": "光/灯",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Sound",
+    "chinese": "声音",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Yes",
+    "chinese": "是",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "No",
+    "chinese": "不",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Week",
+    "chinese": "周",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Day",
+    "chinese": "天",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Time",
+    "chinese": "时间",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Play",
+    "chinese": "玩",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Walk",
+    "chinese": "走",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Run",
+    "chinese": "跑",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Go",
+    "chinese": "去",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Stop",
+    "chinese": "停",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Eat",
+    "chinese": "吃",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "See",
+    "chinese": "看见",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Watch",
+    "chinese": "看/手表",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Love",
+    "chinese": "爱",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Big",
+    "chinese": "大",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Hot",
+    "chinese": "热",
+    "tier": "T1",
+    "day": 1
+  },
+  {
+    "english": "Cold",
+    "chinese": "冷",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Young",
+    "chinese": "年轻",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "Good",
+    "chinese": "好",
+    "tier": "T2",
+    "day": 1
+  },
+  {
+    "english": "Happy",
+    "chinese": "快乐",
+    "tier": "T3",
+    "day": 1
+  },
+  {
+    "english": "0",
+    "chinese": "零",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "1",
+    "chinese": "一",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "2",
+    "chinese": "二",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "3",
+    "chinese": "三",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "4",
+    "chinese": "四",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "5",
+    "chinese": "五",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "6",
+    "chinese": "六",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "7",
+    "chinese": "七",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "8",
+    "chinese": "八",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "9",
+    "chinese": "九",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "10",
+    "chinese": "十",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "11",
+    "chinese": "十一",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "12",
+    "chinese": "十二",
+    "tier": "数字",
+    "day": 1
+  },
+  {
+    "english": "Horse",
+    "chinese": "马",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Wing",
+    "chinese": "翅膀",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Train",
+    "chinese": "火车",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Plane",
+    "chinese": "飞机",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Truck",
+    "chinese": "卡车",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Bicycle",
+    "chinese": "自行车",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Ship",
+    "chinese": "轮船",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Street",
+    "chinese": "街道",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Bridge",
+    "chinese": "桥",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "School",
+    "chinese": "学校",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Office",
+    "chinese": "办公室",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Town",
+    "chinese": "小镇",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Club",
+    "chinese": "俱乐部",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Bar",
+    "chinese": "酒吧",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Camp",
+    "chinese": "营地",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Store",
+    "chinese": "商店",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Country",
+    "chinese": "国家",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Building",
+    "chinese": "建筑",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Bank",
+    "chinese": "银行",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Hat",
+    "chinese": "帽子",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Dress",
+    "chinese": "连衣裙",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Suit",
+    "chinese": "套装",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Pants",
+    "chinese": "裤子",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Shoes",
+    "chinese": "鞋子",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Pocket",
+    "chinese": "口袋",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Brown",
+    "chinese": "棕色",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "White",
+    "chinese": "白色",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Gray",
+    "chinese": "灰色",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Cheese",
+    "chinese": "奶酪",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Soup",
+    "chinese": "汤",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Pork",
+    "chinese": "猪肉",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Beef",
+    "chinese": "牛肉",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Lemon",
+    "chinese": "柠檬",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Corn",
+    "chinese": "玉米",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Oil",
+    "chinese": "油",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Seed",
+    "chinese": "种子",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Spoon",
+    "chinese": "勺子",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Breakfast",
+    "chinese": "早餐",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Lunch",
+    "chinese": "午餐",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Dinner",
+    "chinese": "晚餐",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Bottle",
+    "chinese": "瓶子",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Wine",
+    "chinese": "葡萄酒",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Beer",
+    "chinese": "啤酒",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Kitchen",
+    "chinese": "厨房",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Bathroom",
+    "chinese": "浴室",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Pencil",
+    "chinese": "铅笔",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Soap",
+    "chinese": "肥皂",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Paint",
+    "chinese": "油漆/绘画",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Paper",
+    "chinese": "纸",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Floor",
+    "chinese": "地板",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Roof",
+    "chinese": "屋顶",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Pool",
+    "chinese": "泳池",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Lock",
+    "chinese": "锁",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Garden",
+    "chinese": "花园",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Yard",
+    "chinese": "院子",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Pin",
+    "chinese": "别针",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Gift",
+    "chinese": "礼物",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Card",
+    "chinese": "卡片",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Ring",
+    "chinese": "戒指/铃",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Tool",
+    "chinese": "工具",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Sea",
+    "chinese": "海",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Ocean",
+    "chinese": "海洋",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Mountain",
+    "chinese": "山",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Snow",
+    "chinese": "雪",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Earth",
+    "chinese": "地球",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Plant",
+    "chinese": "植物",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Wind",
+    "chinese": "风",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Air",
+    "chinese": "空气",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Sand",
+    "chinese": "沙子",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Ice",
+    "chinese": "冰",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Metal",
+    "chinese": "金属",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Plastic",
+    "chinese": "塑料",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Brother",
+    "chinese": "兄弟",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Sister",
+    "chinese": "姐妹",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Family",
+    "chinese": "家庭",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Adult",
+    "chinese": "成人",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Fan",
+    "chinese": "粉丝/风扇",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Year",
+    "chinese": "年",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Month",
+    "chinese": "月",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Morning",
+    "chinese": "早晨",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Night",
+    "chinese": "夜晚",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Swim",
+    "chinese": "游泳",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Follow",
+    "chinese": "跟随",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Drink",
+    "chinese": "喝",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Die",
+    "chinese": "死",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Cry",
+    "chinese": "哭",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Jump",
+    "chinese": "跳",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Sit",
+    "chinese": "坐",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Cut",
+    "chinese": "切",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Sing",
+    "chinese": "唱歌",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Wash",
+    "chinese": "洗",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Cook",
+    "chinese": "做饭",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Call",
+    "chinese": "打电话",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Push",
+    "chinese": "推",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Pull",
+    "chinese": "拉",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Tall",
+    "chinese": "高",
+    "tier": "T2",
+    "day": 2
+  },
+  {
+    "english": "Narrow",
+    "chinese": "窄",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Wet",
+    "chinese": "湿",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Sad",
+    "chinese": "悲伤",
+    "tier": "T1",
+    "day": 2
+  },
+  {
+    "english": "Ugly",
+    "chinese": "丑",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Dirty",
+    "chinese": "脏",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "Heavy",
+    "chinese": "重",
+    "tier": "T3",
+    "day": 2
+  },
+  {
+    "english": "13",
+    "chinese": "十三",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "14",
+    "chinese": "十四",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "15",
+    "chinese": "十五",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "16",
+    "chinese": "十六",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "17",
+    "chinese": "十七",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "18",
+    "chinese": "十八",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "19",
+    "chinese": "十九",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "20",
+    "chinese": "二十",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "21",
+    "chinese": "二十一",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "22",
+    "chinese": "二十二",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "30",
+    "chinese": "三十",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "31",
+    "chinese": "三十一",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "32",
+    "chinese": "三十二",
+    "tier": "数字",
+    "day": 2
+  },
+  {
+    "english": "Boat",
+    "chinese": "船",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Tire",
+    "chinese": "轮胎",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Gasoline",
+    "chinese": "汽油",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Engine",
+    "chinese": "引擎",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Ticket",
+    "chinese": "票",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Transportation",
+    "chinese": "交通",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "House",
+    "chinese": "房子",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Apartment",
+    "chinese": "公寓",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Airport",
+    "chinese": "机场",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Restaurant",
+    "chinese": "餐厅",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Court",
+    "chinese": "法庭/球场",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "University",
+    "chinese": "大学",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Theater",
+    "chinese": "剧院",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Library",
+    "chinese": "图书馆",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Hospital",
+    "chinese": "医院",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Church",
+    "chinese": "教堂",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Market",
+    "chinese": "市场",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Ground",
+    "chinese": "地面",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Space",
+    "chinese": "太空/空间",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Location",
+    "chinese": "地点",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Skirt",
+    "chinese": "裙子",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Shirt",
+    "chinese": "衬衫",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "T-shirt T",
+    "chinese": "恤",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Coat",
+    "chinese": "外套",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Stain",
+    "chinese": "污渍",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Clothing",
+    "chinese": "服装",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Fork",
+    "chinese": "叉子",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Plate",
+    "chinese": "盘子",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Bedroom",
+    "chinese": "卧室",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Page",
+    "chinese": "页面",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Note",
+    "chinese": "笔记",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Clock",
+    "chinese": "钟",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Lamp",
+    "chinese": "灯",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Soil",
+    "chinese": "土壤",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Flower",
+    "chinese": "花",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Root",
+    "chinese": "根",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Beach",
+    "chinese": "海滩",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Wave",
+    "chinese": "波浪",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Fire",
+    "chinese": "火",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Heat",
+    "chinese": "热量",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Glass",
+    "chinese": "玻璃",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Dust",
+    "chinese": "灰尘",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Inch",
+    "chinese": "英寸",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Edge",
+    "chinese": "边缘",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Daughter",
+    "chinese": "女儿",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Parent",
+    "chinese": "父/母",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Grandfather",
+    "chinese": "祖父",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Grandmother",
+    "chinese": "祖母",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Husband",
+    "chinese": "丈夫",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Queen",
+    "chinese": "女王",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "President",
+    "chinese": "总统",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Neighbor",
+    "chinese": "邻居",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Human",
+    "chinese": "人类",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Victim",
+    "chinese": "受害者",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Player",
+    "chinese": "玩家/球员",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Crowd",
+    "chinese": "人群",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Person",
+    "chinese": "人",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Student",
+    "chinese": "学生",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Lawyer",
+    "chinese": "律师",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Doctor",
+    "chinese": "医生",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Patient",
+    "chinese": "病人/耐心",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Secretary",
+    "chinese": "秘书",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Priest",
+    "chinese": "牧师",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Police",
+    "chinese": "警察",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Soldier",
+    "chinese": "士兵",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Author",
+    "chinese": "作者",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Manager",
+    "chinese": "经理",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Reporter",
+    "chinese": "记者",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Actor",
+    "chinese": "演员",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Religion",
+    "chinese": "宗教",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Heaven",
+    "chinese": "天堂",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Medicine",
+    "chinese": "药/医学",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Money",
+    "chinese": "钱",
+    "tier": "T3",
+    "day": 3
+  },
+  {
+    "english": "Sport",
+    "chinese": "运动",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Price",
+    "chinese": "价格",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Sign",
+    "chinese": "标志/签名",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Top",
+    "chinese": "顶部",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Front",
+    "chinese": "前面",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Back",
+    "chinese": "后面",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Up",
+    "chinese": "上",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Left",
+    "chinese": "左",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Drive",
+    "chinese": "开车",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Fly",
+    "chinese": "飞",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Kill",
+    "chinese": "杀",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Smile",
+    "chinese": "微笑",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Sell",
+    "chinese": "卖",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Burn",
+    "chinese": "燃烧",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Dig",
+    "chinese": "挖",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Pass",
+    "chinese": "经过",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Mix",
+    "chinese": "混合",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Stir",
+    "chinese": "搅拌",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Bend",
+    "chinese": "弯曲",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Turn",
+    "chinese": "转",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Catch",
+    "chinese": "接住",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Lift",
+    "chinese": "举起",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Find",
+    "chinese": "找到",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Short",
+    "chinese": "短/矮",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Small",
+    "chinese": "小的",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Slow",
+    "chinese": "慢的",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Fast",
+    "chinese": "快",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Warm",
+    "chinese": "温暖",
+    "tier": "T2",
+    "day": 3
+  },
+  {
+    "english": "Bad",
+    "chinese": "坏",
+    "tier": "T1",
+    "day": 3
+  },
+  {
+    "english": "Flat",
+    "chinese": "平的",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "40",
+    "chinese": "四十",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "41",
+    "chinese": "四十一",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "42",
+    "chinese": "四十二",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "50",
+    "chinese": "五十",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "51",
+    "chinese": "五十一",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "52",
+    "chinese": "五十二",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "60",
+    "chinese": "六十",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "61",
+    "chinese": "六十一",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "62",
+    "chinese": "六十二",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "70",
+    "chinese": "七十",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "71",
+    "chinese": "七十一",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "72",
+    "chinese": "七十二",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "80",
+    "chinese": "八十",
+    "tier": "数字",
+    "day": 3
+  },
+  {
+    "english": "Train station",
+    "chinese": "火车站",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Knife",
+    "chinese": "刀",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Beverage",
+    "chinese": "饮料",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Dream",
+    "chinese": "梦",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Photograph",
+    "chinese": "照片",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Letter",
+    "chinese": "信/字母",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Ceiling",
+    "chinese": "天花板",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Telephone",
+    "chinese": "电话",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Needle",
+    "chinese": "针",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Cell Phone",
+    "chinese": "手机",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Network",
+    "chinese": "网络",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Computer",
+    "chinese": "电脑",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Program",
+    "chinese": "程序",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Laptop",
+    "chinese": "笔记本电脑",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Camera",
+    "chinese": "相机",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Television",
+    "chinese": "电视",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Radio",
+    "chinese": "收音机",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Valley",
+    "chinese": "山谷",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Island",
+    "chinese": "岛",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Nature",
+    "chinese": "自然",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Diamond",
+    "chinese": "钻石",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Copper",
+    "chinese": "铜",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Silver",
+    "chinese": "银",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Material",
+    "chinese": "材料",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Centimeter",
+    "chinese": "厘米",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Kilogram",
+    "chinese": "千克",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Half",
+    "chinese": "一半",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Circle",
+    "chinese": "圆",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Square",
+    "chinese": "正方形",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Temperature",
+    "chinese": "温度",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Weight",
+    "chinese": "重量",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Wife",
+    "chinese": "妻子",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "King",
+    "chinese": "国王",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Teacher",
+    "chinese": "老师",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Waiter",
+    "chinese": "服务员",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Army",
+    "chinese": "军队",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Artist",
+    "chinese": "艺术家",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Job",
+    "chinese": "工作",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Death",
+    "chinese": "死亡",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Dollar",
+    "chinese": "美元",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Bill",
+    "chinese": "账单",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Marriage",
+    "chinese": "婚姻",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Wedding",
+    "chinese": "婚礼",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Murder",
+    "chinese": "谋杀",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Prison",
+    "chinese": "监狱",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Technology",
+    "chinese": "技术",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Energy",
+    "chinese": "能量",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "War",
+    "chinese": "战争",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Peace",
+    "chinese": "和平",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Attack",
+    "chinese": "攻击",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Election",
+    "chinese": "选举",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Magazine",
+    "chinese": "杂志",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Newspaper",
+    "chinese": "报纸",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Poison",
+    "chinese": "毒药",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Gun",
+    "chinese": "枪",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Contract",
+    "chinese": "合同",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Drug",
+    "chinese": "药物/毒品",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Science",
+    "chinese": "科学",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Band",
+    "chinese": "乐队",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Song",
+    "chinese": "歌曲",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Instrument",
+    "chinese": "乐器",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Music",
+    "chinese": "音乐",
+    "tier": "T3",
+    "day": 4
+  },
+  {
+    "english": "Movie",
+    "chinese": "电影",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Art",
+    "chinese": "艺术",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Side",
+    "chinese": "旁边",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Outside",
+    "chinese": "外面",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Inside",
+    "chinese": "内部",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Down",
+    "chinese": "下",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Right",
+    "chinese": "右",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "North",
+    "chinese": "北",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Spring",
+    "chinese": "春天",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Work",
+    "chinese": "工作",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Speak/Say",
+    "chinese": "说",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Pay",
+    "chinese": "付钱",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Melt",
+    "chinese": "融化",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Fight",
+    "chinese": "打架",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Close",
+    "chinese": "关闭",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Break",
+    "chinese": "打破",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Wide",
+    "chinese": "宽的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "New",
+    "chinese": "新的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Old",
+    "chinese": "老的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Dry",
+    "chinese": "干的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Sick",
+    "chinese": "生病",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Loud",
+    "chinese": "大声",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Deaf",
+    "chinese": "聋",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Blind",
+    "chinese": "瞎",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Nice",
+    "chinese": "好的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Mean",
+    "chinese": "刻薄",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Rich",
+    "chinese": "富有",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Poor",
+    "chinese": "穷",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Thick",
+    "chinese": "厚",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Thin",
+    "chinese": "瘦的",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Cheap",
+    "chinese": "便宜",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Male",
+    "chinese": "男性",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Tight",
+    "chinese": "紧",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Loose",
+    "chinese": "松",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "High",
+    "chinese": "高的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Soft",
+    "chinese": "软",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Clean",
+    "chinese": "干净/打扫",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Strong",
+    "chinese": "强壮",
+    "tier": "T1",
+    "day": 4
+  },
+  {
+    "english": "Weak",
+    "chinese": "弱",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Dead",
+    "chinese": "死的",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "Dark",
+    "chinese": "暗",
+    "tier": "T2",
+    "day": 4
+  },
+  {
+    "english": "81",
+    "chinese": "八十一",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "82",
+    "chinese": "八十二",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "90",
+    "chinese": "九十",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "91",
+    "chinese": "九十一",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "92",
+    "chinese": "九十二",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "100",
+    "chinese": "一百",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "101",
+    "chinese": "一百零一",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "102",
+    "chinese": "一百零二",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "110",
+    "chinese": "一百一十",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "111",
+    "chinese": "一百一十一",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "1000",
+    "chinese": "一千",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "1001",
+    "chinese": "一千零一",
+    "tier": "数字",
+    "day": 4
+  },
+  {
+    "english": "Screen",
+    "chinese": "屏幕",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Wood",
+    "chinese": "木头",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Stone",
+    "chinese": "石头",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Clay",
+    "chinese": "粘土",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Gold",
+    "chinese": "金子",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Meter",
+    "chinese": "米",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Foot",
+    "chinese": "英尺",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Pound",
+    "chinese": "磅",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Date",
+    "chinese": "日期",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Corner",
+    "chinese": "角落",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Hell",
+    "chinese": "地狱",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Race (Ethnicity)",
+    "chinese": "种族",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Sex",
+    "chinese": "性别",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "God",
+    "chinese": "上帝",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Consonant",
+    "chinese": "辅音",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Vowel",
+    "chinese": "元音",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Piece",
+    "chinese": "块/片",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Pain",
+    "chinese": "疼痛",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Injury",
+    "chinese": "受伤",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Hole",
+    "chinese": "洞",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Image",
+    "chinese": "图像",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Pattern",
+    "chinese": "模式/图案",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Bottom",
+    "chinese": "底部",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Straight",
+    "chinese": "直",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "South",
+    "chinese": "南",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "East",
+    "chinese": "东",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "West",
+    "chinese": "西",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Direction",
+    "chinese": "方向",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Summer",
+    "chinese": "夏天",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Winter",
+    "chinese": "冬天",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Fall",
+    "chinese": "秋天/落下",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Season",
+    "chinese": "季节",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "January",
+    "chinese": "一月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "February",
+    "chinese": "二月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "March",
+    "chinese": "三月",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "April",
+    "chinese": "四月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "May",
+    "chinese": "五月",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "June",
+    "chinese": "六月",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "July",
+    "chinese": "七月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "August",
+    "chinese": "八月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "September",
+    "chinese": "九月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "October",
+    "chinese": "十月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "November",
+    "chinese": "十一月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "December",
+    "chinese": "十二月",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Monday",
+    "chinese": "周一",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Tuesday",
+    "chinese": "周二",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Wednesday",
+    "chinese": "周三",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Thursday",
+    "chinese": "周四",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Friday",
+    "chinese": "周五",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Saturday",
+    "chinese": "周六",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Sunday",
+    "chinese": "周日",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Hour",
+    "chinese": "小时",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Minute",
+    "chinese": "分钟",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Second",
+    "chinese": "秒",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Afternoon",
+    "chinese": "下午",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Evening",
+    "chinese": "晚上",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Think",
+    "chinese": "想",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Laugh",
+    "chinese": "笑",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Buy",
+    "chinese": "买",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Shoot",
+    "chinese": "射击",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Learn",
+    "chinese": "学习",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Smell",
+    "chinese": "闻",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Hear",
+    "chinese": "听到",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Listen",
+    "chinese": "听",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Taste",
+    "chinese": "品尝",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Touch",
+    "chinese": "触摸",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Kiss",
+    "chinese": "亲吻",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Explode",
+    "chinese": "爆炸",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Stand",
+    "chinese": "站",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Lie down",
+    "chinese": "躺下",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Dance",
+    "chinese": "跳舞",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Count",
+    "chinese": "数",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Pray",
+    "chinese": "祈祷",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Win",
+    "chinese": "赢",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Lose",
+    "chinese": "输",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Open",
+    "chinese": "打开",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Write",
+    "chinese": "写",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Build",
+    "chinese": "建造",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Teach",
+    "chinese": "教",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Grow",
+    "chinese": "生长",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Draw",
+    "chinese": "画",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Feed",
+    "chinese": "喂",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Throw",
+    "chinese": "扔",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Wear",
+    "chinese": "穿",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Hang",
+    "chinese": "挂",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Shake",
+    "chinese": "摇",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Beat",
+    "chinese": "打/击败",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Carry",
+    "chinese": "携带",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Long",
+    "chinese": "长",
+    "tier": "T1",
+    "day": 5
+  },
+  {
+    "english": "Cool",
+    "chinese": "凉爽",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Healthy",
+    "chinese": "健康",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Quiet",
+    "chinese": "安静",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Beautiful",
+    "chinese": "美丽",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Expensive",
+    "chinese": "贵",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Curved",
+    "chinese": "弯曲的",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Female",
+    "chinese": "女性",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Low",
+    "chinese": "低的",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Hard",
+    "chinese": "硬的",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Deep",
+    "chinese": "深",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Shallow",
+    "chinese": "浅",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Alive",
+    "chinese": "活的",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Light (not heavy)",
+    "chinese": "轻的",
+    "tier": "T2",
+    "day": 5
+  },
+  {
+    "english": "Nuclear",
+    "chinese": "核能",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "Famous",
+    "chinese": "出名",
+    "tier": "T3",
+    "day": 5
+  },
+  {
+    "english": "10000",
+    "chinese": "一万",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "100000",
+    "chinese": "十万",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "Million",
+    "chinese": "百万",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "Billion",
+    "chinese": "十亿",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "1st",
+    "chinese": "第一",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "2nd",
+    "chinese": "第二",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "3rd",
+    "chinese": "第三",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "4th",
+    "chinese": "第四",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "5th",
+    "chinese": "第五",
+    "tier": "数字",
+    "day": 5
+  },
+  {
+    "english": "Numbers",
+    "chinese": "数字（总称）",
+    "tier": "数字",
+    "day": 5
+  }
+]
