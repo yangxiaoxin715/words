@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>625 词冲刺</title>
+<title>单词猎人</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -446,8 +446,8 @@ body {
 
 <!-- 首页 -->
 <div id="home" class="page active">
-  <h1>625 词冲刺</h1>
-  <p class="subtitle">10 天认识 625 个高频词</p>
+  <h1>🎯 单词猎人</h1>
+  <p class="subtitle">10 天捕获 575 个高频词</p>
   <div class="day-grid" id="dayGrid"></div>
   <div class="home-actions">
     <button class="btn-report" onclick="showFullReport()">查看总报告</button>
@@ -494,7 +494,7 @@ body {
     </div>
   </div>
   <div class="compare-section">
-    <h3>625 词总进度</h3>
+    <h3>575 词总进度</h3>
     <div class="compare-bar" id="compareBar"></div>
     <div class="compare-legend">
       <span class="legend-know">认识</span>
@@ -871,7 +871,7 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = '625词掌握地图.csv';
+  a.download = '单词猎人掌握地图.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
