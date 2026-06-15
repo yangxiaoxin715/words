@@ -170,13 +170,29 @@ body {
   min-height: 50vh;
 }
 
+.card-word-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
 .card-word {
   font-size: 72px;
   font-weight: 800;
   letter-spacing: -1px;
   text-align: center;
-  margin-bottom: 16px;
 }
+.speak-btn {
+  font-size: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.speak-btn:active { opacity: 1; }
 .card-chinese {
   font-size: 64px;
   font-weight: 700;
@@ -450,7 +466,10 @@ body {
     <div class="progress-bar" id="progressBar"></div>
   </div>
   <div class="card-area" id="cardArea" onclick="flipCard()">
-    <div class="card-word" id="cardWord"></div>
+    <div class="card-word-wrap">
+      <div class="card-word" id="cardWord"></div>
+      <button class="speak-btn" onclick="event.stopPropagation(); speakWord()">🔊</button>
+    </div>
     <div class="card-chinese hidden" id="cardChinese"></div>
     <div class="flip-hint" id="flipHint">👆 点击翻牌，看答案</div>
   </div>
@@ -639,6 +658,17 @@ function renderLevels(day) {
   });
 }
 
+// ===== 语音朗读 =====
+function speakWord() {
+  if (!currentWords[currentIndex]) return;
+  const text = currentWords[currentIndex].english;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  window.speechSynthesis.speak(u);
+}
+
 // ===== 闪卡测试 =====
 let currentWords = [];
 let currentIndex = 0;
@@ -703,6 +733,7 @@ function showCard() {
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
+  speakWord();
 }
 
 function flipCard() {
