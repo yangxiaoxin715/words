@@ -130,22 +130,16 @@ body {
 
 .btn-group {
   display: flex; gap: 12px; padding: 20px;
-  padding-bottom: 8px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
   background: #fff; border-top: 1px solid #e5e5e7;
 }
-.undo-bar {
-  display: flex; justify-content: center;
-  padding: 4px 20px 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  background: #fff;
+.header-left { display: flex; gap: 12px; align-items: center; }
+.undo-btn {
+  font-size: 14px; color: #ff9500;
+  background: none; border: none; cursor: pointer; font-weight: 600;
 }
-.undo-bar.hidden { display: none; }
-.btn-undo {
-  background: none; border: none;
-  font-size: 14px; color: #007aff; cursor: pointer;
-  padding: 4px 12px;
-}
-.btn-undo:active { opacity: 0.5; }
+.undo-btn.hidden { display: none; }
+.undo-btn:active { opacity: 0.5; }
 .btn-group.hidden { display: none; }
 .btn-group button {
   flex: 1; padding: 16px; border-radius: 14px; border: none;
@@ -280,7 +274,10 @@ body {
 <!-- 闪卡页 -->
 <div id="quiz" class="page">
   <div class="quiz-header">
-    <button class="back-btn" onclick="exitQuiz()">← 返回</button>
+    <div class="header-left">
+      <button class="back-btn" onclick="exitQuiz()">← 返回</button>
+      <button class="undo-btn hidden" id="undoBtn" onclick="undoLast()">↩ 撤销</button>
+    </div>
     <span class="day-label" id="quizLabel">捕猎中</span>
     <span class="progress-text" id="progressText"></span>
   </div>
@@ -298,9 +295,6 @@ body {
   <div class="btn-group hidden" id="btnGroup">
     <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
     <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
-  </div>
-  <div class="undo-bar hidden" id="undoBar">
-    <button class="btn-undo" onclick="undoLast()">↩ 撤销上一个</button>
   </div>
 </div>
 
@@ -576,11 +570,11 @@ function undoLast() {
 }
 
 function updateUndoBar() {
-  const bar = document.getElementById('undoBar');
+  const btn = document.getElementById('undoBtn');
   if (roundResults.length > 0) {
-    bar.classList.remove('hidden');
+    btn.classList.remove('hidden');
   } else {
-    bar.classList.add('hidden');
+    btn.classList.add('hidden');
   }
 }
 
