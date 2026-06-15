@@ -529,6 +529,15 @@ function showPage(id) {
 const LEVELS_PER_DAY = 5;
 const TOTAL_LEVELS = 25;
 
+// 全局关卡编号：(day, levelIndex) → 1~25
+function globalLevelNum(day, levelIndex) {
+  return (day - 1) * LEVELS_PER_DAY + levelIndex + 1;
+}
+// 回顾关编号：每5关后一个回顾关
+function reviewAfterLevel(day) {
+  return day * LEVELS_PER_DAY;
+}
+
 function getLevels(day) {
   const dayWords = WORDS_DATA.filter(w => w.day === day);
   const perLevel = Math.ceil(dayWords.length / LEVELS_PER_DAY);
@@ -630,7 +639,7 @@ function renderHome() {
     let hint = `已通关 ${exploreDone}/25`;
     if (collected > 0) hint += ` · 收录 ${collected} 词`;
     if (exploreNext.isReview) hint += ` · 回顾关就绪`;
-    else hint += ` · Day ${exploreNext.day} 第${exploreNext.level + 1}关`;
+    else hint += ` · 第${globalLevelNum(exploreNext.day, exploreNext.level)}关`;
     ep.textContent = hint;
     eBtn.textContent = '继续闯关';
     eBtn.className = 'mode-btn explore-btn';
@@ -713,7 +722,7 @@ function startExploreLevel(day, levelIndex) {
   currentMode = 'explore';
   currentWords = getLevels(day)[levelIndex];
   currentIndex = 0;
-  document.getElementById('quizDayLabel').textContent = `Day ${day} · 第${levelIndex + 1}关`;
+  document.getElementById('quizDayLabel').textContent = `第${globalLevelNum(day, levelIndex)}关`;
   updateQuizButtons();
   showPage('quiz');
   showCard();
@@ -729,7 +738,7 @@ function startExploreReview(day) {
   currentLevel = -1;
   currentMode = 'explore_review';
   currentIndex = 0;
-  document.getElementById('quizDayLabel').textContent = `Day ${day} · 猎物回顾关`;
+  document.getElementById('quizDayLabel').textContent = `猎物回顾关`;
   updateQuizButtons();
   showPage('quiz');
   showCard();
@@ -758,7 +767,7 @@ function startHuntLevel(day, levelIndex) {
   currentMode = 'hunt';
   currentWords = getLevels(day)[levelIndex];
   currentIndex = 0;
-  document.getElementById('quizDayLabel').textContent = `捕猎 · Day ${day} · 第${levelIndex + 1}关`;
+  document.getElementById('quizDayLabel').textContent = `捕猎 · 第${globalLevelNum(day, levelIndex)}关`;
   updateQuizButtons();
   showPage('quiz');
   showCard();
@@ -844,8 +853,8 @@ function showReport() {
 
     document.getElementById('reportTitle').textContent = currentMode === 'explore_review' ? '回顾战报' : '闯关战报';
     let label = currentMode === 'explore_review'
-      ? `Day ${currentDay} · 猎物回顾关 · ${words.length} 词`
-      : `Day ${currentDay} · 第${currentLevel + 1}关 · ${words.length} 词`;
+      ? `猎物回顾关 · ${words.length} 词`
+      : `第${globalLevelNum(currentDay, currentLevel)}关 · ${words.length} 词`;
     document.getElementById('reportDay').textContent = label;
     document.getElementById('statKnow').textContent = collected;
     document.getElementById('statKnowLabel').textContent = '✅ 收入图鉴';
@@ -877,7 +886,7 @@ function showReport() {
     }
 
     document.getElementById('redoBtn').textContent =
-      currentMode === 'explore_review' ? '再回顾一遍' : `再闯一遍第${currentLevel + 1}关`;
+      currentMode === 'explore_review' ? '再回顾一遍' : `再闯一遍第${globalLevelNum(currentDay, currentLevel)}关`;
 
   } else {
     // 捕猎战报
@@ -886,7 +895,7 @@ function showReport() {
     const unknown = words.filter(w => { const r = data[getWordKey(w)]; return r && r.latest === 'unknown'; }).length;
 
     document.getElementById('reportTitle').textContent = '捕猎战报';
-    document.getElementById('reportDay').textContent = `Day ${currentDay} · 第${currentLevel + 1}关 · ${words.length} 词`;
+    document.getElementById('reportDay').textContent = `第${globalLevelNum(currentDay, currentLevel)}关 · ${words.length} 词`;
     document.getElementById('statKnow').textContent = know;
     document.getElementById('statKnowLabel').textContent = '✅ 已掌握';
     document.getElementById('statUnknow').textContent = unknown;
@@ -911,7 +920,7 @@ function showReport() {
     const nextBtn = document.getElementById('nextLevelBtn');
     nextBtn.textContent = nextLevel ? '下一关 →' : '🎉 全部完成！';
 
-    document.getElementById('redoBtn').textContent = `再测一遍第${currentLevel + 1}关`;
+    document.getElementById('redoBtn').textContent = `再测一遍第${globalLevelNum(currentDay, currentLevel)}关`;
   }
 
   showPage('report');
@@ -981,7 +990,7 @@ function renderExploreReport() {
     const t = dw.length;
     html += `
       <div class="full-day-row">
-        <span class="fdr-label">Day ${d}</span>
+        <span class="fdr-label">${(d-1)*5+1}-${d*5}关</span>
         <div class="fdr-bar">
           <div class="seg-know" style="width:${c/t*100}%"></div>
           <div class="seg-maybe" style="width:${l/t*100}%"></div>
@@ -1023,7 +1032,7 @@ function renderHuntReport() {
     const t = dw.length;
     html += `
       <div class="full-day-row">
-        <span class="fdr-label">Day ${d}</span>
+        <span class="fdr-label">${(d-1)*5+1}-${d*5}关</span>
         <div class="fdr-bar">
           <div class="seg-know" style="width:${k/t*100}%"></div>
           <div class="seg-maybe" style="width:${m/t*100}%"></div>
