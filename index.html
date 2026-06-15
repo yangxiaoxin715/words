@@ -361,8 +361,8 @@ function loadData() {
 function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
 
 function isCaptured(data, w) { return (data[getKey(w)] || 0) >= CAPTURE_THRESHOLD; }
-function isHunting(data, w) { return data.hasOwnProperty(getKey(w)) && !isCaptured(data, w); }
-function isNew(data, w) { return !data.hasOwnProperty(getKey(w)); }
+function isHunting(data, w) { const c = data[getKey(w)]; return c !== undefined && c > 0 && c < CAPTURE_THRESHOLD; }
+function isNew(data, w) { return !data.hasOwnProperty(getKey(w)) || data[getKey(w)] === 0; }
 
 function getCapturedCount(data) { return WORDS.filter(w => isCaptured(data, w)).length; }
 function getHuntingCount(data) { return WORDS.filter(w => isHunting(data, w)).length; }
