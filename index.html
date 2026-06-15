@@ -41,6 +41,44 @@ body {
   max-width: 360px;
   margin-bottom: 24px;
 }
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 24px;
+}
+.level-btn {
+  background: #fff;
+  border: 2px solid #e5e5e7;
+  border-radius: 12px;
+  padding: 12px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.level-btn:active { transform: scale(0.96); }
+.level-btn .level-num { font-size: 14px; font-weight: 700; }
+.level-btn .level-count { font-size: 10px; color: #86868b; margin-top: 2px; }
+.level-btn .level-progress { font-size: 10px; color: #34c759; margin-top: 2px; font-weight: 600; }
+.level-btn.completed { border-color: #34c759; background: #f0faf3; }
+.day-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.day-section-title .back-link {
+  font-size: 14px;
+  color: #007aff;
+  font-weight: 600;
+  cursor: pointer;
+}
 .day-btn {
   background: #fff;
   border: 2px solid #e5e5e7;
@@ -131,17 +169,6 @@ body {
   padding: 40px 20px;
   min-height: 50vh;
 }
-.tier-badge {
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-.tier-T1 { background: #d1f5d3; color: #1b7a2b; }
-.tier-T2 { background: #d1e8ff; color: #0055b3; }
-.tier-T3 { background: #ffd6d6; color: #b31a1a; }
-.tier-num { background: #f0e6ff; color: #6b21a8; }
 
 .card-word {
   font-size: 52px;
@@ -424,7 +451,6 @@ body {
     <div class="progress-bar" id="progressBar"></div>
   </div>
   <div class="card-area" id="cardArea" onclick="flipCard()">
-    <span class="tier-badge" id="tierBadge"></span>
     <div class="card-word" id="cardWord"></div>
     <div class="card-chinese hidden" id="cardChinese"></div>
     <div class="flip-hint" id="flipHint">👆 点击翻牌，看答案</div>
@@ -461,7 +487,7 @@ body {
   </div>
   <div class="report-actions">
     <button class="btn-home" onclick="goHome()">回到首页</button>
-    <button class="btn-redo" id="redoBtn" onclick="redoDay()">再测一遍本天</button>
+    <button class="btn-redo" id="redoBtn" onclick="redoLevel()">再闯一遍</button>
   </div>
 </div>
 
@@ -517,10 +543,36 @@ function showPage(id) {
 }
 
 // ===== 首页 =====
+const LEVELS_PER_DAY = 5;
+
+function getLevels(day) {
+  const dayWords = WORDS_DATA.filter(w => w.day === day);
+  const perLevel = Math.ceil(dayWords.length / LEVELS_PER_DAY);
+  const levels = [];
+  for (let i = 0; i < LEVELS_PER_DAY; i++) {
+    levels.push(dayWords.slice(i * perLevel, (i + 1) * perLevel));
+  }
+  return levels;
+}
+
+let homeView = 'days'; // 'days' | 'levels'
+let selectedDay = 0;
+
 function renderHome() {
+  if (homeView === 'levels' && selectedDay > 0) {
+    renderLevels(selectedDay);
+  } else {
+    renderDays();
+  }
+  showPage('home');
+}
+
+function renderDays() {
+  homeView = 'days';
   const grid = document.getElementById('dayGrid');
   const results = loadResults();
   grid.innerHTML = '';
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
 
   for (let d = 1; d <= 5; d++) {
     const dayWords = WORDS_DATA.filter(w => w.day === d);
@@ -533,49 +585,75 @@ function renderHome() {
     btn.className = 'day-btn' + (tested === dayWords.length && tested > 0 ? ' completed' : '');
     btn.innerHTML = `
       <div class="day-num">Day ${d}</div>
-      <div class="day-count">${dayWords.length} 词</div>
+      <div class="day-count">${dayWords.length} 词 · 5 关</div>
       ${tested > 0 ? `<div class="day-progress">✓${know} ?${maybe} ✗${unknown}</div>` : ''}
     `;
-    btn.onclick = () => startQuiz(d);
+    btn.onclick = () => { selectedDay = d; renderLevels(d); };
     grid.appendChild(btn);
   }
 
   // 巩固和检验按钮
   const phases = [
-    { label: '巩固', desc: '✗+? 词', id: 'review' },
+    { label: '巩固', desc: '待攻克的词', id: 'review' },
     { label: '全量检验', desc: '全部 575 词', id: 'fulltest' },
   ];
   phases.forEach(p => {
     const btn = document.createElement('div');
     btn.className = 'day-btn';
     btn.innerHTML = `<div class="day-num">${p.label}</div><div class="day-count">${p.desc}</div>`;
-    if (p.id === 'review') {
-      btn.onclick = () => startReview();
-    } else {
-      btn.onclick = () => startFullTest();
-    }
+    btn.onclick = () => p.id === 'review' ? startReview() : startFullTest();
     grid.appendChild(btn);
   });
 
   // 占位让 grid 对齐
-  const placeholder = document.createElement('div');
-  grid.appendChild(placeholder);
+  grid.appendChild(document.createElement('div'));
+}
 
-  showPage('home');
+function renderLevels(day) {
+  homeView = 'levels';
+  selectedDay = day;
+  const grid = document.getElementById('dayGrid');
+  const results = loadResults();
+  const levels = getLevels(day);
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+
+  // 标题行
+  const title = document.createElement('div');
+  title.style.cssText = 'grid-column: 1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;';
+  title.innerHTML = `<span style="font-size:18px;font-weight:700;">Day ${day}</span><span class="back-link" style="font-size:14px;color:#007aff;font-weight:600;cursor:pointer;" onclick="renderDays()">← 返回</span>`;
+  grid.appendChild(title);
+
+  levels.forEach((words, i) => {
+    const tested = words.filter(w => results[getWordKey(w)]).length;
+    const know = words.filter(w => getMastery(results[getWordKey(w)]) === 'know').length;
+
+    const btn = document.createElement('div');
+    btn.className = 'level-btn' + (tested === words.length && tested > 0 ? ' completed' : '');
+    btn.innerHTML = `
+      <div class="level-num">第${i + 1}关</div>
+      <div class="level-count">${words.length} 词</div>
+      ${tested > 0 ? `<div class="level-progress">✓${know}/${words.length}</div>` : ''}
+    `;
+    btn.onclick = () => startLevel(day, i);
+    grid.appendChild(btn);
+  });
 }
 
 // ===== 闪卡测试 =====
 let currentWords = [];
 let currentIndex = 0;
 let currentDay = 0;
-let currentMode = 'day'; // day | review | fulltest
+let currentLevel = -1;
+let currentMode = 'level'; // level | review | fulltest
 
-function startQuiz(day) {
+function startLevel(day, levelIndex) {
   currentDay = day;
-  currentMode = 'day';
-  currentWords = WORDS_DATA.filter(w => w.day === day);
+  currentLevel = levelIndex;
+  currentMode = 'level';
+  currentWords = getLevels(day)[levelIndex];
   currentIndex = 0;
-  document.getElementById('quizDayLabel').textContent = `Day ${day}`;
+  document.getElementById('quizDayLabel').textContent = `Day ${day} · 第${levelIndex + 1}关`;
   showPage('quiz');
   showCard();
 }
@@ -626,12 +704,6 @@ function showCard() {
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
-
-  const tierMap = { 'T1': 'tier-T1', 'T2': 'tier-T2', 'T3': 'tier-T3', '数字': 'tier-num' };
-  const tierLabel = { 'T1': '透明词', 'T2': '规则词', 'T3': '不规则', '数字': '数字' };
-  const badge = document.getElementById('tierBadge');
-  badge.className = 'tier-badge ' + (tierMap[w.tier] || 'tier-T2');
-  badge.textContent = tierLabel[w.tier] || w.tier;
 }
 
 function flipCard() {
@@ -673,7 +745,7 @@ function showReport() {
   const know = words.filter(w => { const r = results[getWordKey(w)]; return r && r.latest === 'know'; }).length;
   const unknown = words.filter(w => { const r = results[getWordKey(w)]; return r && r.latest === 'unknown'; }).length;
 
-  let label = currentMode === 'day' ? `Day ${currentDay}` : currentMode === 'review' ? '巩固' : '全量检验';
+  let label = currentMode === 'level' ? `Day ${currentDay} · 第${currentLevel + 1}关` : currentMode === 'review' ? '巩固' : '全量检验';
   document.getElementById('reportDay').textContent = label + ` · ${words.length} 词`;
   document.getElementById('statKnow').textContent = know;
   document.getElementById('statUnknow').textContent = unknown;
@@ -694,14 +766,13 @@ function showReport() {
   `;
 
   document.getElementById('redoBtn').textContent =
-    currentMode === 'day' ? `再测一遍 Day ${currentDay}` :
+    currentMode === 'level' ? `再闯一遍第${currentLevel + 1}关` :
     currentMode === 'review' ? '再巩固一遍' : '再测一遍全量';
 
   showPage('report');
 }
 
-function redoDay() {
-  // 不清除历史记录，重新测试（历史保留，新答案追加）
+function redoLevel() {
   currentIndex = 0;
   showPage('quiz');
   showCard();
@@ -778,7 +849,13 @@ function exportData() {
 }
 
 // ===== 工具 =====
-function goHome() { renderHome(); }
+function goHome() {
+  if (currentMode === 'level' && currentDay > 0) {
+    homeView = 'levels';
+    selectedDay = currentDay;
+  }
+  renderHome();
+}
 function confirmReset() {
   if (confirm('确定要清除所有测试数据吗？此操作不可恢复。')) {
     localStorage.removeItem(STORAGE_KEY);
