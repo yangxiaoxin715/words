@@ -399,8 +399,8 @@ function renderHome() {
   } else if (!isDiagnosticDone(data)) {
     const seen = WORDS.filter(w => data.hasOwnProperty(getKey(w))).length;
     const left = TOTAL - seen;
-    hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮诊断中 · 还剩 ${left} 词`;
-    btn.textContent = seen === 0 ? '开始诊断' : '继续诊断';
+    hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
+    btn.textContent = seen === 0 ? '开始捕猎' : '继续捕猎';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
   } else {
@@ -488,10 +488,7 @@ function startHunt() {
   roundResults = [];
   capturedBeforeRound = getCapturedCount(data);
 
-  const diagDone = isDiagnosticDone(data);
-  const label = !diagDone
-    ? `首轮诊断 · ${quizWords.length} 词`
-    : `捕猎中 · ${quizWords.length} 词`;
+  const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
   showCard();
