@@ -619,12 +619,17 @@ function showCard() {
     return;
   }
   cardFlipped = false;
-  const w = currentWords[currentIndex];
-  document.getElementById('cardWord').textContent = w.english;
-  document.getElementById('cardChinese').textContent = w.chinese;
+  // 先隐藏所有内容，防止切卡时中文闪烁
   document.getElementById('cardChinese').classList.add('hidden');
-  document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('btnGroup').classList.add('hidden');
+  document.getElementById('cardWord').textContent = '';
+  // 下一帧再填入新内容，确保隐藏已生效
+  const w = currentWords[currentIndex];
+  requestAnimationFrame(() => {
+    document.getElementById('cardWord').textContent = w.english;
+    document.getElementById('cardChinese').textContent = w.chinese;
+    document.getElementById('flipHint').classList.remove('hidden');
+  });
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
 
