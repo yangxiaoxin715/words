@@ -82,6 +82,13 @@ body {
 }
 .quiz-header .progress-text { font-size: 14px; color: #86868b; }
 .quiz-header .day-label { font-size: 16px; font-weight: 700; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.undo-btn {
+  font-size: 14px; color: #ff9500;
+  background: none; border: none; cursor: pointer; font-weight: 600;
+}
+.undo-btn.hidden { display: none; }
+.undo-btn:active { opacity: 0.5; }
 
 .progress-bar-wrap {
   height: 4px; background: #e5e5e7;
@@ -135,13 +142,6 @@ body {
   padding-bottom: max(20px, env(safe-area-inset-bottom));
   background: #fff; border-top: 1px solid #e5e5e7;
 }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.undo-btn {
-  font-size: 14px; color: #ff9500;
-  background: none; border: none; cursor: pointer; font-weight: 600;
-}
-.undo-btn.hidden { display: none; }
-.undo-btn:active { opacity: 0.5; }
 .btn-group.hidden { display: none; }
 .btn-group button {
   flex: 1; padding: 16px; border-radius: 14px; border: none;
@@ -149,7 +149,6 @@ body {
   transition: transform 0.1s;
 }
 .btn-group button:active { transform: scale(0.95); }
-.btn-group button { transition: transform 0.1s; }
 .btn-correct { background: #34c759; color: #fff; }
 .btn-familiar { background: #ff9500; color: #fff; }
 
@@ -362,8 +361,8 @@ function loadData() {
 function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
 
 function isCaptured(data, w) { return (data[getKey(w)] || 0) >= CAPTURE_THRESHOLD; }
-function isHunting(data, w) { const c = data[getKey(w)] || 0; return c > 0 && c < CAPTURE_THRESHOLD; }
-function isNew(data, w) { return !data[getKey(w)]; }
+function isHunting(data, w) { return data.hasOwnProperty(getKey(w)) && !isCaptured(data, w); }
+function isNew(data, w) { return !data.hasOwnProperty(getKey(w)); }
 
 function getCapturedCount(data) { return WORDS.filter(w => isCaptured(data, w)).length; }
 function getHuntingCount(data) { return WORDS.filter(w => isHunting(data, w)).length; }
@@ -438,7 +437,7 @@ function speakWord() {
 // ===== 捕猎 =====
 let quizWords = [];
 let quizIndex = 0;
-let roundResults = []; // [{word, correct: bool}]
+let roundResults = []; // [{word, result: 'correct'|'familiar'|'timeout', prevValue}]
 let capturedBeforeRound = 0;
 
 const ROUND_SIZE = 20; // 后续每轮出词数
