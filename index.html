@@ -653,7 +653,13 @@ function answer(result) {
   results[key].latest = result;
   saveResults(results);
   currentIndex++;
-  showCard();
+  // 立刻隐藏中文和按钮，清空内容
+  document.getElementById('cardChinese').classList.add('hidden');
+  document.getElementById('cardChinese').textContent = '';
+  document.getElementById('btnGroup').classList.add('hidden');
+  document.getElementById('cardWord').textContent = '';
+  // 下一帧再显示新卡片
+  requestAnimationFrame(() => showCard());
 }
 
 function exitQuiz() {
