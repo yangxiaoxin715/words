@@ -139,7 +139,9 @@ body {
   font-size: 17px; font-weight: 700; cursor: pointer;
   transition: transform 0.1s;
 }
-.btn-group button:active { transform: scale(0.95); }
+.btn-group button:active:not(:disabled) { transform: scale(0.95); }
+.btn-group button:disabled { opacity: 0.3; }
+.btn-group button { transition: opacity 0.4s, transform 0.1s; }
 .btn-correct { background: #34c759; color: #fff; }
 .btn-wrong { background: #ff9500; color: #fff; }
 
@@ -507,6 +509,7 @@ function showCard() {
   speakWord();
 }
 
+let btnTimer = null;
 function flipCard() {
   if (cardFlipped) return;
   cardFlipped = true;
@@ -514,7 +517,12 @@ function flipCard() {
   document.getElementById('cardChinese').textContent = w.chinese;
   document.getElementById('cardChinese').classList.remove('hidden');
   document.getElementById('flipHint').classList.add('hidden');
-  document.getElementById('btnGroup').classList.remove('hidden');
+  const grp = document.getElementById('btnGroup');
+  const btns = grp.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  grp.classList.remove('hidden');
+  if (btnTimer) clearTimeout(btnTimer);
+  btnTimer = setTimeout(() => { btns.forEach(b => b.disabled = false); }, 1000);
 }
 
 function answer(correct) {
