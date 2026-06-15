@@ -129,9 +129,8 @@ body {
 .flip-hint.hidden { display: none; }
 
 .btn-group {
-  display: flex; gap: 12px; padding: 20px;
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
-  background: #fff; border-top: 1px solid #e5e5e7;
+  display: flex; gap: 12px; padding: 12px 20px;
+  background: #fff; border-bottom: 1px solid #e5e5e7;
 }
 .btn-group.hidden { display: none; }
 .btn-group button {
@@ -139,9 +138,8 @@ body {
   font-size: 17px; font-weight: 700; cursor: pointer;
   transition: transform 0.1s;
 }
-.btn-group button:active:not(:disabled) { transform: scale(0.95); }
-.btn-group button:disabled { opacity: 0.3; }
-.btn-group button { transition: opacity 0.4s, transform 0.1s; }
+.btn-group button:active { transform: scale(0.95); }
+.btn-group button { transition: transform 0.1s; }
 .btn-correct { background: #34c759; color: #fff; }
 .btn-wrong { background: #ff9500; color: #fff; }
 
@@ -275,6 +273,10 @@ body {
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
+  <div class="btn-group hidden" id="btnGroup">
+    <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
+    <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
+  </div>
   <div class="card-area" onclick="flipCard()">
     <div class="card-word-wrap">
       <div class="card-word" id="cardWord"></div>
@@ -282,10 +284,6 @@ body {
     </div>
     <div class="card-chinese hidden" id="cardChinese"></div>
     <div class="flip-hint" id="flipHint">👆 点击翻牌，看答案</div>
-  </div>
-  <div class="btn-group hidden" id="btnGroup">
-    <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
-    <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
   </div>
 </div>
 
@@ -509,7 +507,6 @@ function showCard() {
   speakWord();
 }
 
-let btnTimer = null;
 function flipCard() {
   if (cardFlipped) return;
   cardFlipped = true;
@@ -517,12 +514,7 @@ function flipCard() {
   document.getElementById('cardChinese').textContent = w.chinese;
   document.getElementById('cardChinese').classList.remove('hidden');
   document.getElementById('flipHint').classList.add('hidden');
-  const grp = document.getElementById('btnGroup');
-  const btns = grp.querySelectorAll('button');
-  btns.forEach(b => b.disabled = true);
-  grp.classList.remove('hidden');
-  if (btnTimer) clearTimeout(btnTimer);
-  btnTimer = setTimeout(() => { btns.forEach(b => b.disabled = false); }, 1000);
+  document.getElementById('btnGroup').classList.remove('hidden');
 }
 
 function answer(correct) {
