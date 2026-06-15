@@ -381,13 +381,14 @@ function renderHome() {
     btn.textContent = '👑 查看掌握地图';
     btn.className = 'start-btn all-done';
     btn.onclick = showMap;
-  } else if (captured === 0 && getHuntingCount(data) === 0) {
-    hint.textContent = `200 个单词等你来捕获`;
-    btn.textContent = '开始捕猎';
+  } else if (isFirstRun(data)) {
+    hint.textContent = `先跑一遍 200 词，摸个底`;
+    btn.textContent = '开始诊断';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
   } else {
-    hint.textContent = `剩余 ${remaining} 词待捕获`;
+    const nextWords = pickRoundWords(data);
+    hint.textContent = `剩余 ${remaining} 词 · 本轮 ${nextWords.length} 词`;
     btn.textContent = '继续捕猎';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
@@ -423,9 +424,45 @@ let quizIndex = 0;
 let roundResults = []; // [{word, correct: bool}]
 let capturedBeforeRound = 0;
 
+const ROUND_SIZE = 20; // 后续每轮出词数
+
+function isFirstRun(data) {
+  // 所有词都没有任何记录 = 首次
+  return WORDS.every(w => !data[getKey(w)] && data[getKey(w)] !== 0);
+}
+
+function pickRoundWords(data) {
+  // 首次：全部 200 词（诊断模式）
+  if (isFirstRun(data)) return WORDS.slice();
+
+  const remaining = getRemainingWords(data);
+  if (remaining.length === 0) return [];
+
+  // 后续：优先复习词（1-2次），新词补满，总共 ROUND_SIZE
+  const review = remaining.filter(w => isHunting(data, w));
+  const unseen = remaining.filter(w => isNew(data, w));
+
+  // 先打乱各组
+  review.sort(() => Math.random() - 0.5);
+  unseen.sort(() => Math.random() - 0.5);
+
+  let picked = [];
+  // 复习词优先
+  picked.push(...review.slice(0, ROUND_SIZE));
+  // 不够就用新词补满
+  if (picked.length < ROUND_SIZE) {
+    picked.push(...unseen.slice(0, ROUND_SIZE - picked.length));
+  }
+  // 如果复习词超过 ROUND_SIZE，全部出（不截断复习）
+  // 这样确保不会有"永远复习不完"的情况
+
+  return picked;
+}
+
 function startHunt() {
   const data = loadData();
-  quizWords = getRemainingWords(data);
+  const firstRun = isFirstRun(data);
+  quizWords = pickRoundWords(data);
 
   if (quizWords.length === 0) {
     showMap();
@@ -438,7 +475,10 @@ function startHunt() {
   roundResults = [];
   capturedBeforeRound = getCapturedCount(data);
 
-  document.getElementById('quizLabel').textContent = `捕猎中 · ${quizWords.length} 词`;
+  const label = firstRun
+    ? `首次诊断 · ${quizWords.length} 词`
+    : `捕猎中 · ${quizWords.length} 词`;
+  document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
   showCard();
 }
