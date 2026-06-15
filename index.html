@@ -579,8 +579,9 @@ function answer(result) {
   if (result === 'correct') {
     // 首轮诊断：答对直接捕获；后续轮次：逐次累加
     data[key] = firstRound ? CAPTURE_THRESHOLD : (data[key] || 0) + 1;
-  } else {
-    if (!data.hasOwnProperty(key)) data[key] = 0;
+  } else if (result === 'familiar') {
+    // 有印象：首轮设1（瞄准中），后续保持原值
+    data[key] = firstRound ? 1 : (data[key] || 0);
   }
   saveData(data);
 
