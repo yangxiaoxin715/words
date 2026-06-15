@@ -393,9 +393,11 @@ function renderHome() {
     btn.textContent = '👑 查看掌握地图';
     btn.className = 'start-btn all-done';
     btn.onclick = showMap;
-  } else if (isFirstRun(data)) {
-    hint.textContent = `先跑一遍 200 词，摸个底`;
-    btn.textContent = '开始诊断';
+  } else if (!isDiagnosticDone(data)) {
+    const seen = WORDS.filter(w => data.hasOwnProperty(getKey(w))).length;
+    const left = TOTAL - seen;
+    hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮诊断中 · 还剩 ${left} 词`;
+    btn.textContent = seen === 0 ? '开始诊断' : '继续诊断';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
   } else {
@@ -438,42 +440,38 @@ let capturedBeforeRound = 0;
 
 const ROUND_SIZE = 20; // 后续每轮出词数
 
-function isFirstRun(data) {
-  // 所有词都没有任何记录 = 首次
-  return WORDS.every(w => !data[getKey(w)] && data[getKey(w)] !== 0);
+function isDiagnosticDone(data) {
+  // 所有 200 词都至少见过一次（correctCount >= 0 且 key 存在）
+  return WORDS.every(w => data.hasOwnProperty(getKey(w)));
 }
 
 function pickRoundWords(data) {
-  // 首次：全部 200 词（诊断模式）
-  if (isFirstRun(data)) return WORDS.slice();
+  if (!isDiagnosticDone(data)) {
+    // 首轮诊断未完成：只出还没见过的词
+    return WORDS.filter(w => !data.hasOwnProperty(getKey(w)));
+  }
 
   const remaining = getRemainingWords(data);
   if (remaining.length === 0) return [];
 
-  // 后续：优先复习词（1-2次），新词补满，总共 ROUND_SIZE
+  // 诊断完成后：优先复习词（1-2次），新词补满，总共 ROUND_SIZE
   const review = remaining.filter(w => isHunting(data, w));
   const unseen = remaining.filter(w => isNew(data, w));
 
-  // 先打乱各组
   review.sort(() => Math.random() - 0.5);
   unseen.sort(() => Math.random() - 0.5);
 
   let picked = [];
-  // 复习词优先
   picked.push(...review.slice(0, ROUND_SIZE));
-  // 不够就用新词补满
   if (picked.length < ROUND_SIZE) {
     picked.push(...unseen.slice(0, ROUND_SIZE - picked.length));
   }
-  // 如果复习词超过 ROUND_SIZE，全部出（不截断复习）
-  // 这样确保不会有"永远复习不完"的情况
 
   return picked;
 }
 
 function startHunt() {
   const data = loadData();
-  const firstRun = isFirstRun(data);
   quizWords = pickRoundWords(data);
 
   if (quizWords.length === 0) {
@@ -487,8 +485,9 @@ function startHunt() {
   roundResults = [];
   capturedBeforeRound = getCapturedCount(data);
 
-  const label = firstRun
-    ? `首次诊断 · ${quizWords.length} 词`
+  const diagDone = isDiagnosticDone(data);
+  const label = !diagDone
+    ? `首轮诊断 · ${quizWords.length} 词`
     : `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
