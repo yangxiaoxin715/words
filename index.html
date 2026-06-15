@@ -574,11 +574,12 @@ function answer(result) {
   const data = loadData();
   const key = getKey(w);
   const prevValue = data[key];
+  const firstRound = !isDiagnosticDone(data);
 
   if (result === 'correct') {
-    data[key] = (data[key] || 0) + 1;
+    // 首轮诊断：答对直接捕获；后续轮次：逐次累加
+    data[key] = firstRound ? CAPTURE_THRESHOLD : (data[key] || 0) + 1;
   } else {
-    // familiar: 有印象但不准确
     if (!data.hasOwnProperty(key)) data[key] = 0;
   }
   saveData(data);
