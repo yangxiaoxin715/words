@@ -133,7 +133,7 @@ body {
   padding-bottom: max(20px, env(safe-area-inset-bottom));
   background: #fff; border-top: 1px solid #e5e5e7;
 }
-.header-left { display: flex; gap: 12px; align-items: center; }
+.header-right { display: flex; align-items: center; gap: 12px; }
 .undo-btn {
   font-size: 14px; color: #ff9500;
   background: none; border: none; cursor: pointer; font-weight: 600;
@@ -274,12 +274,12 @@ body {
 <!-- 闪卡页 -->
 <div id="quiz" class="page">
   <div class="quiz-header">
-    <div class="header-left">
-      <button class="back-btn" onclick="exitQuiz()">← 返回</button>
-      <button class="undo-btn hidden" id="undoBtn" onclick="undoLast()">↩ 撤销</button>
-    </div>
+    <button class="back-btn" onclick="exitQuiz()">← 返回</button>
     <span class="day-label" id="quizLabel">捕猎中</span>
-    <span class="progress-text" id="progressText"></span>
+    <div class="header-right">
+      <button class="undo-btn hidden" id="undoBtn" onclick="undoLast()">↩ 撤销</button>
+      <span class="progress-text" id="progressText"></span>
+    </div>
   </div>
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
