@@ -20,99 +20,176 @@ body {
 
 #home {
   align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+  padding: 0 20px 40px;
 }
-#home h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-#home .subtitle {
-  font-size: 15px;
-  color: #86868b;
-  margin-bottom: 40px;
-}
-.day-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+
+/* 顶部栏 */
+.home-top {
   width: 100%;
-  max-width: 360px;
-  margin-bottom: 24px;
-}
-.level-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  width: 100%;
-  max-width: 360px;
-  margin-bottom: 24px;
-}
-.level-btn {
-  background: #fff;
-  border: 2px solid #e5e5e7;
-  border-radius: 12px;
-  padding: 12px 4px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.level-btn:active { transform: scale(0.96); }
-.level-btn .level-num { font-size: 14px; font-weight: 700; }
-.level-btn .level-count { font-size: 10px; color: #86868b; margin-top: 2px; }
-.level-btn .level-progress { font-size: 10px; color: #34c759; margin-top: 2px; font-weight: 600; }
-.level-btn.completed { border-color: #34c759; background: #f0faf3; }
-.day-section-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  width: 100%;
-  max-width: 360px;
+  max-width: 400px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: #f5f5f7;
+  z-index: 10;
 }
-.day-section-title .back-link {
-  font-size: 14px;
-  color: #007aff;
-  font-weight: 600;
+.home-top h1 {
+  font-size: 22px;
+  font-weight: 800;
+}
+.home-top-actions {
+  display: flex;
+  gap: 8px;
+}
+.home-top-actions button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
   cursor: pointer;
-}
-.day-btn {
   background: #fff;
-  border: 2px solid #e5e5e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-top-actions button:active { opacity: 0.7; }
+
+/* 总进度条 */
+.home-progress {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+.home-progress-bar {
+  height: 8px;
+  background: #e5e5e7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.home-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34c759, #30d158);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.home-progress-text {
+  font-size: 13px;
+  color: #86868b;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* 路径容器 */
+.path-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Day 分区 */
+.day-section {
+  margin-bottom: 12px;
+}
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
   border-radius: 16px;
-  padding: 18px 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.day-header.day-1 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.day-header.day-2 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.day-header.day-3 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.day-header.day-4 { background: linear-gradient(135deg, #fa709a, #fee140); }
+.day-header.day-5 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+.day-header-icon { font-size: 32px; }
+.day-header-info h2 { font-size: 18px; font-weight: 800; }
+.day-header-info p { font-size: 13px; opacity: 0.9; }
+
+/* 关卡节点 */
+.level-path {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px 8px;
+}
+.level-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 300px;
+}
+.level-row:nth-child(odd) { justify-content: flex-start; padding-left: 20px; }
+.level-row:nth-child(even) { justify-content: flex-end; padding-right: 20px; }
+.level-node {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 14px;
+  transition: transform 0.2s;
+  border: 3px solid #d1d1d6;
+  background: #fff;
+  color: #86868b;
+}
+.level-node:active { transform: scale(0.9); }
+.level-node .level-icon { font-size: 22px; line-height: 1; }
+.level-node .level-label { font-size: 10px; margin-top: 1px; }
+.level-node.completed {
+  background: #34c759;
+  border-color: #2db84d;
+  color: #fff;
+}
+.level-node.current {
+  background: #007aff;
+  border-color: #0066dd;
+  color: #fff;
+  animation: bounce 1.5s infinite;
+}
+.level-node.locked {
+  opacity: 0.4;
+  cursor: default;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 底部特殊按钮 */
+.special-section {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+.special-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px solid #e5e5e7;
+  background: #fff;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
 }
-.day-btn:active { transform: scale(0.96); }
-.day-btn .day-num { font-size: 20px; font-weight: 700; }
-.day-btn .day-count { font-size: 12px; color: #86868b; margin-top: 4px; }
-.day-btn .day-progress { font-size: 11px; color: #34c759; margin-top: 4px; font-weight: 600; }
-.day-btn.completed { border-color: #34c759; background: #f0faf3; }
-.day-btn.current { border-color: #007aff; background: #f0f5ff; }
-
-.home-actions {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  max-width: 360px;
-}
-.home-actions button {
-  flex: 1;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn-report { background: #007aff; color: #fff; }
-.btn-reset { background: #ff3b30; color: #fff; }
-.btn-report:active, .btn-reset:active { opacity: 0.8; }
+.special-btn:active { transform: scale(0.96); }
+.special-btn .sp-icon { font-size: 24px; }
+.special-btn .sp-label { font-size: 14px; font-weight: 700; margin-top: 4px; }
+.special-btn .sp-desc { font-size: 11px; color: #86868b; margin-top: 2px; }
 
 /* ===== 闪卡页 ===== */
 #quiz {
@@ -446,12 +523,29 @@ body {
 
 <!-- 首页 -->
 <div id="home" class="page active">
-  <h1>🎯 单词猎人</h1>
-  <p class="subtitle">10 天捕获 575 个高频词</p>
-  <div class="day-grid" id="dayGrid"></div>
-  <div class="home-actions">
-    <button class="btn-report" onclick="showFullReport()">查看总报告</button>
-    <button class="btn-reset" onclick="confirmReset()">重置数据</button>
+  <div class="home-top">
+    <h1>🎯 单词猎人</h1>
+    <div class="home-top-actions">
+      <button onclick="showFullReport()" title="战绩">🏆</button>
+      <button onclick="confirmReset()" title="重置">⚙️</button>
+    </div>
+  </div>
+  <div class="home-progress">
+    <div class="home-progress-bar"><div class="home-progress-fill" id="homeProgressFill"></div></div>
+    <div class="home-progress-text" id="homeProgressText"></div>
+  </div>
+  <div class="path-container" id="pathContainer"></div>
+  <div class="special-section">
+    <div class="special-btn" onclick="startReview()">
+      <div class="sp-icon">🔄</div>
+      <div class="sp-label">巩固</div>
+      <div class="sp-desc">待攻克的词</div>
+    </div>
+    <div class="special-btn" onclick="startFullTest()">
+      <div class="sp-icon">⚡</div>
+      <div class="sp-label">全量检验</div>
+      <div class="sp-desc">575 词挑战</div>
+    </div>
   </div>
 </div>
 
@@ -562,6 +656,8 @@ function showPage(id) {
 
 // ===== 首页 =====
 const LEVELS_PER_DAY = 5;
+const DAY_ICONS = ['🌟', '🔥', '💎', '🚀', '👑'];
+const DAY_NAMES = ['启程', '加速', '突破', '冲刺', '登顶'];
 
 function getLevels(day) {
   const dayWords = WORDS_DATA.filter(w => w.day === day);
@@ -573,89 +669,73 @@ function getLevels(day) {
   return levels;
 }
 
-let homeView = 'days'; // 'days' | 'levels'
-let selectedDay = 0;
-
 function renderHome() {
-  if (homeView === 'levels' && selectedDay > 0) {
-    renderLevels(selectedDay);
-  } else {
-    renderDays();
-  }
-  showPage('home');
-}
-
-function renderDays() {
-  homeView = 'days';
-  const grid = document.getElementById('dayGrid');
   const results = loadResults();
-  grid.innerHTML = '';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  const container = document.getElementById('pathContainer');
+  container.innerHTML = '';
+
+  // 总进度
+  const totalWords = WORDS_DATA.length;
+  const masteredWords = WORDS_DATA.filter(w => {
+    const m = getMastery(results[getWordKey(w)]);
+    return m === 'know' || m === 'maybe';
+  }).length;
+  document.getElementById('homeProgressFill').style.width = `${(masteredWords / totalWords) * 100}%`;
+  document.getElementById('homeProgressText').textContent = `已捕获 ${masteredWords} / ${totalWords} 词`;
 
   for (let d = 1; d <= 5; d++) {
+    const levels = getLevels(d);
     const dayWords = WORDS_DATA.filter(w => w.day === d);
-    const tested = dayWords.filter(w => results[getWordKey(w)]).length;
-    const know = dayWords.filter(w => getMastery(results[getWordKey(w)]) === 'know').length;
-    const maybe = dayWords.filter(w => getMastery(results[getWordKey(w)]) === 'maybe').length;
-    const unknown = dayWords.filter(w => getMastery(results[getWordKey(w)]) === 'unknown').length;
+    const dayTested = dayWords.filter(w => results[getWordKey(w)]).length;
+    const dayKnow = dayWords.filter(w => getMastery(results[getWordKey(w)]) === 'know').length;
 
-    const btn = document.createElement('div');
-    btn.className = 'day-btn' + (tested === dayWords.length && tested > 0 ? ' completed' : '');
-    btn.innerHTML = `
-      <div class="day-num">Day ${d}</div>
-      <div class="day-count">${dayWords.length} 词 · 5 关</div>
-      ${tested > 0 ? `<div class="day-progress">✓${know} ?${maybe} ✗${unknown}</div>` : ''}
+    // Day 标题卡
+    const section = document.createElement('div');
+    section.className = 'day-section';
+
+    const header = document.createElement('div');
+    header.className = `day-header day-${d}`;
+    header.innerHTML = `
+      <div class="day-header-icon">${DAY_ICONS[d-1]}</div>
+      <div class="day-header-info">
+        <h2>Day ${d} · ${DAY_NAMES[d-1]}</h2>
+        <p>${dayTested > 0 ? `已捕获 ${dayKnow}/${dayWords.length} 词` : `${dayWords.length} 词等你来猎`}</p>
+      </div>
     `;
-    btn.onclick = () => { selectedDay = d; renderLevels(d); };
-    grid.appendChild(btn);
+    section.appendChild(header);
+
+    // 关卡路径
+    const path = document.createElement('div');
+    path.className = 'level-path';
+
+    levels.forEach((words, i) => {
+      const tested = words.filter(w => results[getWordKey(w)]).length;
+      const know = words.filter(w => getMastery(results[getWordKey(w)]) === 'know').length;
+      const isCompleted = tested === words.length && tested > 0;
+      const isCurrent = !isCompleted && (i === 0 || levels[i-1].every(w => results[getWordKey(w)]));
+
+      const row = document.createElement('div');
+      row.className = 'level-row';
+
+      const node = document.createElement('div');
+      node.className = 'level-node' + (isCompleted ? ' completed' : isCurrent ? ' current' : '');
+
+      if (isCompleted) {
+        node.innerHTML = `<div class="level-icon">✅</div><div class="level-label">${know}/${words.length}</div>`;
+      } else {
+        node.innerHTML = `<div class="level-icon">${i + 1}</div><div class="level-label">${words.length}词</div>`;
+      }
+
+      node.onclick = () => startLevel(d, i);
+      row.appendChild(node);
+      path.appendChild(row);
+    });
+
+    section.appendChild(path);
+    container.appendChild(section);
   }
 
-  // 巩固和检验按钮
-  const phases = [
-    { label: '巩固', desc: '待攻克的词', id: 'review' },
-    { label: '全量检验', desc: '全部 575 词', id: 'fulltest' },
-  ];
-  phases.forEach(p => {
-    const btn = document.createElement('div');
-    btn.className = 'day-btn';
-    btn.innerHTML = `<div class="day-num">${p.label}</div><div class="day-count">${p.desc}</div>`;
-    btn.onclick = () => p.id === 'review' ? startReview() : startFullTest();
-    grid.appendChild(btn);
-  });
-
-  // 占位让 grid 对齐
-  grid.appendChild(document.createElement('div'));
-}
-
-function renderLevels(day) {
-  homeView = 'levels';
-  selectedDay = day;
-  const grid = document.getElementById('dayGrid');
-  const results = loadResults();
-  const levels = getLevels(day);
-  grid.innerHTML = '';
-  grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
-
-  // 标题行
-  const title = document.createElement('div');
-  title.style.cssText = 'grid-column: 1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;';
-  title.innerHTML = `<span style="font-size:18px;font-weight:700;">Day ${day}</span><span class="back-link" style="font-size:14px;color:#007aff;font-weight:600;cursor:pointer;" onclick="renderDays()">← 返回</span>`;
-  grid.appendChild(title);
-
-  levels.forEach((words, i) => {
-    const tested = words.filter(w => results[getWordKey(w)]).length;
-    const know = words.filter(w => getMastery(results[getWordKey(w)]) === 'know').length;
-
-    const btn = document.createElement('div');
-    btn.className = 'level-btn' + (tested === words.length && tested > 0 ? ' completed' : '');
-    btn.innerHTML = `
-      <div class="level-num">第${i + 1}关</div>
-      <div class="level-count">${words.length} 词</div>
-      ${tested > 0 ? `<div class="level-progress">✓${know}/${words.length}</div>` : ''}
-    `;
-    btn.onclick = () => startLevel(day, i);
-    grid.appendChild(btn);
-  });
+  showPage('home');
 }
 
 // ===== 语音朗读 =====
@@ -877,13 +957,7 @@ function exportData() {
 }
 
 // ===== 工具 =====
-function goHome() {
-  if (currentMode === 'level' && currentDay > 0) {
-    homeView = 'levels';
-    selectedDay = currentDay;
-  }
-  renderHome();
-}
+function goHome() { renderHome(); }
 function confirmReset() {
   if (confirm('确定要清除所有测试数据吗？此操作不可恢复。')) {
     localStorage.removeItem(STORAGE_KEY);
