@@ -156,9 +156,8 @@ body {
   font-weight: 700;
   color: #1d1d1f;
   min-height: 56px;
-  transition: opacity 0.2s;
 }
-.card-chinese.hidden { opacity: 0; }
+.card-chinese.hidden { display: none; }
 
 .card-area { cursor: pointer; }
 .flip-hint {
@@ -619,17 +618,12 @@ function showCard() {
     return;
   }
   cardFlipped = false;
-  // 先隐藏所有内容，防止切卡时中文闪烁
+  const w = currentWords[currentIndex];
   document.getElementById('cardChinese').classList.add('hidden');
   document.getElementById('btnGroup').classList.add('hidden');
-  document.getElementById('cardWord').textContent = '';
-  // 下一帧再填入新内容，确保隐藏已生效
-  const w = currentWords[currentIndex];
-  requestAnimationFrame(() => {
-    document.getElementById('cardWord').textContent = w.english;
-    document.getElementById('cardChinese').textContent = w.chinese;
-    document.getElementById('flipHint').classList.remove('hidden');
-  });
+  document.getElementById('cardWord').textContent = w.english;
+  document.getElementById('cardChinese').textContent = w.chinese;
+  document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${currentWords.length}`;
   document.getElementById('progressBar').style.width = `${(currentIndex / currentWords.length) * 100}%`;
 
