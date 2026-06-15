@@ -120,13 +120,15 @@ body {
 
 .flip-hint {
   font-size: 14px; color: #86868b; margin-top: 20px;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
 }
 .flip-hint.hidden { display: none; }
+
+.countdown {
+  font-size: 48px; font-weight: 800; color: #e5e5e7;
+  margin-top: 16px; transition: color 0.3s;
+}
+.countdown.urgent { color: #ff3b30; }
+.countdown.hidden { display: none; }
 
 .btn-group {
   display: flex; gap: 12px; padding: 20px;
@@ -149,7 +151,7 @@ body {
 .btn-group button:active { transform: scale(0.95); }
 .btn-group button { transition: transform 0.1s; }
 .btn-correct { background: #34c759; color: #fff; }
-.btn-wrong { background: #ff9500; color: #fff; }
+.btn-familiar { background: #ff9500; color: #fff; }
 
 /* ===== 战报页 ===== */
 #report {
@@ -290,11 +292,12 @@ body {
       <button class="speak-btn" onclick="event.stopPropagation(); speakWord()">🔊</button>
     </div>
     <div class="card-chinese hidden" id="cardChinese"></div>
-    <div class="flip-hint" id="flipHint">👆 点击翻牌，看答案</div>
+    <div class="flip-hint" id="flipHint">👆 孩子说出来了？点一下屏幕</div>
+    <div class="countdown" id="countdown">3</div>
   </div>
   <div class="btn-group hidden" id="btnGroup">
-    <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
-    <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
+    <button class="btn-correct" onclick="answer('correct')">✅ 答对了</button>
+    <button class="btn-familiar" onclick="answer('familiar')">💡 有印象</button>
   </div>
 </div>
 
@@ -495,8 +498,48 @@ function startHunt() {
 }
 
 let cardFlipped = false;
+let countdownTimer = null;
+let countdownValue = 3;
+
+function clearCountdown() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+}
+
+function startCountdown() {
+  countdownValue = 3;
+  const el = document.getElementById('countdown');
+  el.textContent = '3';
+  el.classList.remove('hidden', 'urgent');
+
+  countdownTimer = setInterval(() => {
+    countdownValue--;
+    if (countdownValue > 0) {
+      el.textContent = countdownValue;
+      if (countdownValue === 1) el.classList.add('urgent');
+    } else {
+      // 超时：自动算不认识
+      clearCountdown();
+      autoSkip();
+    }
+  }, 1000);
+}
+
+function autoSkip() {
+  const w = quizWords[quizIndex];
+  const data = loadData();
+  const key = getKey(w);
+  const prevValue = data[key];
+  if (!data.hasOwnProperty(key)) data[key] = 0;
+  saveData(data);
+
+  roundResults.push({ word: w, result: 'timeout', prevValue });
+  quizIndex++;
+  updateUndoBar();
+  showCard();
+}
 
 function showCard() {
+  clearCountdown();
   if (quizIndex >= quizWords.length) {
     showReport();
     return;
@@ -508,7 +551,6 @@ function showCard() {
   document.getElementById('btnGroup').classList.add('hidden');
   const cardEl = document.getElementById('cardWord');
   cardEl.textContent = w.english;
-  // 长词自动缩小字号
   const len = w.english.length;
   cardEl.style.fontSize = len <= 5 ? '72px' : len <= 8 ? '56px' : len <= 11 ? '44px' : '36px';
   document.getElementById('flipHint').classList.remove('hidden');
@@ -516,11 +558,14 @@ function showCard() {
   document.getElementById('progressBar').style.width = `${(quizIndex / quizWords.length) * 100}%`;
   updateUndoBar();
   speakWord();
+  startCountdown();
 }
 
 function flipCard() {
   if (cardFlipped) return;
   cardFlipped = true;
+  clearCountdown();
+  document.getElementById('countdown').classList.add('hidden');
   const w = quizWords[quizIndex];
   document.getElementById('cardChinese').textContent = w.chinese;
   document.getElementById('cardChinese').classList.remove('hidden');
@@ -528,22 +573,21 @@ function flipCard() {
   document.getElementById('btnGroup').classList.remove('hidden');
 }
 
-function answer(correct) {
+function answer(result) {
   const w = quizWords[quizIndex];
   const data = loadData();
   const key = getKey(w);
-
-  // 记录旧值用于撤销
   const prevValue = data[key];
 
-  if (correct) {
+  if (result === 'correct') {
     data[key] = (data[key] || 0) + 1;
   } else {
-    if (!data[key]) data[key] = 0;
+    // familiar: 有印象但不准确
+    if (!data.hasOwnProperty(key)) data[key] = 0;
   }
   saveData(data);
 
-  roundResults.push({ word: w, correct, prevValue });
+  roundResults.push({ word: w, result, prevValue });
   quizIndex++;
   updateUndoBar();
   showCard();
@@ -551,11 +595,11 @@ function answer(correct) {
 
 function undoLast() {
   if (roundResults.length === 0) return;
+  clearCountdown();
   const last = roundResults.pop();
   const data = loadData();
   const key = getKey(last.word);
 
-  // 恢复旧值
   if (last.prevValue === undefined) {
     delete data[key];
   } else {
@@ -579,8 +623,13 @@ function updateUndoBar() {
 
 function exitQuiz() {
   if (quizIndex > 0 && quizIndex < quizWords.length) {
-    if (!confirm(`已完成 ${quizIndex}/${quizWords.length}，确定退出吗？进度已保存。`)) return;
+    clearCountdown();
+    if (!confirm(`已完成 ${quizIndex}/${quizWords.length}，确定退出吗？进度已保存。`)) {
+      if (!cardFlipped) startCountdown();
+      return;
+    }
   }
+  clearCountdown();
   goHome();
 }
 
@@ -592,10 +641,12 @@ function showReport() {
   const hunting = getHuntingCount(data);
   const remaining = TOTAL - capturedNow;
 
-  const correctThisRound = roundResults.filter(r => r.correct).length;
+  const correctCount = roundResults.filter(r => r.result === 'correct').length;
+  const familiarCount = roundResults.filter(r => r.result === 'familiar').length;
+  const timeoutCount = roundResults.filter(r => r.result === 'timeout').length;
 
   document.getElementById('reportTitle').textContent = remaining === 0 ? '🎉 全部捕获！' : '捕猎战报';
-  document.getElementById('reportSub').textContent = `本轮 ${quizWords.length} 词 · 答对 ${correctThisRound} 个`;
+  document.getElementById('reportSub').textContent = `本轮 ${quizWords.length} 词 · 答对 ${correctCount} · 有印象 ${familiarCount} · 不认识 ${timeoutCount}`;
   document.getElementById('statNew').textContent = newCaptured;
   document.getElementById('statHunting').textContent = hunting;
   document.getElementById('statTotal').textContent = capturedNow;
