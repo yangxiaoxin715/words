@@ -129,9 +129,23 @@ body {
 .flip-hint.hidden { display: none; }
 
 .btn-group {
-  display: flex; gap: 12px; padding: 12px 20px;
-  background: #fff; border-bottom: 1px solid #e5e5e7;
+  display: flex; gap: 12px; padding: 20px;
+  padding-bottom: 8px;
+  background: #fff; border-top: 1px solid #e5e5e7;
 }
+.undo-bar {
+  display: flex; justify-content: center;
+  padding: 4px 20px 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: #fff;
+}
+.undo-bar.hidden { display: none; }
+.btn-undo {
+  background: none; border: none;
+  font-size: 14px; color: #007aff; cursor: pointer;
+  padding: 4px 12px;
+}
+.btn-undo:active { opacity: 0.5; }
 .btn-group.hidden { display: none; }
 .btn-group button {
   flex: 1; padding: 16px; border-radius: 14px; border: none;
@@ -273,10 +287,6 @@ body {
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="btn-group hidden" id="btnGroup">
-    <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
-    <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
-  </div>
   <div class="card-area" onclick="flipCard()">
     <div class="card-word-wrap">
       <div class="card-word" id="cardWord"></div>
@@ -284,6 +294,13 @@ body {
     </div>
     <div class="card-chinese hidden" id="cardChinese"></div>
     <div class="flip-hint" id="flipHint">👆 点击翻牌，看答案</div>
+  </div>
+  <div class="btn-group hidden" id="btnGroup">
+    <button class="btn-correct" onclick="answer(true)">✅ 已捕获</button>
+    <button class="btn-wrong" onclick="answer(false)">🎯 待捕获</button>
+  </div>
+  <div class="undo-bar hidden" id="undoBar">
+    <button class="btn-undo" onclick="undoLast()">↩ 撤销上一个</button>
   </div>
 </div>
 
@@ -504,6 +521,7 @@ function showCard() {
   document.getElementById('flipHint').classList.remove('hidden');
   document.getElementById('progressText').textContent = `${quizIndex + 1} / ${quizWords.length}`;
   document.getElementById('progressBar').style.width = `${(quizIndex / quizWords.length) * 100}%`;
+  updateUndoBar();
   speakWord();
 }
 
@@ -522,17 +540,48 @@ function answer(correct) {
   const data = loadData();
   const key = getKey(w);
 
+  // 记录旧值用于撤销
+  const prevValue = data[key];
+
   if (correct) {
     data[key] = (data[key] || 0) + 1;
   } else {
-    // 待捕获：记录见过但不增加正确次数
     if (!data[key]) data[key] = 0;
   }
   saveData(data);
 
-  roundResults.push({ word: w, correct });
+  roundResults.push({ word: w, correct, prevValue });
   quizIndex++;
+  updateUndoBar();
   showCard();
+}
+
+function undoLast() {
+  if (roundResults.length === 0) return;
+  const last = roundResults.pop();
+  const data = loadData();
+  const key = getKey(last.word);
+
+  // 恢复旧值
+  if (last.prevValue === undefined) {
+    delete data[key];
+  } else {
+    data[key] = last.prevValue;
+  }
+  saveData(data);
+
+  quizIndex--;
+  updateUndoBar();
+  showCard();
+}
+
+function updateUndoBar() {
+  const bar = document.getElementById('undoBar');
+  if (roundResults.length > 0) {
+    bar.classList.remove('hidden');
+  } else {
+    bar.classList.add('hidden');
+  }
 }
 
 function exitQuiz() {
