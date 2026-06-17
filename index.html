@@ -420,8 +420,8 @@ let audioEl = null;
 function initAudio() {
   if (!audioEl) {
     audioEl = new Audio();
-    audioEl.play(); // 解锁浏览器自动播放限制
-    audioEl.pause();
+    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    audioEl.play().catch(() => {});
   }
 }
 
