@@ -532,7 +532,16 @@ function autoSkip() {
   roundResults.push({ word: w, result: 'timeout', prevValue });
   quizIndex++;
   updateUndoBar();
-  showCard();
+
+  // 超时前亮中文，听觉和视觉对一下
+  cardFlipped = true;
+  document.getElementById('cardChinese').textContent = w.chinese;
+  document.getElementById('cardChinese').classList.remove('hidden');
+  document.getElementById('flipHint').classList.add('hidden');
+  document.getElementById('countdown').classList.add('hidden');
+  document.getElementById('btnGroup').classList.add('hidden');
+
+  setTimeout(showCard, 1000);
 }
 
 function showCard() {
