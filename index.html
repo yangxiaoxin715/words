@@ -414,25 +414,12 @@ function renderHome() {
   showPage('home');
 }
 
-// ===== 语音 =====
-let enVoice = null;
-function loadVoice() {
-  const voices = speechSynthesis.getVoices();
-  enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha'))
-    || voices.find(v => v.lang === 'en-US')
-    || voices.find(v => v.lang.startsWith('en'))
-    || null;
-}
-speechSynthesis.onvoiceschanged = loadVoice;
-loadVoice();
-
+// ===== 语音（有道词典 TTS） =====
 function speakWord() {
   if (!quizWords[quizIndex]) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(quizWords[quizIndex].english);
-  u.lang = 'en-US'; u.rate = 0.8; u.pitch = 1.0;
-  if (enVoice) u.voice = enVoice;
-  speechSynthesis.speak(u);
+  const word = quizWords[quizIndex].english;
+  const url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=0';
+  new Audio(url).play();
 }
 
 // ===== 捕猎 =====
