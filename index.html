@@ -415,11 +415,21 @@ function renderHome() {
 }
 
 // ===== 语音（有道词典 TTS） =====
+let audioEl = null;
+
+function initAudio() {
+  if (!audioEl) {
+    audioEl = new Audio();
+    audioEl.play(); // 解锁浏览器自动播放限制
+    audioEl.pause();
+  }
+}
+
 function speakWord() {
   if (!quizWords[quizIndex]) return;
-  const word = quizWords[quizIndex].english;
-  const url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=0';
-  new Audio(url).play();
+  initAudio();
+  audioEl.src = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(quizWords[quizIndex].english) + '&type=0';
+  audioEl.play();
 }
 
 // ===== 捕猎 =====
@@ -463,6 +473,7 @@ function pickRoundWords(data) {
 }
 
 function startHunt() {
+  initAudio();
   const data = loadData();
   quizWords = pickRoundWords(data);
 
