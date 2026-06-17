@@ -535,8 +535,11 @@ function autoSkip() {
 
   // 超时前亮中文，听觉和视觉对一下
   cardFlipped = true;
-  document.getElementById('cardChinese').textContent = w.chinese;
-  document.getElementById('cardChinese').classList.remove('hidden');
+  var ch = document.getElementById('cardChinese');
+  ch.textContent = w.chinese;
+  ch.classList.remove('hidden');
+  ch.style.display = '';  // 双保险：inline style 确保覆盖
+  document.getElementById('cardWord').style.color = '#86868b';
   document.getElementById('flipHint').classList.add('hidden');
   document.getElementById('countdown').classList.add('hidden');
   document.getElementById('btnGroup').classList.add('hidden');
@@ -554,9 +557,11 @@ function showCard() {
   const w = quizWords[quizIndex];
   document.getElementById('cardChinese').textContent = '';
   document.getElementById('cardChinese').classList.add('hidden');
+  document.getElementById('cardChinese').style.display = '';  // 清除 autoSkip 设的 inline
   document.getElementById('btnGroup').classList.add('hidden');
   const cardEl = document.getElementById('cardWord');
   cardEl.textContent = w.english;
+  cardEl.style.color = '#1d1d1f';
   const len = w.english.length;
   cardEl.style.fontSize = len <= 5 ? '72px' : len <= 8 ? '56px' : len <= 11 ? '44px' : '36px';
   document.getElementById('flipHint').classList.remove('hidden');
