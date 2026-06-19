@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>单词猎人</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -103,6 +103,10 @@ body {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 40px 20px; min-height: 50vh; cursor: pointer;
+}
+.card-area:focus-visible {
+  outline: 3px solid #007aff;
+  outline-offset: -3px;
 }
 .card-word-wrap {
   display: flex; align-items: center; justify-content: center;
@@ -254,7 +258,7 @@ body {
   <div class="home-icon">🎯</div>
   <h1>单词猎人</h1>
   <div class="progress-ring-wrap">
-    <svg width="200" height="200">
+    <svg width="200" height="200" aria-hidden="true">
       <circle class="ring-bg" cx="100" cy="100" r="88"/>
       <circle class="ring-fill" id="ringFill" cx="100" cy="100" r="88"/>
     </svg>
@@ -264,7 +268,7 @@ body {
     </div>
   </div>
   <div class="home-hint" id="homeHint"></div>
-  <button class="start-btn" id="startBtn" onclick="startHunt()">开始捕猎</button>
+  <button class="start-btn" id="startBtn" onclick="startHunt()">开始</button>
   <div class="home-footer">
     <button onclick="showMap()">🏆 战绩</button>
     <button onclick="exportData()">📤 导出</button>
@@ -276,7 +280,7 @@ body {
 <div id="quiz" class="page">
   <div class="quiz-header">
     <button class="back-btn" onclick="exitQuiz()">← 返回</button>
-    <span class="day-label" id="quizLabel">捕猎中</span>
+    <span class="day-label" id="quizLabel">训练中</span>
     <div class="header-right">
       <button class="undo-btn hidden" id="undoBtn" onclick="undoLast()">↩ 撤销</button>
       <span class="progress-text" id="progressText"></span>
@@ -285,10 +289,13 @@ body {
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="card-area" onclick="flipCard()">
+  <div class="card-area" role="button" tabindex="0" aria-label="翻开单词卡片"
+       onclick="flipCard()"
+       onkeydown="if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); flipCard(); }">
     <div class="card-word-wrap">
       <div class="card-word" id="cardWord"></div>
-      <button class="speak-btn" onclick="event.stopPropagation(); speakWord()">🔊</button>
+      <button class="speak-btn" aria-label="播放单词发音"
+              onclick="event.stopPropagation(); speakWord()">🔊</button>
     </div>
     <div class="card-chinese hidden" id="cardChinese"></div>
     <div class="flip-hint" id="flipHint">👆 孩子说出来了？点一下屏幕</div>
@@ -328,7 +335,7 @@ body {
     </div>
   </div>
   <div class="report-actions">
-    <button class="btn-primary" id="nextBtn" onclick="startHunt()">继续捕猎 →</button>
+    <button class="btn-primary" id="nextBtn" onclick="startHunt()">继续 →</button>
     <button class="btn-secondary" onclick="goHome()">回到首页</button>
   </div>
 </div>
@@ -345,32 +352,42 @@ body {
 <script>
 // ===== 200 词诊断表 =====
 const WORDS = [{"english":"Dog","chinese":"狗","tier":"T1"},{"english":"Cat","chinese":"猫","tier":"T1"},{"english":"Bird","chinese":"鸟","tier":"T2"},{"english":"Fish","chinese":"鱼","tier":"T1"},{"english":"Apple","chinese":"苹果","tier":"T3"},{"english":"Egg","chinese":"蛋","tier":"T1"},{"english":"Milk","chinese":"牛奶","tier":"T1"},{"english":"Water","chinese":"水","tier":"T3"},{"english":"Rice","chinese":"米饭","tier":"T2"},{"english":"Cake","chinese":"蛋糕","tier":"T2"},{"english":"Red","chinese":"红色","tier":"T1"},{"english":"Blue","chinese":"蓝色","tier":"T2"},{"english":"Green","chinese":"绿色","tier":"T2"},{"english":"One","chinese":"一","tier":"T1"},{"english":"Two","chinese":"二","tier":"T1"},{"english":"Ten","chinese":"十","tier":"T1"},{"english":"Sun","chinese":"太阳","tier":"T1"},{"english":"Star","chinese":"星星","tier":"T2"},{"english":"Book","chinese":"书","tier":"T2"},{"english":"Bed","chinese":"床","tier":"T1"},{"english":"Father","chinese":"父亲","tier":"T3"},{"english":"Mother","chinese":"母亲","tier":"T3"},{"english":"Eat","chinese":"吃","tier":"T2"},{"english":"Run","chinese":"跑","tier":"T1"},{"english":"Play","chinese":"玩","tier":"T2"},{"english":"Brother","chinese":"兄弟","tier":"T3"},{"english":"Sister","chinese":"姐妹","tier":"T3"},{"english":"Friend","chinese":"朋友","tier":"T3"},{"english":"Door","chinese":"门","tier":"T2"},{"english":"Table","chinese":"桌子","tier":"T3"},{"english":"Chair","chinese":"椅子","tier":"T2"},{"english":"Bag","chinese":"包","tier":"T1"},{"english":"Pen","chinese":"笔","tier":"T1"},{"english":"Cup","chinese":"杯子","tier":"T1"},{"english":"Toy","chinese":"玩具","tier":"T3"},{"english":"Banana","chinese":"香蕉","tier":"T3"},{"english":"Orange","chinese":"橙色/橙子","tier":"T3"},{"english":"Bread","chinese":"面包","tier":"T2"},{"english":"Chicken","chinese":"鸡/鸡肉","tier":"T3"},{"english":"Yellow","chinese":"黄色","tier":"T3"},{"english":"Black","chinese":"黑色","tier":"T1"},{"english":"White","chinese":"白色","tier":"T2"},{"english":"Moon","chinese":"月亮","tier":"T2"},{"english":"Tree","chinese":"树","tier":"T2"},{"english":"Flower","chinese":"花","tier":"T2"},{"english":"Morning","chinese":"早晨","tier":"T2"},{"english":"Go","chinese":"去","tier":"T1"},{"english":"Come","chinese":"来","tier":"T1"},{"english":"Read","chinese":"读","tier":"T2"},{"english":"Sing","chinese":"唱歌","tier":"T1"},{"english":"Family","chinese":"家庭","tier":"T3"},{"english":"House","chinese":"房子","tier":"T2"},{"english":"Window","chinese":"窗户","tier":"T3"},{"english":"Kitchen","chinese":"厨房","tier":"T3"},{"english":"Classroom","chinese":"教室","tier":"T3"},{"english":"Teacher","chinese":"老师","tier":"T2"},{"english":"Doctor","chinese":"医生","tier":"T3"},{"english":"English","chinese":"英语","tier":"T3"},{"english":"Music","chinese":"音乐","tier":"T3"},{"english":"Rabbit","chinese":"兔子","tier":"T3"},{"english":"Monkey","chinese":"猴子","tier":"T3"},{"english":"Elephant","chinese":"大象","tier":"T3"},{"english":"Panda","chinese":"熊猫","tier":"T3"},{"english":"Potato","chinese":"土豆","tier":"T3"},{"english":"Tomato","chinese":"番茄","tier":"T3"},{"english":"Rain","chinese":"雨","tier":"T2"},{"english":"Snow","chinese":"雪","tier":"T2"},{"english":"Spring","chinese":"春天","tier":"T1"},{"english":"Summer","chinese":"夏天","tier":"T3"},{"english":"Write","chinese":"写","tier":"T3"},{"english":"Draw","chinese":"画","tier":"T2"},{"english":"Swim","chinese":"游泳","tier":"T1"},{"english":"Dance","chinese":"跳舞","tier":"T2"},{"english":"Listen","chinese":"听","tier":"T3"},{"english":"Help","chinese":"帮助","tier":"T2"},{"english":"Library","chinese":"图书馆","tier":"T3"},{"english":"Playground","chinese":"操场","tier":"T3"},{"english":"Computer","chinese":"电脑","tier":"T3"},{"english":"Science","chinese":"科学","tier":"T3"},{"english":"Basketball","chinese":"篮球","tier":"T3"},{"english":"Swimming","chinese":"游泳","tier":"T3"},{"english":"Pizza","chinese":"比萨","tier":"T3"},{"english":"Ice cream","chinese":"冰淇淋","tier":"T3"},{"english":"Chocolate","chinese":"巧克力","tier":"T3"},{"english":"Watermelon","chinese":"西瓜","tier":"T3"},{"english":"Mountain","chinese":"山","tier":"T3"},{"english":"River","chinese":"河","tier":"T3"},{"english":"Forest","chinese":"森林","tier":"T3"},{"english":"Weather","chinese":"天气","tier":"T3"},{"english":"Tiger","chinese":"老虎","tier":"T3"},{"english":"Snake","chinese":"蛇","tier":"T3"},{"english":"Dolphin","chinese":"海豚","tier":"T3"},{"english":"Butterfly","chinese":"蝴蝶","tier":"T3"},{"english":"Penguin","chinese":"企鹅","tier":"T3"},{"english":"Remember","chinese":"记住","tier":"T3"},{"english":"Understand","chinese":"理解","tier":"T3"},{"english":"Practice","chinese":"练习","tier":"T3"},{"english":"Spell","chinese":"拼写","tier":"T3"},{"english":"Answer","chinese":"回答","tier":"T3"},{"english":"Think","chinese":"想","tier":"T3"},{"english":"Stop","chinese":"停","tier":"T1"},{"english":"See","chinese":"看见","tier":"T2"},{"english":"Watch","chinese":"看/手表","tier":"T3"},{"english":"Love","chinese":"爱","tier":"T3"},{"english":"Drink","chinese":"喝","tier":"T1"},{"english":"Jump","chinese":"跳","tier":"T1"},{"english":"Sit","chinese":"坐","tier":"T1"},{"english":"Cry","chinese":"哭","tier":"T2"},{"english":"Cook","chinese":"做饭","tier":"T2"},{"english":"Wash","chinese":"洗","tier":"T3"},{"english":"Fly","chinese":"飞","tier":"T2"},{"english":"Smile","chinese":"微笑","tier":"T2"},{"english":"Catch","chinese":"接住","tier":"T1"},{"english":"Find","chinese":"找到","tier":"T2"},{"english":"Turn","chinese":"转","tier":"T2"},{"english":"Drive","chinese":"开车","tier":"T2"},{"english":"Close","chinese":"关闭","tier":"T2"},{"english":"Open","chinese":"打开","tier":"T3"},{"english":"Break","chinese":"打破","tier":"T2"},{"english":"Work","chinese":"工作","tier":"T2"},{"english":"Buy","chinese":"买","tier":"T3"},{"english":"Learn","chinese":"学习","tier":"T2"},{"english":"Teach","chinese":"教","tier":"T2"},{"english":"Laugh","chinese":"笑","tier":"T3"},{"english":"Hear","chinese":"听到","tier":"T2"},{"english":"Grow","chinese":"生长","tier":"T2"},{"english":"Throw","chinese":"扔","tier":"T3"},{"english":"Carry","chinese":"携带","tier":"T3"},{"english":"Build","chinese":"建造","tier":"T3"},{"english":"Wear","chinese":"穿","tier":"T2"},{"english":"Big","chinese":"大","tier":"T1"},{"english":"Hot","chinese":"热","tier":"T1"},{"english":"Cold","chinese":"冷","tier":"T2"},{"english":"Good","chinese":"好","tier":"T2"},{"english":"Happy","chinese":"快乐","tier":"T3"},{"english":"Sad","chinese":"悲伤","tier":"T1"},{"english":"Tall","chinese":"高","tier":"T2"},{"english":"Dirty","chinese":"脏","tier":"T3"},{"english":"Heavy","chinese":"重","tier":"T3"},{"english":"Small","chinese":"小的","tier":"T2"},{"english":"Fast","chinese":"快","tier":"T1"},{"english":"Slow","chinese":"慢的","tier":"T2"},{"english":"Short","chinese":"短/矮","tier":"T2"},{"english":"Warm","chinese":"温暖","tier":"T2"},{"english":"Bad","chinese":"坏","tier":"T1"},{"english":"New","chinese":"新的","tier":"T2"},{"english":"Old","chinese":"老的","tier":"T2"},{"english":"Sick","chinese":"生病","tier":"T1"},{"english":"Strong","chinese":"强壮","tier":"T1"},{"english":"Dark","chinese":"暗","tier":"T2"},{"english":"Clean","chinese":"干净/打扫","tier":"T2"},{"english":"Long","chinese":"长","tier":"T1"},{"english":"Beautiful","chinese":"美丽","tier":"T3"},{"english":"Quiet","chinese":"安静","tier":"T3"},{"english":"Famous","chinese":"出名","tier":"T3"},{"english":"Pig","chinese":"猪","tier":"T1"},{"english":"Cow","chinese":"牛","tier":"T2"},{"english":"Mouse","chinese":"鼠","tier":"T3"},{"english":"Animal","chinese":"动物","tier":"T3"},{"english":"Car","chinese":"汽车","tier":"T2"},{"english":"Boy","chinese":"男孩","tier":"T2"},{"english":"Girl","chinese":"女孩","tier":"T2"},{"english":"Ball","chinese":"球","tier":"T2"},{"english":"Food","chinese":"食物","tier":"T2"},{"english":"Sky","chinese":"天空","tier":"T1"},{"english":"Game","chinese":"游戏","tier":"T2"},{"english":"Night","chinese":"夜晚","tier":"T2"},{"english":"Horse","chinese":"马","tier":"T2"},{"english":"Train","chinese":"火车","tier":"T2"},{"english":"School","chinese":"学校","tier":"T2"},{"english":"Garden","chinese":"花园","tier":"T2"},{"english":"Hat","chinese":"帽子","tier":"T1"},{"english":"Shoes","chinese":"鞋子","tier":"T3"},{"english":"Breakfast","chinese":"早餐","tier":"T3"},{"english":"Dinner","chinese":"晚餐","tier":"T3"},{"english":"Gift","chinese":"礼物","tier":"T1"},{"english":"Sea","chinese":"海","tier":"T2"},{"english":"Wind","chinese":"风","tier":"T1"},{"english":"Beach","chinese":"海滩","tier":"T2"},{"english":"Fire","chinese":"火","tier":"T2"},{"english":"King","chinese":"国王","tier":"T1"},{"english":"Queen","chinese":"女王","tier":"T2"},{"english":"Student","chinese":"学生","tier":"T3"},{"english":"Police","chinese":"警察","tier":"T3"},{"english":"Hospital","chinese":"医院","tier":"T3"},{"english":"Money","chinese":"钱","tier":"T3"},{"english":"Sport","chinese":"运动","tier":"T2"},{"english":"Song","chinese":"歌曲","tier":"T1"},{"english":"Movie","chinese":"电影","tier":"T2"},{"english":"Dream","chinese":"梦","tier":"T2"},{"english":"Letter","chinese":"信/字母","tier":"T3"},{"english":"Camera","chinese":"相机","tier":"T3"},{"english":"Island","chinese":"岛","tier":"T3"},{"english":"Country","chinese":"国家","tier":"T3"},{"english":"Earth","chinese":"地球","tier":"T3"},{"english":"Ocean","chinese":"海洋","tier":"T3"},{"english":"Nature","chinese":"自然","tier":"T3"},{"english":"Winter","chinese":"冬天","tier":"T3"},{"english":"Evening","chinese":"晚上","tier":"T3"},{"english":"Person","chinese":"人","tier":"T3"}];
+var DIAGNOSTIC_WORDS = WORDS;
+var STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
 
-const TOTAL = WORDS.length;
-const CAPTURE_THRESHOLD = 3;
+var TOTAL = WORDS.length;
+var CAPTURE_THRESHOLD = 3;
 
 // ===== 数据存储 =====
 // { wordKey: correctCount }  >= 3 = captured
 const STORAGE_KEY = 'wordHunter_data';
-const DIAG_KEY = 'wordHunter_diagDone';
 
 function getKey(w) { return w.english.toLowerCase().replace(/[^a-z0-9]/g, '_'); }
+function hasWord(data, w) { return Object.prototype.hasOwnProperty.call(data, getKey(w)); }
 
 function loadData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
 }
 function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
 
 function isCaptured(data, w) { return (data[getKey(w)] || 0) >= CAPTURE_THRESHOLD; }
 function isHunting(data, w) { const c = data[getKey(w)]; return c !== undefined && c > 0 && c < CAPTURE_THRESHOLD; }
-function isNew(data, w) { return !data.hasOwnProperty(getKey(w)) || data[getKey(w)] === 0; }
+function isNew(data, w) { return !hasWord(data, w) || data[getKey(w)] === 0; }
 
-function getCapturedCount(data) { return WORDS.filter(w => isCaptured(data, w)).length; }
-function getHuntingCount(data) { return WORDS.filter(w => isHunting(data, w)).length; }
-function getRemainingWords(data) { return WORDS.filter(w => !isCaptured(data, w)); }
+function getCapturedCount(data, pool = WORDS) { return pool.filter(w => isCaptured(data, w)).length; }
+function getHuntingCount(data, pool = WORDS) { return pool.filter(w => isHunting(data, w)).length; }
 
 // ===== 页面切换 =====
 function showPage(id) {
+  if (id !== 'quiz') {
+    clearCountdown();
+    clearRevealTimer();
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
@@ -379,7 +396,9 @@ function showPage(id) {
 function renderHome() {
   const data = loadData();
   const captured = getCapturedCount(data);
-  const remaining = TOTAL - captured;
+  const hunting = getHuntingCount(data);
+  const startupCaptured = getCapturedCount(data, STARTUP_WORDS);
+  const startupRemaining = STARTUP_WORDS.length - startupCaptured;
 
   // 进度环
   const circumference = 2 * Math.PI * 88;
@@ -392,21 +411,26 @@ function renderHome() {
   const hint = document.getElementById('homeHint');
 
   if (captured >= TOTAL) {
-    hint.textContent = '全部 200 词已捕获！';
-    btn.textContent = '👑 查看掌握地图';
+    hint.textContent = '200 词已全部捕获 · 本轮复习 20 词';
+    btn.textContent = '继续复习';
     btn.className = 'start-btn all-done';
-    btn.onclick = showMap;
-  } else if (!isDiagnosticDone()) {
-    const seen = WORDS.filter(w => data.hasOwnProperty(getKey(w))).length;
+    btn.onclick = startHunt;
+  } else if (!isDiagnosticDone(data)) {
+    const seen = DIAGNOSTIC_WORDS.filter(w => hasWord(data, w)).length;
     const left = TOTAL - seen;
     hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
-    btn.textContent = seen === 0 ? '开始捕猎' : '继续捕猎';
+    btn.textContent = '开始';
+    btn.className = 'start-btn';
+    btn.onclick = startHunt;
+  } else if (!isStartupReady(data)) {
+    hint.textContent = `启动100补词中 · 还差 ${startupRemaining} 词`;
+    btn.textContent = '继续';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
   } else {
     const nextWords = pickRoundWords(data);
-    hint.textContent = `剩余 ${remaining} 词 · 本轮 ${nextWords.length} 词`;
-    btn.textContent = '继续捕猎';
+    hint.textContent = `已捕获 ${captured} · 瞄准中 ${hunting} · 本轮 ${nextWords.length} 词`;
+    btn.textContent = '开始';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
   }
@@ -429,47 +453,64 @@ function speakWord() {
   if (!quizWords[quizIndex]) return;
   initAudio();
   audioEl.src = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(quizWords[quizIndex].english) + '&type=0';
-  audioEl.play();
+  audioEl.play().catch(() => {});
 }
 
 // ===== 捕猎 =====
 let quizWords = [];
 let quizIndex = 0;
-let roundResults = []; // [{word, result: 'correct'|'familiar'|'timeout', prevValue}]
-let capturedBeforeRound = 0;
+let roundResults = []; // [{word, result: 'correct'|'familiar'|'timeout', prevValue, nextValue}]
 
-const ROUND_SIZE = 20; // 后续每轮出词数
+const ROUND_SIZE = 20; // 每组卡片数
+const SPOT_CHECK_COUNT = 5; // 每组从已捕获池随机抽查的数量
 
-function isDiagnosticDone() {
-  return localStorage.getItem(DIAG_KEY) === 'true';
-}
-function markDiagnosticDone() {
-  localStorage.setItem(DIAG_KEY, 'true');
+function isDiagnosticDone(data = loadData()) {
+  return DIAGNOSTIC_WORDS.every(w => hasWord(data, w));
 }
 
-function pickRoundWords(data) {
-  if (!isDiagnosticDone()) {
-    // 首轮诊断未完成：只出还没见过的词
-    return WORDS.filter(w => !data.hasOwnProperty(getKey(w)));
-  }
+function isStartupReady(data = loadData()) {
+  return STARTUP_WORDS.every(w => isCaptured(data, w));
+}
 
-  const remaining = getRemainingWords(data);
-  if (remaining.length === 0) return [];
+function pickWordsFromPool(pool, data) {
+  const captured = pool.filter(w => isCaptured(data, w));
+  const hunting = pool.filter(w => isHunting(data, w));
+  const unseen = pool.filter(w => isNew(data, w));
 
-  // 诊断完成后：优先复习词（1-2次），新词补满，总共 ROUND_SIZE
-  const review = remaining.filter(w => isHunting(data, w));
-  const unseen = remaining.filter(w => isNew(data, w));
-
-  review.sort(() => Math.random() - 0.5);
+  captured.sort(() => Math.random() - 0.5);
+  hunting.sort(() => Math.random() - 0.5);
   unseen.sort(() => Math.random() - 0.5);
 
-  let picked = [];
-  picked.push(...review.slice(0, ROUND_SIZE));
+  const picked = [];
+  const spotCount = Math.min(SPOT_CHECK_COUNT, captured.length);
+  picked.push(...captured.slice(0, spotCount));
+  const slotsLeft = ROUND_SIZE - picked.length;
+  if (slotsLeft > 0) {
+    picked.push(...hunting.slice(0, slotsLeft));
+  }
   if (picked.length < ROUND_SIZE) {
     picked.push(...unseen.slice(0, ROUND_SIZE - picked.length));
   }
+  if (picked.length < ROUND_SIZE) {
+    picked.push(...captured.slice(spotCount, spotCount + ROUND_SIZE - picked.length));
+  }
 
   return picked;
+}
+
+function pickRoundWords(data) {
+  if (!isDiagnosticDone(data)) {
+    // 首轮诊断未完成：只出还没见过的词
+    return DIAGNOSTIC_WORDS.filter(w => !hasWord(data, w));
+  }
+
+  if (!isStartupReady(data)) {
+    // 启动未达标：只在启动100里轮动
+    return pickWordsFromPool(STARTUP_WORDS, data);
+  }
+
+  // 启动通过后：回到整个诊断池轮动
+  return pickWordsFromPool(DIAGNOSTIC_WORDS, data);
 }
 
 function startHunt() {
@@ -486,7 +527,6 @@ function startHunt() {
   quizWords.sort(() => Math.random() - 0.5);
   quizIndex = 0;
   roundResults = [];
-  capturedBeforeRound = getCapturedCount(data);
 
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
@@ -496,10 +536,15 @@ function startHunt() {
 
 let cardFlipped = false;
 let countdownTimer = null;
+let revealTimer = null;
 let countdownValue = 3;
 
 function clearCountdown() {
   if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+}
+
+function clearRevealTimer() {
+  if (revealTimer) { clearTimeout(revealTimer); revealTimer = null; }
 }
 
 function startCountdown() {
@@ -526,29 +571,36 @@ function autoSkip() {
   const data = loadData();
   const key = getKey(w);
   const prevValue = data[key];
-  if (!data.hasOwnProperty(key)) data[key] = 0;
+
+  if (!hasWord(data, w)) {
+    data[key] = 0;
+  }
   saveData(data);
 
-  roundResults.push({ word: w, result: 'timeout', prevValue });
+  roundResults.push({ word: w, result: 'timeout', prevValue, nextValue: data[key] || 0 });
   quizIndex++;
   updateUndoBar();
 
   // 超时前亮中文，听觉和视觉对一下
   cardFlipped = true;
-  var ch = document.getElementById('cardChinese');
+  const ch = document.getElementById('cardChinese');
   ch.textContent = w.chinese;
   ch.classList.remove('hidden');
-  ch.style.display = '';  // 双保险：inline style 确保覆盖
   document.getElementById('cardWord').style.color = '#86868b';
   document.getElementById('flipHint').classList.add('hidden');
   document.getElementById('countdown').classList.add('hidden');
   document.getElementById('btnGroup').classList.add('hidden');
 
-  setTimeout(showCard, 1000);
+  clearRevealTimer();
+  revealTimer = setTimeout(() => {
+    revealTimer = null;
+    showCard();
+  }, 1000);
 }
 
 function showCard() {
   clearCountdown();
+  clearRevealTimer();
   if (quizIndex >= quizWords.length) {
     showReport();
     return;
@@ -589,9 +641,11 @@ function answer(result) {
   const data = loadData();
   const key = getKey(w);
   const prevValue = data[key];
-  const firstRound = !isDiagnosticDone();
+  const firstRound = !isDiagnosticDone(data);
 
-  if (result === 'correct') {
+  if (isCaptured(data, w) && !firstRound) {
+    // 已捕获词只做复核，不回退状态
+  } else if (result === 'correct') {
     // 首轮诊断：答对直接捕获；后续轮次：逐次累加
     data[key] = firstRound ? CAPTURE_THRESHOLD : (data[key] || 0) + 1;
   } else if (result === 'familiar') {
@@ -600,7 +654,7 @@ function answer(result) {
   }
   saveData(data);
 
-  roundResults.push({ word: w, result, prevValue });
+  roundResults.push({ word: w, result, prevValue, nextValue: data[key] || 0 });
   quizIndex++;
   updateUndoBar();
   showCard();
@@ -648,25 +702,46 @@ function exitQuiz() {
 
 // ===== 战报 =====
 function showReport() {
-  if (!isDiagnosticDone()) markDiagnosticDone();
   const data = loadData();
   const capturedNow = getCapturedCount(data);
-  const newCaptured = capturedNow - capturedBeforeRound;
   const hunting = getHuntingCount(data);
   const remaining = TOTAL - capturedNow;
 
-  const correctCount = roundResults.filter(r => r.result === 'correct').length;
-  const familiarCount = roundResults.filter(r => r.result === 'familiar').length;
-  const timeoutCount = roundResults.filter(r => r.result === 'timeout').length;
+  function resultCount(r) {
+    return r.nextValue !== undefined ? r.nextValue : (data[getKey(r.word)] || 0);
+  }
+
+  const newCaptured = roundResults.filter(r =>
+    (r.prevValue || 0) < CAPTURE_THRESHOLD &&
+    resultCount(r) >= CAPTURE_THRESHOLD
+  ).length;
+  const roundCaptured = roundResults.filter(r => resultCount(r) >= CAPTURE_THRESHOLD).length;
+  const roundHunting = roundResults.filter(r => {
+    const c = resultCount(r);
+    return c > 0 && c < CAPTURE_THRESHOLD;
+  }).length;
+  const roundNew = roundResults.filter(r => resultCount(r) === 0).length;
+
+  // 已捕获抽查统计
+  const spotChecked = roundResults.filter(r => (r.prevValue || 0) >= CAPTURE_THRESHOLD);
+  const spotPassed = spotChecked.filter(r => r.result === 'correct').length;
+  const spotTotal = spotChecked.length;
 
   document.getElementById('reportTitle').textContent = remaining === 0 ? '🎉 全部捕获！' : '捕猎战报';
-  document.getElementById('reportSub').textContent = `本轮 ${quizWords.length} 词 · 已捕获 ${correctCount} · 瞄准中 ${familiarCount} · 潜伏中 ${timeoutCount}`;
+  let subText = `本轮结束 · 已捕获 ${roundCaptured} · 瞄准中 ${roundHunting} · 潜伏中 ${roundNew}`;
+  if (spotTotal > 0) {
+    subText += ` · 抽查 ${spotPassed}/${spotTotal}`;
+  }
+  document.getElementById('reportSub').textContent = subText;
   document.getElementById('statNew').textContent = newCaptured;
   document.getElementById('statHunting').textContent = hunting;
   document.getElementById('statTotal').textContent = capturedNow;
 
   // 进度条
-  const newCount = WORDS.filter(w => isNew(data, w)).length;
+  const activePool = !isDiagnosticDone(data)
+    ? DIAGNOSTIC_WORDS
+    : (!isStartupReady(data) ? STARTUP_WORDS : DIAGNOSTIC_WORDS);
+  const newCount = activePool.filter(w => isNew(data, w)).length;
   document.getElementById('progressBig').innerHTML = `
     <div class="seg-captured" style="width:${capturedNow/TOTAL*100}%"></div>
     <div class="seg-hunting" style="width:${hunting/TOTAL*100}%"></div>
@@ -676,10 +751,10 @@ function showReport() {
   // 按钮
   const nextBtn = document.getElementById('nextBtn');
   if (remaining === 0) {
-    nextBtn.textContent = '查看掌握地图';
-    nextBtn.onclick = showMap;
+    nextBtn.textContent = '继续复习（20 词）→';
+    nextBtn.onclick = startHunt;
   } else {
-    nextBtn.textContent = `继续捕猎（剩 ${remaining} 词）→`;
+    nextBtn.textContent = `继续（剩 ${remaining} 词）→`;
     nextBtn.onclick = startHunt;
   }
 
@@ -689,9 +764,9 @@ function showReport() {
 // ===== 掌握地图 =====
 function showMap() {
   const data = loadData();
-  const captured = WORDS.filter(w => isCaptured(data, w));
-  const hunting = WORDS.filter(w => isHunting(data, w));
-  const unseen = WORDS.filter(w => isNew(data, w));
+  const captured = DIAGNOSTIC_WORDS.filter(w => isCaptured(data, w));
+  const hunting = DIAGNOSTIC_WORDS.filter(w => isHunting(data, w));
+  const unseen = DIAGNOSTIC_WORDS.filter(w => isNew(data, w));
 
   document.getElementById('mapStats').textContent =
     `已捕获 ${captured.length} · 瞄准中 ${hunting.length} · 潜伏中 ${unseen.length}`;
@@ -719,7 +794,7 @@ function showMap() {
 function exportData() {
   const data = loadData();
   let csv = 'English,Chinese,Tier,正确次数,状态\n';
-  WORDS.forEach(w => {
+  DIAGNOSTIC_WORDS.forEach(w => {
     const c = data[getKey(w)] || 0;
     const status = c >= CAPTURE_THRESHOLD ? '已捕获' : c > 0 ? '瞄准中' : '潜伏中';
     csv += `${w.english},${w.chinese},${w.tier},${c},${status}\n`;
@@ -736,12 +811,13 @@ function goHome() { renderHome(); }
 function confirmReset() {
   if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(DIAG_KEY);
+    localStorage.removeItem('wordHunter_diagDone');
     renderHome();
   }
 }
 
 // ===== 启动 =====
+localStorage.removeItem('wordHunter_diagDone');
 renderHome();
 </script>
 </body>

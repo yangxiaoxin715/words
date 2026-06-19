@@ -1,0 +1,7 @@
+{
+  "name": "word-hunter",
+  "private": true,
+  "scripts": {
+    "test": "node tests/word-hunter.test.js"
+  }
+}
