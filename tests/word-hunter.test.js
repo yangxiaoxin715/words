@@ -6,6 +6,8 @@ const vm = require('node:vm');
 const htmlPath = path.join(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
+const wordsDataPath = path.join(__dirname, '..', 'words-data.js');
+const wordsData = fs.readFileSync(wordsDataPath, 'utf8');
 
 if (!scriptMatch) {
   throw new Error('Could not find inline script in index.html');
@@ -116,7 +118,9 @@ function createHarness() {
       intervals.delete(id);
     },
   });
+  context.globalThis = context;
 
+  vm.runInContext(wordsData, context);
   vm.runInContext(scriptMatch[1], context);
 
   return {
