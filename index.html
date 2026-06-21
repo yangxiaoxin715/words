@@ -99,11 +99,30 @@ body {
   transition: width 0.3s ease; border-radius: 2px;
 }
 
+.quiz-prep {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center;
+}
+.quiz-prep.hidden { display: none; }
+.quiz-prep-icon { font-size: 56px; margin-bottom: 16px; }
+.quiz-prep-message {
+  font-size: 18px; font-weight: 700;
+  color: #1d1d1f; margin-bottom: 20px;
+}
+.audio-retry-btn {
+  padding: 14px 28px; border-radius: 12px; border: none;
+  background: #ff9500; color: #fff;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.audio-retry-btn.hidden { display: none; }
+
 .card-area {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 40px 20px; min-height: 50vh; cursor: pointer;
 }
+.card-area.hidden { display: none; }
 .card-area:focus-visible {
   outline: 3px solid #007aff;
   outline-offset: -3px;
@@ -289,7 +308,13 @@ body {
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="card-area" role="button" tabindex="0" aria-label="翻开单词卡片"
+  <div class="quiz-prep hidden" id="quizPrep">
+    <div class="quiz-prep-icon">🎧</div>
+    <div class="quiz-prep-message" id="audioPrepMessage">正在准备音频…</div>
+    <button class="audio-retry-btn hidden" id="audioRetryBtn"
+            onclick="retryAudioPreparation()">重新加载</button>
+  </div>
+  <div class="card-area" id="cardArea" role="button" tabindex="0" aria-label="翻开单词卡片"
        onclick="flipCard()"
        onkeydown="if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); flipCard(); }">
     <div class="card-word-wrap">
@@ -444,6 +469,10 @@ function renderHome() {
 
 // ===== 语音（有道词典 TTS） =====
 let audioEl = null;
+let roundAudio = new Map();
+let loadingAudio = [];
+let audioPreparationToken = 0;
+let activeWordAudio = null;
 
 function initAudio() {
   if (!audioEl) {
@@ -453,11 +482,138 @@ function initAudio() {
   }
 }
 
+function getAudioUrl(word) {
+  return 'https://dict.youdao.com/dictvoice?audio=' +
+    encodeURIComponent(word.english) + '&type=0';
+}
+
+function stopActiveWordAudio() {
+  if (!activeWordAudio) return;
+  activeWordAudio.pause();
+  activeWordAudio.currentTime = 0;
+  activeWordAudio = null;
+}
+
+function discardAudio(audio) {
+  audio.pause();
+  if (typeof audio.removeAttribute === 'function') {
+    audio.removeAttribute('src');
+  } else {
+    audio.src = '';
+  }
+}
+
+function clearRoundAudio() {
+  audioPreparationToken++;
+  stopActiveWordAudio();
+  roundAudio.forEach(discardAudio);
+  loadingAudio.forEach(discardAudio);
+  roundAudio = new Map();
+  loadingAudio = [];
+}
+
+function createPreparedAudio(word, onReady) {
+  const audio = new Audio();
+  audio.preload = 'auto';
+
+  const ready = new Promise((resolve, reject) => {
+    function cleanup() {
+      audio.removeEventListener('canplaythrough', handleReady);
+      audio.removeEventListener('error', handleError);
+    }
+
+    function handleReady() {
+      cleanup();
+      onReady();
+      resolve([getKey(word), audio]);
+    }
+
+    function handleError() {
+      cleanup();
+      reject(new Error(`audio failed: ${word.english}`));
+    }
+
+    audio.addEventListener('canplaythrough', handleReady);
+    audio.addEventListener('error', handleError);
+    audio.src = getAudioUrl(word);
+    audio.load();
+  });
+
+  return { audio, ready };
+}
+
+function showAudioPreparation(status, loaded = 0) {
+  const prep = document.getElementById('quizPrep');
+  const card = document.getElementById('cardArea');
+  const retry = document.getElementById('audioRetryBtn');
+  const message = document.getElementById('audioPrepMessage');
+
+  prep.classList.remove('hidden');
+  card.classList.add('hidden');
+  document.getElementById('btnGroup').classList.add('hidden');
+  document.getElementById('countdown').classList.add('hidden');
+
+  if (status === 'failed') {
+    message.textContent = '音频加载失败，请重新加载';
+    retry.classList.remove('hidden');
+  } else {
+    message.textContent = `正在准备音频 ${loaded}/${quizWords.length}`;
+    retry.classList.add('hidden');
+  }
+}
+
+function showPreparedQuiz() {
+  document.getElementById('quizPrep').classList.add('hidden');
+  document.getElementById('audioRetryBtn').classList.add('hidden');
+  document.getElementById('cardArea').classList.remove('hidden');
+}
+
+function prepareRoundAudio() {
+  clearCountdown();
+  clearRevealTimer();
+  clearRoundAudio();
+  const token = audioPreparationToken;
+  let loaded = 0;
+
+  showAudioPreparation('loading', loaded);
+  const requests = quizWords.map((word) => createPreparedAudio(word, () => {
+    if (token !== audioPreparationToken) return;
+    loaded++;
+    showAudioPreparation('loading', loaded);
+  }));
+  loadingAudio = requests.map((request) => request.audio);
+
+  Promise.all(requests.map((request) => request.ready))
+    .then((entries) => {
+      if (token !== audioPreparationToken) return;
+      loadingAudio = [];
+      roundAudio = new Map(entries);
+      showPreparedQuiz();
+      showCard();
+    })
+    .catch(() => {
+      if (token !== audioPreparationToken) return;
+      audioPreparationToken++;
+      loadingAudio.forEach(discardAudio);
+      loadingAudio = [];
+      roundAudio = new Map();
+      showAudioPreparation('failed');
+    });
+}
+
+function retryAudioPreparation() {
+  prepareRoundAudio();
+}
+
 function speakWord() {
-  if (!quizWords[quizIndex]) return;
-  initAudio();
-  audioEl.src = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(quizWords[quizIndex].english) + '&type=0';
-  audioEl.play().catch(() => {});
+  const word = quizWords[quizIndex];
+  if (!word) return;
+  const prepared = roundAudio.get(getKey(word));
+  if (!prepared) return;
+  stopActiveWordAudio();
+  prepared.currentTime = 0;
+  activeWordAudio = prepared;
+  prepared.play().catch(() => {});
 }
 
 // ===== 捕猎 =====
@@ -535,7 +691,7 @@ function startHunt() {
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
-  showCard();
+  prepareRoundAudio();
 }
 
 let cardFlipped = false;
@@ -701,11 +857,14 @@ function exitQuiz() {
     }
   }
   clearCountdown();
+  clearRevealTimer();
+  clearRoundAudio();
   goHome();
 }
 
 // ===== 战报 =====
 function showReport() {
+  clearRoundAudio();
   const data = loadData();
   const capturedNow = getCapturedCount(data);
   const hunting = getHuntingCount(data);

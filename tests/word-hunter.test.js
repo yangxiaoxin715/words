@@ -41,7 +41,8 @@ function createHarness() {
     'homeHint', 'quizLabel', 'cardChinese', 'btnGroup', 'cardWord',
     'flipHint', 'progressText', 'progressBar', 'countdown', 'undoBtn',
     'reportTitle', 'reportSub', 'statNew', 'statHunting', 'statTotal',
-    'progressBig', 'nextBtn', 'mapStats', 'masteryMap',
+    'progressBig', 'nextBtn', 'mapStats', 'masteryMap', 'cardArea',
+    'quizPrep', 'audioPrepMessage', 'audioRetryBtn',
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, makeElement()]));
   ['home', 'quiz', 'report', 'mappage'].forEach((id) => {
@@ -52,6 +53,7 @@ function createHarness() {
   const storage = new Map();
   const timeouts = new Map();
   const intervals = new Map();
+  const audioInstances = [];
   let nextTimerId = 1;
 
   const context = vm.createContext({
@@ -84,12 +86,38 @@ function createHarness() {
       },
     },
     Audio: function Audio() {
-      return {
+      const listeners = {};
+      const audio = {
         src: '',
+        preload: '',
+        currentTime: 0,
+        playCalls: 0,
+        pauseCalls: 0,
+        loadCalls: 0,
+        addEventListener(name, callback) {
+          if (!listeners[name]) listeners[name] = [];
+          listeners[name].push(callback);
+        },
+        removeEventListener(name, callback) {
+          listeners[name] = (listeners[name] || [])
+            .filter((item) => item !== callback);
+        },
+        load() {
+          this.loadCalls += 1;
+        },
         play() {
+          this.playCalls += 1;
           return Promise.resolve();
         },
+        pause() {
+          this.pauseCalls += 1;
+        },
+        emit(name) {
+          (listeners[name] || []).slice().forEach((callback) => callback());
+        },
       };
+      audioInstances.push(audio);
+      return audio;
     },
     Blob: function Blob() {},
     URL: {
@@ -127,6 +155,7 @@ function createHarness() {
     context,
     elements,
     storage,
+    audioInstances,
     run(code) {
       return vm.runInContext(code, context);
     },
@@ -139,7 +168,107 @@ function createHarness() {
       return ['home', 'quiz', 'report', 'mappage']
         .find((id) => elements[id].classList.contains('active'));
     },
+    activeIntervalCount() {
+      return intervals.size;
+    },
+    resolvePendingAudio() {
+      audioInstances
+        .filter((audio) => audio.src.startsWith('https://'))
+        .forEach((audio) => audio.emit('canplaythrough'));
+    },
+    rejectFirstPendingAudio() {
+      const pending = audioInstances
+        .find((audio) => audio.src.startsWith('https://'));
+      if (!pending) throw new Error('No pending remote audio');
+      pending.emit('error');
+    },
+    preparedAudio() {
+      return audioInstances.filter((audio) => audio.src.startsWith('https://'));
+    },
+    flushPromises() {
+      return new Promise((resolve) => setImmediate(resolve));
+    },
   };
+}
+
+async function testCountdownWaitsForAllRoundAudio() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 2);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  assert.equal(h.activeIntervalCount(), 0);
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), false);
+  assert.equal(h.elements.cardArea.classList.contains('hidden'), true);
+
+  h.resolvePendingAudio();
+  await h.flushPromises();
+
+  assert.equal(h.activeIntervalCount(), 1);
+  assert.equal(h.elements.cardWord.textContent, 'I');
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), true);
+  assert.equal(h.elements.cardArea.classList.contains('hidden'), false);
+  assert.equal(h.preparedAudio()[0].playCalls, 1);
+}
+
+async function testFailedAudioShowsRetryWithoutCountdown() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 2);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  h.rejectFirstPendingAudio();
+  await h.flushPromises();
+
+  assert.equal(h.activeIntervalCount(), 0);
+  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), false);
+  assert.match(h.elements.audioPrepMessage.textContent, /加载失败/);
+}
+
+async function testLateAudioCannotHideFailureState() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 2);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  const pendingAudio = h.preparedAudio();
+  h.rejectFirstPendingAudio();
+  await h.flushPromises();
+  pendingAudio[1].emit('canplaythrough');
+  await h.flushPromises();
+
+  assert.equal(h.activeIntervalCount(), 0);
+  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), false);
+  assert.match(h.elements.audioPrepMessage.textContent, /加载失败/);
+}
+
+async function testRetryCanStartQuizAfterFailure() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 2);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  h.rejectFirstPendingAudio();
+  await h.flushPromises();
+  h.run('retryAudioPreparation()');
+  h.resolvePendingAudio();
+  await h.flushPromises();
+
+  assert.equal(h.activeIntervalCount(), 1);
+  assert.equal(h.elements.cardWord.textContent, 'I');
+  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), true);
 }
 
 function testFirstDiagnosticRoundResumesOnlyUnseenWords() {
@@ -330,6 +459,10 @@ function testStartupStageOnlyUsesStartupWords() {
 }
 
 const tests = [
+  testCountdownWaitsForAllRoundAudio,
+  testFailedAudioShowsRetryWithoutCountdown,
+  testLateAudioCannotHideFailureState,
+  testRetryCanStartQuizAfterFailure,
   testFirstDiagnosticRoundResumesOnlyUnseenWords,
   testLastDiagnosticTimeoutCanExitIntoReview,
   testReviewRoundsContainTwentyWords,
@@ -344,20 +477,22 @@ const tests = [
   testStartupStageOnlyUsesStartupWords,
 ];
 
-let failures = 0;
-for (const test of tests) {
-  try {
-    test();
-    console.log(`PASS ${test.name}`);
-  } catch (error) {
-    failures += 1;
-    console.error(`FAIL ${test.name}`);
-    console.error(error.message);
+(async () => {
+  let failures = 0;
+  for (const test of tests) {
+    try {
+      await test();
+      console.log(`PASS ${test.name}`);
+    } catch (error) {
+      failures += 1;
+      console.error(`FAIL ${test.name}`);
+      console.error(error.message);
+    }
   }
-}
 
-if (failures > 0) {
-  process.exitCode = 1;
-} else {
-  console.log(`All ${tests.length} tests passed.`);
-}
+  if (failures > 0) {
+    process.exitCode = 1;
+  } else {
+    console.log(`All ${tests.length} tests passed.`);
+  }
+})();
