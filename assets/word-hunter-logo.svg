@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">单词猎人狐狸标志</title>
+  <desc id="desc">一只拿着放大镜寻找字母的小狐狸</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#20304A" flood-opacity=".14"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path fill="#FF8A3D" d="M56 82 50 34l43 30c9-4 18-6 28-6s20 2 29 6l42-30-6 49c9 13 14 29 14 46 0 47-35 80-80 80s-80-33-80-80c0-18 6-34 16-47Z"/>
+    <path fill="#FFB05F" d="m61 54 25 18-22 13-3-31Zm118 0-25 18 22 13 3-31Z"/>
+    <path fill="#FFF5E8" d="M120 89c-17 0-30 11-33 27-16 1-29 14-29 31 0 19 15 34 35 34 11 0 21-5 27-13 7 8 17 13 28 13 20 0 35-15 35-34 0-17-13-30-29-31-4-16-17-27-34-27Z"/>
+
+    <ellipse cx="94" cy="116" rx="7" ry="9" fill="#20304A"/>
+    <ellipse cx="147" cy="116" rx="7" ry="9" fill="#20304A"/>
+    <circle cx="91.5" cy="113" r="2.2" fill="#FFF"/>
+    <circle cx="144.5" cy="113" r="2.2" fill="#FFF"/>
+    <path fill="#20304A" d="M120 130c8 0 13 4 13 9 0 4-6 9-13 9s-13-5-13-9c0-5 5-9 13-9Z"/>
+    <path d="M120 147c0 9-7 15-16 15" fill="none" stroke="#20304A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M120 147c0 9 7 15 16 15" fill="none" stroke="#20304A" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="75" cy="141" r="7" fill="#FFB6A2" opacity=".65"/>
+
+    <path fill="#F5792F" d="M77 181c11-13 25-20 43-20 20 0 36 8 47 23-11 16-28 25-49 25-18 0-32-7-41-18v-10Z"/>
+    <path fill="#FFF5E8" d="M101 164c5 5 12 8 19 8s15-3 20-8l-6 29h-28l-5-29Z"/>
+
+    <path d="M157 164c-15 2-27 11-32 24" fill="none" stroke="#FF8A3D" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="160" cy="161" r="9" fill="#FFF5E8"/>
+
+    <circle cx="170" cy="151" r="34" fill="#E9FFFB" stroke="#21B7AA" stroke-width="11"/>
+    <path d="m194 176 28 28" fill="none" stroke="#168B88" stroke-width="13" stroke-linecap="round"/>
+    <path d="m194 176 28 28" fill="none" stroke="#3AC9BC" stroke-width="6" stroke-linecap="round"/>
+    <text x="170" y="163" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-size="43" font-weight="800" fill="#20304A">a</text>
+
+    <path fill="#FFC84A" d="m202 73 4 11 11 4-11 4-4 11-4-11-11-4 11-4 4-11Z"/>
+    <circle cx="219" cy="116" r="5" fill="#FFC84A"/>
+  </g>
+</svg>
