@@ -516,6 +516,15 @@ function testStartupStageOnlyUsesStartupWords() {
   assert.equal(result.picked.every((key) => result.startup.includes(key)), true);
 }
 
+function testHomeUsesProjectLogoAsset() {
+  assert.match(html, /<img class="home-logo" src="assets\/word-hunter-logo\.svg"/);
+  assert.doesNotMatch(html, /<div class="home-icon">🎯<\/div>/);
+  assert.equal(
+    fs.existsSync(path.join(__dirname, '..', 'assets', 'word-hunter-logo.svg')),
+    true
+  );
+}
+
 const tests = [
   testInitialPreparationLoadsOnlyFirstTenWords,
   testAdvancingCardExtendsAudioWindowInBackground,
@@ -535,6 +544,7 @@ const tests = [
   testWordListHasTwoHundredUniqueStorageKeys,
   testVocabularyModelExposesStartupSlice,
   testStartupStageOnlyUsesStartupWords,
+  testHomeUsesProjectLogoAsset,
 ];
 
 (async () => {
