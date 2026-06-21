@@ -191,18 +191,20 @@ function createHarness() {
   };
 }
 
-async function testCountdownWaitsForAllRoundAudio() {
+async function testInitialPreparationLoadsOnlyFirstTenWords() {
   const h = createHarness();
   h.run(`
-    quizWords = WORDS.slice(0, 2);
+    quizWords = WORDS.slice(0, 20);
     quizIndex = 0;
     showPage('quiz');
     prepareRoundAudio();
   `);
 
+  assert.equal(h.preparedAudio().length, 10);
   assert.equal(h.activeIntervalCount(), 0);
   assert.equal(h.elements.quizPrep.classList.contains('hidden'), false);
   assert.equal(h.elements.cardArea.classList.contains('hidden'), true);
+  assert.equal(h.elements.audioPrepMessage.textContent, '正在准备音频…');
 
   h.resolvePendingAudio();
   await h.flushPromises();
@@ -214,10 +216,61 @@ async function testCountdownWaitsForAllRoundAudio() {
   assert.equal(h.preparedAudio()[0].playCalls, 1);
 }
 
-async function testFailedAudioShowsRetryWithoutCountdown() {
+async function testAdvancingCardExtendsAudioWindowInBackground() {
   const h = createHarness();
   h.run(`
-    quizWords = WORDS.slice(0, 2);
+    quizWords = WORDS.slice(0, 20);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  h.run(`
+    clearCountdown();
+    quizIndex = 1;
+    showCard();
+  `);
+
+  assert.equal(h.preparedAudio().length, 11);
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), true);
+  assert.equal(h.activeIntervalCount(), 1);
+}
+
+async function testMissingCurrentAudioWaitsBeforeCountdown() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 11);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  h.run(`
+    clearCountdown();
+    quizIndex = 10;
+    showCard();
+  `);
+
+  assert.equal(h.activeIntervalCount(), 0);
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), false);
+  assert.equal(h.elements.cardArea.classList.contains('hidden'), true);
+
+  h.resolvePendingAudio();
+  await h.flushPromises();
+
+  assert.equal(h.activeIntervalCount(), 1);
+  assert.equal(h.elements.cardWord.textContent, 'my');
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), true);
+}
+
+async function testFirstAudioFailureRetriesSilently() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 1);
     quizIndex = 0;
     showPage('quiz');
     prepareRoundAudio();
@@ -227,23 +280,26 @@ async function testFailedAudioShowsRetryWithoutCountdown() {
   await h.flushPromises();
 
   assert.equal(h.activeIntervalCount(), 0);
-  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), false);
-  assert.match(h.elements.audioPrepMessage.textContent, /加载失败/);
+  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), true);
+  assert.equal(h.preparedAudio().length, 1);
+
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  assert.equal(h.activeIntervalCount(), 1);
 }
 
-async function testLateAudioCannotHideFailureState() {
+async function testRepeatedAudioFailureShowsRetry() {
   const h = createHarness();
   h.run(`
-    quizWords = WORDS.slice(0, 2);
+    quizWords = WORDS.slice(0, 1);
     quizIndex = 0;
     showPage('quiz');
     prepareRoundAudio();
   `);
 
-  const pendingAudio = h.preparedAudio();
   h.rejectFirstPendingAudio();
   await h.flushPromises();
-  pendingAudio[1].emit('canplaythrough');
+  h.rejectFirstPendingAudio();
   await h.flushPromises();
 
   assert.equal(h.activeIntervalCount(), 0);
@@ -251,15 +307,17 @@ async function testLateAudioCannotHideFailureState() {
   assert.match(h.elements.audioPrepMessage.textContent, /加载失败/);
 }
 
-async function testRetryCanStartQuizAfterFailure() {
+async function testRetryCanStartQuizAfterRepeatedFailure() {
   const h = createHarness();
   h.run(`
-    quizWords = WORDS.slice(0, 2);
+    quizWords = WORDS.slice(0, 1);
     quizIndex = 0;
     showPage('quiz');
     prepareRoundAudio();
   `);
 
+  h.rejectFirstPendingAudio();
+  await h.flushPromises();
   h.rejectFirstPendingAudio();
   await h.flushPromises();
   h.run('retryAudioPreparation()');
@@ -459,10 +517,12 @@ function testStartupStageOnlyUsesStartupWords() {
 }
 
 const tests = [
-  testCountdownWaitsForAllRoundAudio,
-  testFailedAudioShowsRetryWithoutCountdown,
-  testLateAudioCannotHideFailureState,
-  testRetryCanStartQuizAfterFailure,
+  testInitialPreparationLoadsOnlyFirstTenWords,
+  testAdvancingCardExtendsAudioWindowInBackground,
+  testMissingCurrentAudioWaitsBeforeCountdown,
+  testFirstAudioFailureRetriesSilently,
+  testRepeatedAudioFailureShowsRetry,
+  testRetryCanStartQuizAfterRepeatedFailure,
   testFirstDiagnosticRoundResumesOnlyUnseenWords,
   testLastDiagnosticTimeoutCanExitIntoReview,
   testReviewRoundsContainTwentyWords,
