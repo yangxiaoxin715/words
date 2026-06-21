@@ -1,199 +1,162 @@
-# Word Audio Preload Implementation Plan
+# Rolling Word Audio Preload Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Preload every audio clip in a round before showing the first card, so each visible word gets a full three-second answer window and timeout still reveals Chinese for one second.
+**Goal:** Start a round after loading only its first ten audio clips, then maintain a rolling look-ahead buffer without reducing any word’s three-second answer time.
 
-**Architecture:** Keep the single-file application structure. Add a preparation state to the quiz page and maintain a per-round map of preloaded `Audio` elements. `startHunt()` selects words and starts preparation; only a successful preparation batch may call `showCard()`. A monotonically increasing batch token prevents stale loads from starting a quiz after retry or exit.
+**Architecture:** Keep the existing single-file application. Store completed audio in `roundAudio` and in-flight requests in `pendingAudioLoads` so each word has at most one active request. The initial gate waits for ten words; every displayed card silently fills a ten-word window ahead. A batch token invalidates stale requests after retry, exit, or a new round.
 
-**Tech Stack:** Plain HTML/CSS/JavaScript, Node.js `node:test`-style assertion harness using `vm`.
+**Tech Stack:** Plain HTML/CSS/JavaScript and the existing Node.js `vm` test harness.
 
 ---
 
-### Task 1: Lock down preload behavior in tests
+### Task 1: Define rolling-window behavior with failing tests
 
 **Files:**
 - Modify: `tests/word-hunter.test.js`
 
-- [ ] **Step 1: Extend the Audio harness**
-
-Track created audio instances, registered event listeners, `load()`, `play()`, `pause()`, `currentTime`, and `preload`. Add harness helpers that resolve or reject pending audio loads.
+- [ ] **Step 1: Test that initial preparation is capped at ten**
 
 ```js
-const audioInstances = [];
+async function testInitialPreparationLoadsOnlyFirstTenWords() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 20);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
 
-Audio: function Audio() {
-  const listeners = {};
-  const audio = {
-    src: '',
-    preload: '',
-    currentTime: 0,
-    playCalls: 0,
-    pauseCalls: 0,
-    addEventListener(name, callback) {
-      (listeners[name] ||= []).push(callback);
-    },
-    removeEventListener(name, callback) {
-      listeners[name] = (listeners[name] || []).filter((item) => item !== callback);
-    },
-    load() {},
-    play() {
-      this.playCalls += 1;
-      return Promise.resolve();
-    },
-    pause() {
-      this.pauseCalls += 1;
-    },
-    emit(name) {
-      (listeners[name] || []).slice().forEach((callback) => callback());
-    },
-  };
-  audioInstances.push(audio);
-  return audio;
-},
+  assert.equal(h.preparedAudio().length, 10);
+  assert.equal(h.activeIntervalCount(), 0);
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  assert.equal(h.activeIntervalCount(), 1);
+}
 ```
 
-- [ ] **Step 2: Add failing tests**
-
-Add async tests for:
+- [ ] **Step 2: Test that advancing one card adds one background request**
 
 ```js
-async function testCountdownWaitsForAllRoundAudio() {
+async function testAdvancingCardExtendsAudioWindow() {
   const h = createHarness();
-  h.run(`quizWords = WORDS.slice(0, 2); quizIndex = 0; showPage('quiz'); prepareRoundAudio();`);
+  h.run(`
+    quizWords = WORDS.slice(0, 20);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  h.run(`clearCountdown(); quizIndex = 1; showCard();`);
+
+  assert.equal(h.preparedAudio().length, 11);
+  assert.equal(h.elements.quizPrep.classList.contains('hidden'), true);
+}
+```
+
+- [ ] **Step 3: Test that a missing current audio pauses the timer**
+
+```js
+async function testMissingCurrentAudioWaitsBeforeCountdown() {
+  const h = createHarness();
+  h.run(`
+    quizWords = WORDS.slice(0, 11);
+    quizIndex = 0;
+    showPage('quiz');
+    prepareRoundAudio();
+  `);
+  h.resolvePendingAudio();
+  await h.flushPromises();
+  h.run(`clearCountdown(); quizIndex = 10; showCard();`);
+
   assert.equal(h.activeIntervalCount(), 0);
   assert.equal(h.elements.quizPrep.classList.contains('hidden'), false);
   h.resolvePendingAudio();
   await h.flushPromises();
   assert.equal(h.activeIntervalCount(), 1);
-  assert.equal(h.elements.cardWord.textContent, 'I');
-}
-
-async function testFailedAudioShowsRetryWithoutCountdown() {
-  const h = createHarness();
-  h.run(`quizWords = WORDS.slice(0, 2); quizIndex = 0; showPage('quiz'); prepareRoundAudio();`);
-  h.rejectFirstPendingAudio();
-  await h.flushPromises();
-  assert.equal(h.activeIntervalCount(), 0);
-  assert.equal(h.elements.audioRetryBtn.classList.contains('hidden'), false);
-}
-
-async function testRetryCanStartQuizAfterFailure() {
-  const h = createHarness();
-  h.run(`quizWords = WORDS.slice(0, 2); quizIndex = 0; showPage('quiz'); prepareRoundAudio();`);
-  h.rejectFirstPendingAudio();
-  await h.flushPromises();
-  h.run('retryAudioPreparation()');
-  h.resolvePendingAudio();
-  await h.flushPromises();
-  assert.equal(h.activeIntervalCount(), 1);
 }
 ```
 
-- [ ] **Step 3: Run tests to verify RED**
+- [ ] **Step 4: Run tests and verify RED**
 
 Run: `node tests/word-hunter.test.js`
 
-Expected: the new tests fail because preparation functions and UI elements do not exist.
+Expected: the ten-word cap fails because the current implementation creates requests for the whole round.
 
-### Task 2: Add quiz preparation UI
+### Task 2: Implement deduplicated rolling loads
 
 **Files:**
 - Modify: `index.html`
 - Test: `tests/word-hunter.test.js`
 
-- [ ] **Step 1: Add preparation markup and styles**
-
-Add `#quizPrep`, `#audioPrepMessage`, and `#audioRetryBtn`. Hide the card area while preparing and reveal it only after successful preload.
-
-```html
-<div class="quiz-prep hidden" id="quizPrep">
-  <div class="quiz-prep-icon">🎧</div>
-  <div class="quiz-prep-message" id="audioPrepMessage">正在准备音频…</div>
-  <button class="audio-retry-btn hidden" id="audioRetryBtn"
-          onclick="retryAudioPreparation()">重新加载</button>
-</div>
-```
-
-- [ ] **Step 2: Run tests**
-
-Run: `node tests/word-hunter.test.js`
-
-Expected: preload tests still fail on missing JavaScript behavior; existing tests remain green.
-
-### Task 3: Implement per-round audio preparation
-
-**Files:**
-- Modify: `index.html`
-- Test: `tests/word-hunter.test.js`
-
-- [ ] **Step 1: Add per-round audio state**
+- [ ] **Step 1: Replace whole-round loading state**
 
 ```js
-let audioEl = null;
+const INITIAL_AUDIO_BATCH_SIZE = 10;
+const AUDIO_LOOKAHEAD_SIZE = 10;
+const AUDIO_LOAD_ATTEMPTS = 2;
+
 let roundAudio = new Map();
-let audioPreparationToken = 0;
-let activeWordAudio = null;
+let pendingAudioLoads = new Map();
+let loadingAudio = new Set();
 ```
 
-- [ ] **Step 2: Add loading lifecycle**
+- [ ] **Step 2: Add a deduplicated loader with one silent retry**
 
-Implement:
+`loadWordAudio(word, token, attemptsLeft)` must:
+
+- return cached audio immediately;
+- return the existing promise when the word is already loading;
+- create one `Audio` attempt at a time;
+- retry once after the first failure;
+- store successful audio in `roundAudio`;
+- remove failed and completed entries from `pendingAudioLoads`;
+- discard stale audio when the batch token changes.
+
+- [ ] **Step 3: Limit the initial gate to ten words**
 
 ```js
-function createPreparedAudio(word) {
-  return new Promise((resolve, reject) => {
-    const audio = new Audio();
-    const cleanup = () => {
-      audio.removeEventListener('canplaythrough', onReady);
-      audio.removeEventListener('error', onError);
-    };
-    const onReady = () => { cleanup(); resolve(audio); };
-    const onError = () => { cleanup(); reject(new Error(`audio failed: ${word.english}`)); };
-    audio.preload = 'auto';
-    audio.addEventListener('canplaythrough', onReady);
-    audio.addEventListener('error', onError);
-    audio.src = getAudioUrl(word);
-    audio.load();
-  });
+const initialWords = quizWords.slice(0, INITIAL_AUDIO_BATCH_SIZE);
+Promise.all(initialWords.map((word) => loadWordAudio(word, token)))
+```
+
+The preparation message remains exactly `正在准备音频…`.
+
+- [ ] **Step 4: Add rolling window fill**
+
+```js
+function preloadAudioWindow(startIndex = quizIndex) {
+  const end = Math.min(quizWords.length, startIndex + AUDIO_LOOKAHEAD_SIZE);
+  for (let index = startIndex; index < end; index++) {
+    loadWordAudio(quizWords[index], audioPreparationToken).catch(() => {});
+  }
 }
 ```
 
-Add `prepareRoundAudio()`, `retryAudioPreparation()`, `clearRoundAudio()`, and preparation-state rendering. Store all successful audio elements only when the active batch completes.
+- [ ] **Step 5: Gate each card on its current audio**
 
-- [ ] **Step 3: Route round start through preparation**
+If `roundAudio` lacks the current word, hide the card, show the generic preparation state, and await `loadWordAudio()`. Render, play, and start the timer only after success. Once rendered, call `preloadAudioWindow()` without exposing background progress.
 
-Change `startHunt()` to show the quiz page and call `prepareRoundAudio()` instead of `showCard()`.
-
-- [ ] **Step 4: Use prepared audio on cards**
-
-Change `speakWord()` to play `roundAudio.get(getKey(currentWord))`. `showCard()` must start the countdown only after preparation has succeeded.
-
-- [ ] **Step 5: Clear audio when leaving**
-
-Call `clearRoundAudio()` from quiz exit and before a new preparation batch so stale loads cannot start a quiz.
-
-- [ ] **Step 6: Run tests to verify GREEN**
+- [ ] **Step 6: Run tests and verify GREEN**
 
 Run: `node tests/word-hunter.test.js`
 
-Expected: all existing and new tests pass.
+Expected: all rolling-window and existing behavior tests pass.
 
-### Task 4: Verify behavior and regression safety
+### Task 3: Verify regression safety
 
 **Files:**
 - Modify if required: `index.html`
 - Modify if required: `tests/word-hunter.test.js`
 
-- [ ] **Step 1: Run the full test suite**
+- [ ] **Step 1: Run the full suite**
 
 Run: `npm test`
 
 Expected: zero failures.
 
-- [ ] **Step 2: Check HTML script syntax**
-
-Extract the inline script and compile it with Node’s `vm.Script`.
+- [ ] **Step 2: Compile the inline script**
 
 Run:
 
@@ -203,15 +166,13 @@ node -e "const fs=require('fs'),vm=require('vm');const h=fs.readFileSync('index.
 
 Expected: `inline script syntax ok`.
 
-- [ ] **Step 3: Inspect the focused diff**
+- [ ] **Step 3: Inspect and commit**
 
 Run: `git diff --check && git diff -- index.html tests/word-hunter.test.js`
 
-Expected: no whitespace errors; diff only contains the preparation UI, audio lifecycle, and tests.
-
-- [ ] **Step 4: Commit implementation**
+Commit:
 
 ```bash
-git add index.html tests/word-hunter.test.js
-git commit -m "fix: preload round audio before word timer"
+git add index.html tests/word-hunter.test.js docs/superpowers/specs/2026-06-21-word-audio-preload-design.md docs/superpowers/plans/2026-06-21-word-audio-preload.md
+git commit -m "perf: stream word audio preload"
 ```
