@@ -470,9 +470,15 @@ function renderHome() {
 // ===== 语音（有道词典 TTS） =====
 let audioEl = null;
 let roundAudio = new Map();
-let loadingAudio = [];
+let pendingAudioLoads = new Map();
+let loadingAudio = new Set();
 let audioPreparationToken = 0;
 let activeWordAudio = null;
+let waitingForAudioIndex = null;
+
+const INITIAL_AUDIO_BATCH_SIZE = 10;
+const AUDIO_LOOKAHEAD_SIZE = 10;
+const AUDIO_LOAD_ATTEMPTS = 2;
 
 function initAudio() {
   if (!audioEl) {
@@ -505,44 +511,111 @@ function discardAudio(audio) {
 
 function clearRoundAudio() {
   audioPreparationToken++;
+  waitingForAudioIndex = null;
   stopActiveWordAudio();
   roundAudio.forEach(discardAudio);
-  loadingAudio.forEach(discardAudio);
+  loadingAudio.forEach((audio) => {
+    if (typeof audio.cancelPreparation === 'function') {
+      audio.cancelPreparation();
+    } else {
+      discardAudio(audio);
+    }
+  });
   roundAudio = new Map();
-  loadingAudio = [];
+  pendingAudioLoads = new Map();
+  loadingAudio = new Set();
 }
 
-function createPreparedAudio(word, onReady) {
+function createAudioAttempt(word, token) {
   const audio = new Audio();
   audio.preload = 'auto';
+  loadingAudio.add(audio);
 
-  const ready = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+
     function cleanup() {
       audio.removeEventListener('canplaythrough', handleReady);
       audio.removeEventListener('error', handleError);
+      loadingAudio.delete(audio);
+      delete audio.cancelPreparation;
+    }
+
+    function fail(error) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      discardAudio(audio);
+      reject(error);
     }
 
     function handleReady() {
+      if (settled) return;
+      settled = true;
       cleanup();
-      onReady();
-      resolve([getKey(word), audio]);
+      if (token !== audioPreparationToken) {
+        discardAudio(audio);
+        reject(new Error('stale audio preparation'));
+        return;
+      }
+      resolve(audio);
     }
 
     function handleError() {
-      cleanup();
-      reject(new Error(`audio failed: ${word.english}`));
+      fail(new Error(`audio failed: ${word.english}`));
     }
 
+    audio.cancelPreparation = () => {
+      fail(new Error('audio preparation cancelled'));
+    };
     audio.addEventListener('canplaythrough', handleReady);
     audio.addEventListener('error', handleError);
     audio.src = getAudioUrl(word);
     audio.load();
   });
-
-  return { audio, ready };
 }
 
-function showAudioPreparation(status, loaded = 0) {
+async function loadWordAudio(word, token = audioPreparationToken, attemptsLeft = AUDIO_LOAD_ATTEMPTS) {
+  const key = getKey(word);
+  if (roundAudio.has(key)) return roundAudio.get(key);
+  if (pendingAudioLoads.has(key)) return pendingAudioLoads.get(key);
+
+  const loadPromise = (async () => {
+    let lastError;
+    for (let attempt = 0; attempt < attemptsLeft; attempt++) {
+      try {
+        const audio = await createAudioAttempt(word, token);
+        if (token !== audioPreparationToken) {
+          discardAudio(audio);
+          throw new Error('stale audio preparation');
+        }
+        roundAudio.set(key, audio);
+        return audio;
+      } catch (error) {
+        lastError = error;
+        if (token !== audioPreparationToken) throw error;
+      }
+    }
+    throw lastError;
+  })();
+
+  pendingAudioLoads.set(key, loadPromise);
+  loadPromise.then(
+    () => {
+      if (pendingAudioLoads.get(key) === loadPromise) {
+        pendingAudioLoads.delete(key);
+      }
+    },
+    () => {
+      if (pendingAudioLoads.get(key) === loadPromise) {
+        pendingAudioLoads.delete(key);
+      }
+    }
+  );
+  return loadPromise;
+}
+
+function showAudioPreparation(status) {
   const prep = document.getElementById('quizPrep');
   const card = document.getElementById('cardArea');
   const retry = document.getElementById('audioRetryBtn');
@@ -557,7 +630,7 @@ function showAudioPreparation(status, loaded = 0) {
     message.textContent = '音频加载失败，请重新加载';
     retry.classList.remove('hidden');
   } else {
-    message.textContent = `正在准备音频 ${loaded}/${quizWords.length}`;
+    message.textContent = '正在准备音频…';
     retry.classList.add('hidden');
   }
 }
@@ -573,36 +646,32 @@ function prepareRoundAudio() {
   clearRevealTimer();
   clearRoundAudio();
   const token = audioPreparationToken;
-  let loaded = 0;
 
-  showAudioPreparation('loading', loaded);
-  const requests = quizWords.map((word) => createPreparedAudio(word, () => {
-    if (token !== audioPreparationToken) return;
-    loaded++;
-    showAudioPreparation('loading', loaded);
-  }));
-  loadingAudio = requests.map((request) => request.audio);
-
-  Promise.all(requests.map((request) => request.ready))
-    .then((entries) => {
+  showAudioPreparation('loading');
+  const initialWords = quizWords.slice(0, INITIAL_AUDIO_BATCH_SIZE);
+  Promise.all(initialWords.map((word) => loadWordAudio(word, token)))
+    .then(() => {
       if (token !== audioPreparationToken) return;
-      loadingAudio = [];
-      roundAudio = new Map(entries);
       showPreparedQuiz();
       showCard();
     })
     .catch(() => {
       if (token !== audioPreparationToken) return;
-      audioPreparationToken++;
-      loadingAudio.forEach(discardAudio);
-      loadingAudio = [];
-      roundAudio = new Map();
+      clearRoundAudio();
       showAudioPreparation('failed');
     });
 }
 
 function retryAudioPreparation() {
   prepareRoundAudio();
+}
+
+function preloadAudioWindow(startIndex = quizIndex) {
+  const token = audioPreparationToken;
+  const end = Math.min(quizWords.length, startIndex + AUDIO_LOOKAHEAD_SIZE);
+  for (let index = startIndex; index < end; index++) {
+    loadWordAudio(quizWords[index], token).catch(() => {});
+  }
 }
 
 function speakWord() {
@@ -765,8 +834,36 @@ function showCard() {
     showReport();
     return;
   }
-  cardFlipped = false;
+
   const w = quizWords[quizIndex];
+  const cardIndex = quizIndex;
+  if (!roundAudio.has(getKey(w))) {
+    showAudioPreparation('loading');
+    if (waitingForAudioIndex === cardIndex) return;
+    waitingForAudioIndex = cardIndex;
+    const token = audioPreparationToken;
+    loadWordAudio(w, token)
+      .then(() => {
+        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
+        waitingForAudioIndex = null;
+        showPreparedQuiz();
+        renderCard(w);
+      })
+      .catch(() => {
+        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
+        waitingForAudioIndex = null;
+        showAudioPreparation('failed');
+      });
+    return;
+  }
+
+  waitingForAudioIndex = null;
+  showPreparedQuiz();
+  renderCard(w);
+}
+
+function renderCard(w) {
+  cardFlipped = false;
   document.getElementById('cardChinese').textContent = '';
   document.getElementById('cardChinese').classList.add('hidden');
   document.getElementById('cardChinese').style.display = '';  // 清除 autoSkip 设的 inline
@@ -782,6 +879,7 @@ function showCard() {
   updateUndoBar();
   speakWord();
   startCountdown();
+  preloadAudioWindow();
 }
 
 function flipCard() {
