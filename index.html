@@ -29,6 +29,22 @@ body {
 }
 #home h1 { font-size: 32px; font-weight: 800; margin-bottom: 32px; }
 
+.pool-switch {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  width: 100%; max-width: 320px;
+  padding: 4px; margin-bottom: 24px;
+  border-radius: 8px; background: #e5e5e7;
+}
+.pool-switch button {
+  min-height: 44px; border: none; border-radius: 6px;
+  background: transparent; color: #6c6c70;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.pool-switch button.active {
+  background: #fff; color: #1d1d1f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .progress-ring-wrap {
   position: relative;
   width: 200px; height: 200px;
@@ -279,6 +295,10 @@ body {
 <div id="home" class="page active">
   <img class="home-logo" src="assets/word-hunter-logo.svg" alt="拿着放大镜寻找字母的小狐狸">
   <h1>单词猎人</h1>
+  <div class="pool-switch" role="tablist" aria-label="选择词汇组">
+    <button id="poolFoundation" role="tab" onclick="selectPool('foundation')">1—200</button>
+    <button id="poolExpansion" role="tab" onclick="selectPool('expansion')">201—400</button>
+  </div>
   <div class="progress-ring-wrap">
     <svg width="200" height="200" aria-hidden="true">
       <circle class="ring-bg" cx="100" cy="100" r="88"/>
@@ -379,15 +399,24 @@ body {
 
 <script src="words-data.js"></script>
 <script>
-// ===== 200 词诊断表 =====
+// ===== 固定词汇池 =====
 const WORDS = globalThis.WORDS;
 if (!Array.isArray(WORDS)) {
   throw new Error('words-data.js did not initialize globalThis.WORDS');
 }
-var DIAGNOSTIC_WORDS = WORDS;
+const WORD_POOLS = globalThis.WORD_POOLS;
+if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation) || !Array.isArray(WORD_POOLS.expansion)) {
+  throw new Error('words-data.js did not initialize globalThis.WORD_POOLS');
+}
+
+const ACTIVE_POOL_KEY = 'wordHunter_activePool';
+var ACTIVE_POOL_ID = localStorage.getItem(ACTIVE_POOL_KEY) === 'expansion'
+  ? 'expansion'
+  : 'foundation';
+var DIAGNOSTIC_WORDS = WORD_POOLS[ACTIVE_POOL_ID];
 var STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
 
-var TOTAL = WORDS.length;
+var TOTAL = DIAGNOSTIC_WORDS.length;
 var CAPTURE_THRESHOLD = 3;
 
 // ===== 数据存储 =====
@@ -411,8 +440,8 @@ function isCaptured(data, w) { return (data[getKey(w)] || 0) >= CAPTURE_THRESHOL
 function isHunting(data, w) { const c = data[getKey(w)]; return c !== undefined && c > 0 && c < CAPTURE_THRESHOLD; }
 function isNew(data, w) { return !hasWord(data, w) || data[getKey(w)] === 0; }
 
-function getCapturedCount(data, pool = WORDS) { return pool.filter(w => isCaptured(data, w)).length; }
-function getHuntingCount(data, pool = WORDS) { return pool.filter(w => isHunting(data, w)).length; }
+function getCapturedCount(data, pool = DIAGNOSTIC_WORDS) { return pool.filter(w => isCaptured(data, w)).length; }
+function getHuntingCount(data, pool = DIAGNOSTIC_WORDS) { return pool.filter(w => isHunting(data, w)).length; }
 
 // ===== 页面切换 =====
 function showPage(id) {
@@ -425,6 +454,16 @@ function showPage(id) {
 }
 
 // ===== 首页 =====
+function selectPool(poolId) {
+  if (!WORD_POOLS[poolId]) return;
+  ACTIVE_POOL_ID = poolId;
+  DIAGNOSTIC_WORDS = WORD_POOLS[poolId];
+  STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
+  TOTAL = DIAGNOSTIC_WORDS.length;
+  localStorage.setItem(ACTIVE_POOL_KEY, poolId);
+  renderHome();
+}
+
 function renderHome() {
   const data = loadData();
   const captured = getCapturedCount(data);
@@ -441,6 +480,15 @@ function renderHome() {
 
   const btn = document.getElementById('startBtn');
   const hint = document.getElementById('homeHint');
+  const foundationTab = document.getElementById('poolFoundation');
+  const expansionTab = document.getElementById('poolExpansion');
+  foundationTab.classList.remove('active');
+  expansionTab.classList.remove('active');
+  document.getElementById(
+    ACTIVE_POOL_ID === 'foundation' ? 'poolFoundation' : 'poolExpansion'
+  ).classList.add('active');
+  foundationTab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === 'foundation' ? 'true' : 'false');
+  expansionTab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === 'expansion' ? 'true' : 'false');
 
   if (captured >= TOTAL) {
     hint.textContent = '200 词已全部捕获 · 本轮复习 20 词';
@@ -450,7 +498,14 @@ function renderHome() {
   } else if (!isDiagnosticDone(data)) {
     const seen = DIAGNOSTIC_WORDS.filter(w => hasWord(data, w)).length;
     const left = TOTAL - seen;
-    hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
+    if (ACTIVE_POOL_ID === 'expansion') {
+      const nextWords = pickRoundWords(data);
+      hint.textContent = seen === 0
+        ? `第二组首轮 · 本轮 ${nextWords.length} 词`
+        : `第二组首轮 · 还剩 ${left} 词`;
+    } else {
+      hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
+    }
     btn.textContent = '开始';
     btn.className = 'start-btn';
     btn.onclick = startHunt;
@@ -701,6 +756,7 @@ function isDiagnosticDone(data = loadData()) {
 }
 
 function isStartupReady(data = loadData()) {
+  if (ACTIVE_POOL_ID !== 'foundation') return true;
   return STARTUP_WORDS.every(w => isCaptured(data, w));
 }
 
@@ -730,7 +786,68 @@ function pickWordsFromPool(pool, data) {
   return picked;
 }
 
+function shuffleWords(words) {
+  return words.slice().sort(() => Math.random() - 0.5);
+}
+
+function pickPriorityWords(pool, data, count, excluded = new Set()) {
+  const available = pool.filter(word => !excluded.has(getKey(word)));
+  const hunting = shuffleWords(available.filter(word => isHunting(data, word)));
+  const unseen = shuffleWords(available.filter(word => isNew(data, word)));
+  const captured = shuffleWords(available.filter(word => isCaptured(data, word)));
+  return [...hunting, ...unseen, ...captured].slice(0, count);
+}
+
+function pickExpansionRound(data) {
+  const oldPool = WORD_POOLS.foundation;
+  const oldWeak = oldPool.filter(word => !isCaptured(data, word));
+  const oldCaptured = oldPool.filter(word => isCaptured(data, word));
+
+  let currentTarget = 16;
+  let oldWeakTarget = 2;
+  if (oldWeak.length > 40) {
+    currentTarget = 8;
+    oldWeakTarget = 10;
+  } else if (oldWeak.length > 10) {
+    currentTarget = 14;
+    oldWeakTarget = 4;
+  }
+
+  const picked = [];
+  const pickedKeys = new Set();
+  function add(words) {
+    words.forEach(word => {
+      const key = getKey(word);
+      if (!pickedKeys.has(key)) {
+        pickedKeys.add(key);
+        picked.push(word);
+      }
+    });
+  }
+
+  add(pickPriorityWords(DIAGNOSTIC_WORDS, data, currentTarget, pickedKeys));
+  add(pickPriorityWords(oldWeak, data, oldWeakTarget, pickedKeys));
+  add(shuffleWords(oldCaptured)
+    .filter(word => !pickedKeys.has(getKey(word)))
+    .slice(0, 2));
+
+  if (picked.length < ROUND_SIZE) {
+    add(pickPriorityWords(
+      [...DIAGNOSTIC_WORDS, ...oldWeak, ...oldCaptured],
+      data,
+      ROUND_SIZE - picked.length,
+      pickedKeys
+    ));
+  }
+
+  return picked.slice(0, ROUND_SIZE);
+}
+
 function pickRoundWords(data) {
+  if (ACTIVE_POOL_ID === 'expansion') {
+    return pickExpansionRound(data);
+  }
+
   if (!isDiagnosticDone(data)) {
     // 首轮诊断未完成：只出还没见过的词
     return DIAGNOSTIC_WORDS.filter(w => !hasWord(data, w));
@@ -902,16 +1019,18 @@ function answer(result) {
   const data = loadData();
   const key = getKey(w);
   const prevValue = data[key];
-  const firstRound = !isDiagnosticDone(data);
+  const firstEncounter = !hasWord(data, w);
 
-  if (isCaptured(data, w) && !firstRound) {
+  if (isCaptured(data, w)) {
     // 已捕获词只做复核，不回退状态
   } else if (result === 'correct') {
-    // 首轮诊断：答对直接捕获；后续轮次：逐次累加
-    data[key] = firstRound ? CAPTURE_THRESHOLD : (data[key] || 0) + 1;
+    // 第一次见到且答对直接捕获；旧词每次只增加一次
+    data[key] = firstEncounter
+      ? CAPTURE_THRESHOLD
+      : Math.min(CAPTURE_THRESHOLD, (data[key] || 0) + 1);
   } else if (result === 'familiar') {
-    // 有印象：首轮设1（瞄准中），后续保持原值
-    data[key] = firstRound ? 1 : (data[key] || 0);
+    // 第一次有印象设为1；旧词保持原状态
+    data[key] = firstEncounter ? 1 : (data[key] || 0);
   }
   saveData(data);
 

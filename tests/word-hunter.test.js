@@ -43,6 +43,7 @@ function createHarness() {
     'reportTitle', 'reportSub', 'statNew', 'statHunting', 'statTotal',
     'progressBig', 'nextBtn', 'mapStats', 'masteryMap', 'cardArea',
     'quizPrep', 'audioPrepMessage', 'audioRetryBtn',
+    'poolFoundation', 'poolExpansion',
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, makeElement()]));
   ['home', 'quiz', 'report', 'mappage'].forEach((id) => {
@@ -471,15 +472,178 @@ function testMalformedStoredDataFallsBackToEmptyState() {
   assert.equal(h.run('pickRoundWords(loadData()).length'), 200);
 }
 
-function testWordListHasTwoHundredUniqueStorageKeys() {
+function testWordListHasFourHundredUniqueStorageKeys() {
   const h = createHarness();
   const result = h.run(`({
     count: WORDS.length,
     uniqueKeys: new Set(WORDS.map(getKey)).size
   })`);
 
-  assert.equal(result.count, 200);
-  assert.equal(result.uniqueKeys, 200);
+  assert.equal(result.count, 400);
+  assert.equal(result.uniqueKeys, 400);
+}
+
+function testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups() {
+  const h = createHarness();
+  const result = h.run(`({
+    foundation: WORD_POOLS.foundation.length,
+    expansion: WORD_POOLS.expansion.length,
+    expansionGeneral: WORD_POOLS.expansion.filter((word) => word.source === '通用高频').length,
+    expansionPep: WORD_POOLS.expansion.filter((word) => word.source === 'PEP六上').length,
+    expansionStartsAt: WORD_POOLS.expansion[0].position,
+    expansionEndsAt: WORD_POOLS.expansion[199].position
+  })`);
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(result)),
+    {
+      foundation: 200,
+      expansion: 200,
+      expansionGeneral: 120,
+      expansionPep: 80,
+      expansionStartsAt: 201,
+      expansionEndsAt: 400,
+    }
+  );
+}
+
+function testSecondPoolCanBeSelectedWithoutFinishingFirstPool() {
+  const h = createHarness();
+  h.run(`selectPool('expansion')`);
+
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'expansion');
+  assert.equal(h.run('DIAGNOSTIC_WORDS[0].position'), 201);
+  assert.equal(h.run('DIAGNOSTIC_WORDS[199].position'), 400);
+  assert.equal(h.storage.get('wordHunter_activePool'), 'expansion');
+  assert.equal(h.elements.poolExpansion.classList.contains('active'), true);
+}
+
+function testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured() {
+  const h = createHarness();
+  const result = h.run(`
+    selectPool('expansion');
+    const data = {};
+    WORD_POOLS.foundation.slice(0, 2).forEach((word) => {
+      data[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    saveData(data);
+    const picked = pickRoundWords(data);
+    ({
+      total: picked.length,
+      current: picked.filter((word) => word.poolId === 'expansion').length,
+      oldWeak: picked.filter((word) =>
+        word.poolId === 'foundation' && !isCaptured(data, word)
+      ).length,
+      oldCaptured: picked.filter((word) =>
+        word.poolId === 'foundation' && isCaptured(data, word)
+      ).length
+    });
+  `);
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(result)),
+    { total: 20, current: 8, oldWeak: 10, oldCaptured: 2 }
+  );
+}
+
+function testSecondPoolDynamicRoundUsesSixteenNewWhenOldPoolIsNearlyClear() {
+  const h = createHarness();
+  const result = h.run(`
+    selectPool('expansion');
+    const data = {};
+    WORD_POOLS.foundation.forEach((word) => {
+      data[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    WORD_POOLS.foundation.slice(0, 2).forEach((word) => {
+      data[getKey(word)] = 1;
+    });
+    saveData(data);
+    const picked = pickRoundWords(data);
+    ({
+      total: picked.length,
+      current: picked.filter((word) => word.poolId === 'expansion').length,
+      oldWeak: picked.filter((word) =>
+        word.poolId === 'foundation' && !isCaptured(data, word)
+      ).length,
+      oldCaptured: picked.filter((word) =>
+        word.poolId === 'foundation' && isCaptured(data, word)
+      ).length
+    });
+  `);
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(result)),
+    { total: 20, current: 16, oldWeak: 2, oldCaptured: 2 }
+  );
+}
+
+function testSecondPoolDynamicRoundUsesFourteenNewWhenOldPoolHasSomeGaps() {
+  const h = createHarness();
+  const result = h.run(`
+    selectPool('expansion');
+    const data = {};
+    WORD_POOLS.foundation.forEach((word) => {
+      data[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    WORD_POOLS.foundation.slice(0, 20).forEach((word) => {
+      data[getKey(word)] = 1;
+    });
+    saveData(data);
+    const picked = pickRoundWords(data);
+    ({
+      total: picked.length,
+      current: picked.filter((word) => word.poolId === 'expansion').length,
+      oldWeak: picked.filter((word) =>
+        word.poolId === 'foundation' && !isCaptured(data, word)
+      ).length,
+      oldCaptured: picked.filter((word) =>
+        word.poolId === 'foundation' && isCaptured(data, word)
+      ).length
+    });
+  `);
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(result)),
+    { total: 20, current: 14, oldWeak: 4, oldCaptured: 2 }
+  );
+}
+
+function testSecondPoolFirstRoundDoesNotDowngradeCapturedOldWord() {
+  const h = createHarness();
+  h.run(`
+    selectPool('expansion');
+    const data = {};
+    data[getKey(WORD_POOLS.foundation[0])] = CAPTURE_THRESHOLD;
+    saveData(data);
+    quizWords = [WORD_POOLS.foundation[0]];
+    quizIndex = 0;
+    roundResults = [];
+    answer('familiar');
+  `);
+
+  assert.equal(
+    h.run('loadData()[getKey(WORD_POOLS.foundation[0])]'),
+    3
+  );
+}
+
+function testSecondPoolFirstRoundOnlyIncrementsHuntingOldWordOnce() {
+  const h = createHarness();
+  h.run(`
+    selectPool('expansion');
+    const data = {};
+    data[getKey(WORD_POOLS.foundation[0])] = 1;
+    saveData(data);
+    quizWords = [WORD_POOLS.foundation[0]];
+    quizIndex = 0;
+    roundResults = [];
+    answer('correct');
+  `);
+
+  assert.equal(
+    h.run('loadData()[getKey(WORD_POOLS.foundation[0])]'),
+    2
+  );
 }
 
 function testVocabularyModelExposesStartupSlice() {
@@ -541,7 +705,14 @@ const tests = [
   testReportNeverShowsNegativeNewCaptures,
   testLegacyDiagnosticFlagCannotSkipUnseenWords,
   testMalformedStoredDataFallsBackToEmptyState,
-  testWordListHasTwoHundredUniqueStorageKeys,
+  testWordListHasFourHundredUniqueStorageKeys,
+  testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups,
+  testSecondPoolCanBeSelectedWithoutFinishingFirstPool,
+  testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured,
+  testSecondPoolDynamicRoundUsesSixteenNewWhenOldPoolIsNearlyClear,
+  testSecondPoolDynamicRoundUsesFourteenNewWhenOldPoolHasSomeGaps,
+  testSecondPoolFirstRoundDoesNotDowngradeCapturedOldWord,
+  testSecondPoolFirstRoundOnlyIncrementsHuntingOldWordOnce,
   testVocabularyModelExposesStartupSlice,
   testStartupStageOnlyUsesStartupWords,
   testHomeUsesProjectLogoAsset,
