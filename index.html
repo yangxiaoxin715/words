@@ -491,10 +491,20 @@ function renderHome() {
   expansionTab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === 'expansion' ? 'true' : 'false');
 
   if (captured >= TOTAL) {
-    hint.textContent = '200 词已全部捕获 · 本轮复习 20 词';
-    btn.textContent = '继续复习';
-    btn.className = 'start-btn all-done';
-    btn.onclick = startHunt;
+    if (ACTIVE_POOL_ID === 'foundation' && WORD_POOLS.expansion) {
+      hint.textContent = '200 词已全部捕获！';
+      btn.textContent = '进入 201—400 →';
+      btn.className = 'start-btn';
+      btn.onclick = function () {
+        selectPool('expansion');
+        startHunt();
+      };
+    } else {
+      hint.textContent = '200 词已全部捕获 · 本轮复习 20 词';
+      btn.textContent = '继续复习';
+      btn.className = 'start-btn all-done';
+      btn.onclick = startHunt;
+    }
   } else if (!isDiagnosticDone(data)) {
     const seen = DIAGNOSTIC_WORDS.filter(w => hasWord(data, w)).length;
     const left = TOTAL - seen;
@@ -1134,8 +1144,16 @@ function showReport() {
   // 按钮
   const nextBtn = document.getElementById('nextBtn');
   if (remaining === 0) {
-    nextBtn.textContent = '继续复习（20 词）→';
-    nextBtn.onclick = startHunt;
+    if (ACTIVE_POOL_ID === 'foundation' && WORD_POOLS.expansion) {
+      nextBtn.textContent = '进入 201—400 →';
+      nextBtn.onclick = function () {
+        selectPool('expansion');
+        startHunt();
+      };
+    } else {
+      nextBtn.textContent = '继续复习（20 词）→';
+      nextBtn.onclick = startHunt;
+    }
   } else {
     nextBtn.textContent = `继续（剩 ${remaining} 词）→`;
     nextBtn.onclick = startHunt;
