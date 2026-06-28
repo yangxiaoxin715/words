@@ -547,6 +547,7 @@ function testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups() {
     foundation: WORD_POOLS.foundation.length,
     expansion: WORD_POOLS.expansion.length,
     expansionGeneral: WORD_POOLS.expansion.filter((word) => word.source === '通用高频').length,
+    expansionStory: WORD_POOLS.expansion.filter((word) => word.source === '故事高频').length,
     expansionPep: WORD_POOLS.expansion.filter((word) => word.source === 'PEP六上').length,
     expansionStartsAt: WORD_POOLS.expansion[0].position,
     expansionEndsAt: WORD_POOLS.expansion[199].position
@@ -558,7 +559,8 @@ function testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups() {
       foundation: 200,
       expansion: 200,
       expansionGeneral: 120,
-      expansionPep: 80,
+      expansionStory: 50,
+      expansionPep: 30,
       expansionStartsAt: 201,
       expansionEndsAt: 400,
     }
