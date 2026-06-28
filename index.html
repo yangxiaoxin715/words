@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>单词猎人</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
 body {
   font-family: -apple-system, "Helvetica Neue", "PingFang SC", sans-serif;
   background: #f5f5f7;
@@ -295,6 +295,7 @@ body {
 <div id="home" class="page active">
   <img class="home-logo" src="assets/word-hunter-logo.svg" alt="拿着放大镜寻找字母的小狐狸">
   <h1>单词猎人</h1>
+  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v4 · 0628</div>
   <div class="pool-switch" role="tablist" aria-label="选择词汇组">
     <button id="poolFoundation" role="tab" onclick="selectPool('foundation')">1—200</button>
     <button id="poolExpansion" role="tab" onclick="selectPool('expansion')">201—400</button>
@@ -398,6 +399,13 @@ body {
 </div>
 
 <script src="words-data.js"></script>
+<script>
+// 全局错误捕获
+window.onerror = function(msg, url, line) {
+  alert('JS错误 L' + line + ': ' + msg);
+  return false;
+};
+</script>
 <script>
 // ===== 固定词汇池 =====
 const WORDS = globalThis.WORDS;
@@ -904,6 +912,7 @@ function startHunt() {
   quizWords.sort(() => Math.random() - 0.5);
   quizIndex = 0;
   roundResults = [];
+  answerLock = false;
 
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
@@ -1043,31 +1052,41 @@ function flipCard() {
   document.getElementById('btnGroup').classList.remove('hidden');
 }
 
+let answerLock = false;
 function answer(result) {
+  if (answerLock) return;
   if (quizIndex >= quizWords.length) return;
-  const w = quizWords[quizIndex];
-  const data = loadData();
-  const key = getKey(w);
-  const prevValue = data[key];
-  const firstEncounter = !hasWord(data, w);
+  answerLock = true;
+  try {
+    const w = quizWords[quizIndex];
+    const data = loadData();
+    const key = getKey(w);
+    const prevValue = data[key];
+    const firstEncounter = !hasWord(data, w);
 
-  if (isCaptured(data, w)) {
-    // 已捕获词只做复核，不回退状态
-  } else if (result === 'correct') {
-    // 第一次见到且答对直接捕获；旧词每次只增加一次
-    data[key] = firstEncounter
-      ? CAPTURE_THRESHOLD
-      : Math.min(CAPTURE_THRESHOLD, (data[key] || 0) + 1);
-  } else if (result === 'familiar') {
-    // 第一次有印象设为1；旧词保持原状态
-    data[key] = firstEncounter ? 1 : (data[key] || 0);
+    if (isCaptured(data, w)) {
+      // 已捕获词只做复核，不回退状态
+    } else if (result === 'correct') {
+      // 第一次见到且答对直接捕获；旧词每次只增加一次
+      data[key] = firstEncounter
+        ? CAPTURE_THRESHOLD
+        : Math.min(CAPTURE_THRESHOLD, (data[key] || 0) + 1);
+    } else if (result === 'familiar') {
+      // 第一次有印象设为1；旧词保持原状态
+      data[key] = firstEncounter ? 1 : (data[key] || 0);
+    }
+    saveData(data);
+
+    roundResults.push({ word: w, result, prevValue, nextValue: data[key] || 0 });
+    quizIndex++;
+    updateUndoBar();
+    showCard();
+  } catch (e) {
+    console.error('answer() error:', e);
+    alert('出错了: ' + e.message);
+  } finally {
+    answerLock = false;
   }
-  saveData(data);
-
-  roundResults.push({ word: w, result, prevValue, nextValue: data[key] || 0 });
-  quizIndex++;
-  updateUndoBar();
-  showCard();
 }
 
 function undoLast() {
@@ -1114,6 +1133,7 @@ function exitQuiz() {
 
 // ===== 战报 =====
 function showReport() {
+  try {
   clearRoundAudio();
   const data = loadData();
   const capturedNow = getCapturedCount(data);
@@ -1180,6 +1200,11 @@ function showReport() {
   }
 
   showPage('report');
+  } catch (e) {
+    console.error('showReport() error:', e);
+    alert('战报出错: ' + e.message);
+    showPage('report');
+  }
 }
 
 // ===== 掌握地图 =====
