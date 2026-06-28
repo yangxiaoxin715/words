@@ -5,12 +5,13 @@ const vm = require('node:vm');
 
 const htmlPath = path.join(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
-const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
+const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)]
+  .map((match) => match[1]);
 const wordsDataPath = path.join(__dirname, '..', 'words-data.js');
 const wordsData = fs.readFileSync(wordsDataPath, 'utf8');
 
-if (!scriptMatch) {
-  throw new Error('Could not find inline script in index.html');
+if (inlineScripts.length === 0) {
+  throw new Error('Could not find inline scripts in index.html');
 }
 
 function makeElement() {
@@ -55,6 +56,7 @@ function createHarness() {
   const timeouts = new Map();
   const intervals = new Map();
   const audioInstances = [];
+  const alerts = [];
   let nextTimerId = 1;
 
   const context = vm.createContext({
@@ -127,6 +129,10 @@ function createHarness() {
       },
       revokeObjectURL() {},
     },
+    alert(message) {
+      alerts.push(String(message));
+    },
+    scrollTo() {},
     confirm() {
       return true;
     },
@@ -148,14 +154,16 @@ function createHarness() {
     },
   });
   context.globalThis = context;
+  context.window = context;
 
   vm.runInContext(wordsData, context);
-  vm.runInContext(scriptMatch[1], context);
+  inlineScripts.forEach((script) => vm.runInContext(script, context));
 
   return {
     context,
     elements,
     storage,
+    alerts,
     audioInstances,
     run(code) {
       return vm.runInContext(code, context);
@@ -377,6 +385,56 @@ function testReviewRoundsContainTwentyWords() {
   `);
 
   assert.equal(h.run('pickRoundWords(loadData()).length'), 20);
+}
+
+function testStaleLastReviewAnswerShowsReport() {
+  const h = createHarness();
+  h.run(`
+    const captured = {};
+    WORD_POOLS.foundation.forEach((word) => {
+      captured[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    saveData(captured);
+    quizWords = WORD_POOLS.foundation.slice(0, 20);
+    quizIndex = quizWords.length;
+    roundResults = quizWords.map((word) => ({
+      word,
+      result: 'timeout',
+      prevValue: CAPTURE_THRESHOLD,
+      nextValue: CAPTURE_THRESHOLD,
+    }));
+    showPage('quiz');
+    answer('correct');
+  `);
+
+  assert.equal(h.activePage(), 'report');
+  assert.equal(h.alerts.length, 0);
+  assert.match(h.elements.nextBtn.textContent, /进入 201—400/);
+}
+
+function testFoundationCompletionReportButtonStartsSecondPool() {
+  const h = createHarness();
+  h.run(`
+    const captured = {};
+    WORD_POOLS.foundation.forEach((word) => {
+      captured[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    saveData(captured);
+    quizWords = [WORD_POOLS.foundation[199]];
+    quizIndex = 0;
+    roundResults = [];
+    showPage('quiz');
+    answer('correct');
+  `);
+
+  assert.equal(h.activePage(), 'report');
+  assert.match(h.elements.nextBtn.textContent, /进入 201—400/);
+
+  h.elements.nextBtn.onclick();
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'expansion');
+  assert.equal(h.activePage(), 'quiz');
+  assert.equal(h.run('quizWords.length'), 20);
+  assert.equal(h.run('quizWords.some((word) => word.poolId === "expansion")'), true);
 }
 
 function testExitCancelsPendingTimeoutAdvance() {
@@ -699,6 +757,8 @@ const tests = [
   testFirstDiagnosticRoundResumesOnlyUnseenWords,
   testLastDiagnosticTimeoutCanExitIntoReview,
   testReviewRoundsContainTwentyWords,
+  testStaleLastReviewAnswerShowsReport,
+  testFoundationCompletionReportButtonStartsSecondPool,
   testExitCancelsPendingTimeoutAdvance,
   testReportUsesFinalStatusForHuntingTimeout,
   testTimeoutKeepsCapturedWordsCaptured,

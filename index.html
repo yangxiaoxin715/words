@@ -1040,8 +1040,17 @@ function renderCard(w) {
   preloadAudioWindow();
 }
 
+function finishRoundIfPastEnd() {
+  if (quizIndex < quizWords.length) return false;
+  clearCountdown();
+  clearRevealTimer();
+  if (quizWords.length > 0) showReport();
+  return true;
+}
+
 function flipCard() {
-  if (cardFlipped || quizIndex >= quizWords.length) return;
+  if (cardFlipped) return;
+  if (finishRoundIfPastEnd()) return;
   cardFlipped = true;
   clearCountdown();
   document.getElementById('countdown').classList.add('hidden');
@@ -1055,7 +1064,7 @@ function flipCard() {
 let answerLock = false;
 function answer(result) {
   if (answerLock) return;
-  if (quizIndex >= quizWords.length) return;
+  if (finishRoundIfPastEnd()) return;
   answerLock = true;
   try {
     const w = quizWords[quizIndex];
