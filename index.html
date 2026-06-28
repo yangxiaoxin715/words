@@ -451,6 +451,7 @@ function showPage(id) {
   }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 // ===== 首页 =====
@@ -943,7 +944,7 @@ function startCountdown() {
 }
 
 function autoSkip() {
-  if (cardFlipped) return; // 用户已翻卡，由用户决定
+  if (cardFlipped || quizIndex >= quizWords.length) return;
   const w = quizWords[quizIndex];
   const data = loadData();
   const key = getKey(w);
@@ -1031,7 +1032,7 @@ function renderCard(w) {
 }
 
 function flipCard() {
-  if (cardFlipped) return;
+  if (cardFlipped || quizIndex >= quizWords.length) return;
   cardFlipped = true;
   clearCountdown();
   document.getElementById('countdown').classList.add('hidden');
@@ -1043,6 +1044,7 @@ function flipCard() {
 }
 
 function answer(result) {
+  if (quizIndex >= quizWords.length) return;
   const w = quizWords[quizIndex];
   const data = loadData();
   const key = getKey(w);
