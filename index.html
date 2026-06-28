@@ -731,7 +731,24 @@ function prepareRoundAudio() {
 }
 
 function retryAudioPreparation() {
-  prepareRoundAudio();
+  if (quizIndex > 0 && quizIndex < quizWords.length) {
+    // 中途重试：只加载当前词，不清掉已缓存的音频
+    const token = audioPreparationToken;
+    const w = quizWords[quizIndex];
+    showAudioPreparation('loading');
+    loadWordAudio(w, token)
+      .then(() => {
+        if (token !== audioPreparationToken || quizIndex >= quizWords.length) return;
+        showPreparedQuiz();
+        showCard();
+      })
+      .catch(() => {
+        if (token !== audioPreparationToken) return;
+        showAudioPreparation('failed');
+      });
+  } else {
+    prepareRoundAudio();
+  }
 }
 
 function preloadAudioWindow(startIndex = quizIndex) {
@@ -926,6 +943,7 @@ function startCountdown() {
 }
 
 function autoSkip() {
+  if (cardFlipped) return; // 用户已翻卡，由用户决定
   const w = quizWords[quizIndex];
   const data = loadData();
   const key = getKey(w);
