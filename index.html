@@ -295,10 +295,11 @@ body {
 <div id="home" class="page active">
   <img class="home-logo" src="assets/word-hunter-logo.svg" alt="拿着放大镜寻找字母的小狐狸">
   <h1>单词猎人</h1>
-  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v4 · 0628</div>
+  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v5 · 0629</div>
   <div class="pool-switch" role="tablist" aria-label="选择词汇组">
     <button id="poolFoundation" role="tab" onclick="selectPool('foundation')">1—200</button>
     <button id="poolExpansion" role="tab" onclick="selectPool('expansion')">201—400</button>
+    <button id="poolUpgrade" role="tab" onclick="selectPool('upgrade')">401—600</button>
   </div>
   <div class="progress-ring-wrap">
     <svg width="200" height="200" aria-hidden="true">
@@ -398,7 +399,7 @@ body {
   <button class="btn-back-home" onclick="goHome()">返回首页</button>
 </div>
 
-<script src="words-data.js?v=20260628-story-vocab"></script>
+<script src="words-data.js?v=20260629-600-vocab"></script>
 <script>
 // 全局错误捕获
 window.onerror = function(msg, url, line) {
@@ -413,13 +414,31 @@ if (!Array.isArray(WORDS)) {
   throw new Error('words-data.js did not initialize globalThis.WORDS');
 }
 const WORD_POOLS = globalThis.WORD_POOLS;
-if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation) || !Array.isArray(WORD_POOLS.expansion)) {
+if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation) || !Array.isArray(WORD_POOLS.expansion) || !Array.isArray(WORD_POOLS.upgrade)) {
   throw new Error('words-data.js did not initialize globalThis.WORD_POOLS');
 }
 
 const ACTIVE_POOL_KEY = 'wordHunter_activePool';
-var ACTIVE_POOL_ID = localStorage.getItem(ACTIVE_POOL_KEY) === 'expansion'
-  ? 'expansion'
+const POOL_TABS = [
+  { id: 'foundation', el: 'poolFoundation', label: '1—200', name: '第一组' },
+  { id: 'expansion', el: 'poolExpansion', label: '201—400', name: '第二组' },
+  { id: 'upgrade', el: 'poolUpgrade', label: '401—600', name: '第三组' },
+];
+function getPoolOrder() { return POOL_TABS.map(pool => pool.id).filter(id => WORD_POOLS[id]); }
+function getPoolMeta(poolId) { return POOL_TABS.find(pool => pool.id === poolId); }
+function getPoolLabel(poolId) { return getPoolMeta(poolId)?.label || poolId; }
+function getPoolName(poolId) { return getPoolMeta(poolId)?.name || getPoolLabel(poolId); }
+function getNextPoolId(poolId = ACTIVE_POOL_ID) {
+  const order = getPoolOrder();
+  return order[order.indexOf(poolId) + 1];
+}
+function getPreviousPoolWords(poolId = ACTIVE_POOL_ID) {
+  const order = getPoolOrder();
+  const currentIndex = order.indexOf(poolId);
+  return order.slice(0, Math.max(0, currentIndex)).flatMap(id => WORD_POOLS[id]);
+}
+var ACTIVE_POOL_ID = WORD_POOLS[localStorage.getItem(ACTIVE_POOL_KEY)]
+  ? localStorage.getItem(ACTIVE_POOL_KEY)
   : 'foundation';
 var DIAGNOSTIC_WORDS = WORD_POOLS[ACTIVE_POOL_ID];
 var STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
@@ -489,23 +508,23 @@ function renderHome() {
 
   const btn = document.getElementById('startBtn');
   const hint = document.getElementById('homeHint');
-  const foundationTab = document.getElementById('poolFoundation');
-  const expansionTab = document.getElementById('poolExpansion');
-  foundationTab.classList.remove('active');
-  expansionTab.classList.remove('active');
-  document.getElementById(
-    ACTIVE_POOL_ID === 'foundation' ? 'poolFoundation' : 'poolExpansion'
-  ).classList.add('active');
-  foundationTab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === 'foundation' ? 'true' : 'false');
-  expansionTab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === 'expansion' ? 'true' : 'false');
+  POOL_TABS.forEach(pool => {
+    const tab = document.getElementById(pool.el);
+    if (!tab) return;
+    tab.classList.remove('active');
+    tab.style.display = WORD_POOLS[pool.id] ? '' : 'none';
+    tab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === pool.id ? 'true' : 'false');
+    if (ACTIVE_POOL_ID === pool.id) tab.classList.add('active');
+  });
 
   if (captured >= TOTAL) {
-    if (ACTIVE_POOL_ID === 'foundation' && WORD_POOLS.expansion) {
+    const nextPoolId = getNextPoolId();
+    if (nextPoolId) {
       hint.textContent = '200 词已全部捕获！';
-      btn.textContent = '进入 201—400 →';
+      btn.textContent = `进入 ${getPoolLabel(nextPoolId)} →`;
       btn.className = 'start-btn';
       btn.onclick = function () {
-        selectPool('expansion');
+        selectPool(nextPoolId);
         startHunt();
       };
     } else {
@@ -517,11 +536,11 @@ function renderHome() {
   } else if (!isDiagnosticDone(data)) {
     const seen = DIAGNOSTIC_WORDS.filter(w => hasWord(data, w)).length;
     const left = TOTAL - seen;
-    if (ACTIVE_POOL_ID === 'expansion') {
+    if (ACTIVE_POOL_ID !== 'foundation') {
       const nextWords = pickRoundWords(data);
       hint.textContent = seen === 0
-        ? `第二组首轮 · 本轮 ${nextWords.length} 词`
-        : `第二组首轮 · 还剩 ${left} 词`;
+        ? `${getPoolName(ACTIVE_POOL_ID)}首轮 · 本轮 ${nextWords.length} 词`
+        : `${getPoolName(ACTIVE_POOL_ID)}首轮 · 还剩 ${left} 词`;
     } else {
       hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
     }
@@ -834,8 +853,8 @@ function pickPriorityWords(pool, data, count, excluded = new Set()) {
   return [...hunting, ...unseen, ...captured].slice(0, count);
 }
 
-function pickExpansionRound(data) {
-  const oldPool = WORD_POOLS.foundation;
+function pickAdvancedRound(data) {
+  const oldPool = getPreviousPoolWords();
   const oldWeak = oldPool.filter(word => !isCaptured(data, word));
   const oldCaptured = oldPool.filter(word => isCaptured(data, word));
 
@@ -880,8 +899,8 @@ function pickExpansionRound(data) {
 }
 
 function pickRoundWords(data) {
-  if (ACTIVE_POOL_ID === 'expansion') {
-    return pickExpansionRound(data);
+  if (ACTIVE_POOL_ID !== 'foundation') {
+    return pickAdvancedRound(data);
   }
 
   if (!isDiagnosticDone(data)) {
@@ -1193,10 +1212,11 @@ function showReport() {
   // 按钮
   const nextBtn = document.getElementById('nextBtn');
   if (remaining === 0) {
-    if (ACTIVE_POOL_ID === 'foundation' && WORD_POOLS.expansion) {
-      nextBtn.textContent = '进入 201—400 →';
+    const nextPoolId = getNextPoolId();
+    if (nextPoolId) {
+      nextBtn.textContent = `进入 ${getPoolLabel(nextPoolId)} →`;
       nextBtn.onclick = function () {
-        selectPool('expansion');
+        selectPool(nextPoolId);
         startHunt();
       };
     } else {
