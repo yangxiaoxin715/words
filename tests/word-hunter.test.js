@@ -44,7 +44,7 @@ function createHarness() {
     'reportTitle', 'reportSub', 'statNew', 'statHunting', 'statTotal',
     'progressBig', 'nextBtn', 'mapStats', 'masteryMap', 'cardArea',
     'quizPrep', 'audioPrepMessage', 'audioRetryBtn',
-    'poolFoundation', 'poolExpansion',
+    'poolFoundation', 'poolExpansion', 'poolUpgrade',
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, makeElement()]));
   ['home', 'quiz', 'report', 'mappage'].forEach((id) => {
@@ -530,27 +530,34 @@ function testMalformedStoredDataFallsBackToEmptyState() {
   assert.equal(h.run('pickRoundWords(loadData()).length'), 200);
 }
 
-function testWordListHasFourHundredUniqueStorageKeys() {
+function testWordListHasSixHundredUniqueStorageKeys() {
   const h = createHarness();
   const result = h.run(`({
     count: WORDS.length,
     uniqueKeys: new Set(WORDS.map(getKey)).size
   })`);
 
-  assert.equal(result.count, 400);
-  assert.equal(result.uniqueKeys, 400);
+  assert.equal(result.count, 600);
+  assert.equal(result.uniqueKeys, 600);
 }
 
-function testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups() {
+function testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups() {
   const h = createHarness();
   const result = h.run(`({
     foundation: WORD_POOLS.foundation.length,
     expansion: WORD_POOLS.expansion.length,
+    upgrade: WORD_POOLS.upgrade.length,
     expansionGeneral: WORD_POOLS.expansion.filter((word) => word.source === '通用高频').length,
     expansionStory: WORD_POOLS.expansion.filter((word) => word.source === '故事高频').length,
     expansionPep: WORD_POOLS.expansion.filter((word) => word.source === 'PEP六上').length,
+    upgradeAction: WORD_POOLS.upgrade.filter((word) => word.source === '故事动作/状态').length,
+    upgradeForm: WORD_POOLS.upgrade.filter((word) => word.source === '真实故事词形').length,
+    upgradeLogic: WORD_POOLS.upgrade.filter((word) => word.source === '逻辑/线索词').length,
+    upgradeEmotion: WORD_POOLS.upgrade.filter((word) => word.source === '情绪/人物变化').length,
     expansionStartsAt: WORD_POOLS.expansion[0].position,
-    expansionEndsAt: WORD_POOLS.expansion[199].position
+    expansionEndsAt: WORD_POOLS.expansion[199].position,
+    upgradeStartsAt: WORD_POOLS.upgrade[0].position,
+    upgradeEndsAt: WORD_POOLS.upgrade[199].position
   })`);
 
   assert.deepEqual(
@@ -558,11 +565,18 @@ function testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups() {
     {
       foundation: 200,
       expansion: 200,
+      upgrade: 200,
       expansionGeneral: 120,
       expansionStory: 50,
       expansionPep: 30,
+      upgradeAction: 80,
+      upgradeForm: 50,
+      upgradeLogic: 40,
+      upgradeEmotion: 30,
       expansionStartsAt: 201,
       expansionEndsAt: 400,
+      upgradeStartsAt: 401,
+      upgradeEndsAt: 600,
     }
   );
 }
@@ -576,6 +590,44 @@ function testSecondPoolCanBeSelectedWithoutFinishingFirstPool() {
   assert.equal(h.run('DIAGNOSTIC_WORDS[199].position'), 400);
   assert.equal(h.storage.get('wordHunter_activePool'), 'expansion');
   assert.equal(h.elements.poolExpansion.classList.contains('active'), true);
+}
+
+function testThirdPoolCanBeSelectedAfterVocabularyExpansion() {
+  const h = createHarness();
+  h.run(`selectPool('upgrade')`);
+
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'upgrade');
+  assert.equal(h.run('DIAGNOSTIC_WORDS[0].position'), 401);
+  assert.equal(h.run('DIAGNOSTIC_WORDS[199].position'), 600);
+  assert.equal(h.storage.get('wordHunter_activePool'), 'upgrade');
+  assert.equal(h.elements.poolUpgrade.classList.contains('active'), true);
+}
+
+function testExpansionCompletionReportButtonStartsThirdPool() {
+  const h = createHarness();
+  h.run(`
+    selectPool('expansion');
+    const data = {};
+    WORD_POOLS.expansion.forEach((word) => {
+      data[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    saveData(data);
+    quizWords = [WORD_POOLS.expansion[199]];
+    quizIndex = quizWords.length;
+    roundResults = [{
+      word: WORD_POOLS.expansion[199],
+      result: 'correct',
+      prevValue: CAPTURE_THRESHOLD - 1,
+      nextValue: CAPTURE_THRESHOLD,
+    }];
+    showReport();
+  `);
+
+  assert.match(h.elements.nextBtn.textContent, /进入 401—600/);
+  h.elements.nextBtn.onclick();
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'upgrade');
+  assert.equal(h.run('quizWords.length'), 20);
+  assert.equal(h.run('quizWords.some((word) => word.poolId === "upgrade")'), true);
 }
 
 function testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured() {
@@ -767,9 +819,11 @@ const tests = [
   testReportNeverShowsNegativeNewCaptures,
   testLegacyDiagnosticFlagCannotSkipUnseenWords,
   testMalformedStoredDataFallsBackToEmptyState,
-  testWordListHasFourHundredUniqueStorageKeys,
-  testVocabularyPoolsExposeTwoFixedTwoHundredWordGroups,
+  testWordListHasSixHundredUniqueStorageKeys,
+  testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups,
   testSecondPoolCanBeSelectedWithoutFinishingFirstPool,
+  testThirdPoolCanBeSelectedAfterVocabularyExpansion,
+  testExpansionCompletionReportButtonStartsThirdPool,
   testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured,
   testSecondPoolDynamicRoundUsesSixteenNewWhenOldPoolIsNearlyClear,
   testSecondPoolDynamicRoundUsesFourteenNewWhenOldPoolHasSomeGaps,

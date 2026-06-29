@@ -2,7 +2,7 @@
 
 ## 目标
 
-用已经写好的英文故事，反推 201-400 词中最值得保留和新增的词。词表服务故事理解，不按“更难”“更像教材”来选。
+用已经写好的英文故事，反推下一段词库中最值得保留和新增的词。词表服务故事理解，不按“更难”“更像教材”来选。
 
 ## 输入
 
@@ -21,13 +21,26 @@
 4. 单篇故事里的情节词暂不进词表，除非它会成为系列核心词。
 5. 不一次性重洗后 200。故事样本少于 30 篇时，建议每轮替换 30-50 个。
 
-## 替换规则
+## 更新规则
 
-1. 先保留后 200 中已经被故事高频使用的词。
+1. 先保留当前更新段中已经被故事高频使用的词。
 2. 优先替换当前故事样本中几乎不用、且更像教材主题词的词。
 3. 新增词来源标为 `故事高频`。
-4. 后 200 的总数必须保持 200；全词表总数必须保持 400。
+4. 每一段保持 200 词；全词表总数按已上线段数计算，例如 3 段就是 600 词，目标 10 段就是 2000 词。
 5. 事实性来源只维护在 `words-data.js`，测试只读取来源分布，不复制词表。
+
+## 401-600 第三关规则
+
+401-600 只给已经掌握前 400 词的孩子使用，不作为基础诊断入口。
+
+建议结构：
+
+1. 故事动作/状态：约 80 个。
+2. 真实故事词形：约 50 个，重点补 `said`、`saw`、`went` 这类孩子在故事里直接看到的过去式。
+3. 逻辑/线索词：约 40 个，用来支撑因果、转折、悬念和空间关系。
+4. 情绪/人物变化：约 30 个，用来支撑人物成长线。
+
+401-600 不是对 201-400 的替换，而是新增第三关。上线时要同步修改词库模型、切组入口、完成 201-400 后的自动跳转和测试。
 
 ## 验证
 
@@ -35,16 +48,15 @@
 
 ```bash
 npm test
-node -e "require('./words-data.js'); const words=globalThis.WORDS; const counts=words.slice(200).reduce((a,w)=>(a[w.source]=(a[w.source]||0)+1,a),{}); console.log({total:words.length, unique:new Set(words.map(w=>w.english.toLowerCase()+'|'+w.chinese)).size, counts});"
+node -e "require('./words-data.js'); const words=globalThis.WORDS; const pools=Object.fromEntries(Object.entries(globalThis.WORD_POOLS).map(([k,v])=>[k,v.length])); console.log({total:words.length, unique:new Set(words.map(w=>w.english.toLowerCase()+'|'+w.chinese)).size, pools});"
 ```
 
 通过标准：
 
 - `npm test` 全部通过。
-- `total` 为 400。
-- `unique` 为 400。
-- `WORD_POOLS.foundation.length` 为 200。
-- `WORD_POOLS.expansion.length` 为 200。
+- `total` 等于当前已上线段数 × 200。
+- `unique` 等于 `total`。
+- `WORD_POOLS` 中每个上线分组长度都是 200。
 
 ## 发布
 
