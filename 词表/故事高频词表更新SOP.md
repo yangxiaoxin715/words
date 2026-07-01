@@ -83,3 +83,12 @@ node -e "require('./words-data.js'); const words=globalThis.WORDS; const pools=O
 ```
 
 这样可以减少浏览器继续加载旧词表的概率。
+
+发布时必须确认真正上线分支。当前线上 Pages 使用 `main` 分支，不能只推功能分支。
+
+发布检查：
+
+1. `git ls-remote origin refs/heads/main` 确认 `main` 已到最新提交。
+2. 检查 raw 文件，例如 `https://raw.githubusercontent.com/yangxiaoxin715/words/main/words-data.js`，确认词库总量正确。
+3. 检查 Pages 带版本参数的地址，例如 `https://yangxiaoxin715.github.io/words/?v=YYYYMMDD-topic`，确认首页版本号和词库入口都更新。
+4. 不带参数的 Pages 地址可能被 GitHub CDN 缓存约 10 分钟；如果带版本参数已经正确，说明发布已经生效，等待缓存过期即可。
