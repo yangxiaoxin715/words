@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>单词猎人</title>
+<link rel="icon" href="assets/word-hunter-logo.svg" type="image/svg+xml">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
 body {
@@ -295,12 +296,8 @@ body {
 <div id="home" class="page active">
   <img class="home-logo" src="assets/word-hunter-logo.svg" alt="拿着放大镜寻找字母的小狐狸">
   <h1>单词猎人</h1>
-  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v5 · 0629</div>
-  <div class="pool-switch" role="tablist" aria-label="选择词汇组">
-    <button id="poolFoundation" role="tab" onclick="selectPool('foundation')">1—200</button>
-    <button id="poolExpansion" role="tab" onclick="selectPool('expansion')">201—400</button>
-    <button id="poolUpgrade" role="tab" onclick="selectPool('upgrade')">401—600</button>
-  </div>
+  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v6 · 0701</div>
+  <div class="pool-switch" id="poolSwitch" role="tablist" aria-label="选择词汇组"></div>
   <div class="progress-ring-wrap">
     <svg width="200" height="200" aria-hidden="true">
       <circle class="ring-bg" cx="100" cy="100" r="88"/>
@@ -399,7 +396,7 @@ body {
   <button class="btn-back-home" onclick="goHome()">返回首页</button>
 </div>
 
-<script src="words-data.js?v=20260629-600-vocab"></script>
+<script src="words-data.js?v=20260701-800-vocab"></script>
 <script>
 // 全局错误捕获
 window.onerror = function(msg, url, line) {
@@ -414,16 +411,53 @@ if (!Array.isArray(WORDS)) {
   throw new Error('words-data.js did not initialize globalThis.WORDS');
 }
 const WORD_POOLS = globalThis.WORD_POOLS;
-if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation) || !Array.isArray(WORD_POOLS.expansion) || !Array.isArray(WORD_POOLS.upgrade)) {
+if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation)) {
   throw new Error('words-data.js did not initialize globalThis.WORD_POOLS');
 }
 
 const ACTIVE_POOL_KEY = 'wordHunter_activePool';
-const POOL_TABS = [
-  { id: 'foundation', el: 'poolFoundation', label: '1—200', name: '第一组' },
-  { id: 'expansion', el: 'poolExpansion', label: '201—400', name: '第二组' },
-  { id: 'upgrade', el: 'poolUpgrade', label: '401—600', name: '第三组' },
-];
+function getPoolElementId(poolId) {
+  const fixed = {
+    foundation: 'poolFoundation',
+    expansion: 'poolExpansion',
+    upgrade: 'poolUpgrade',
+  };
+  if (fixed[poolId]) return fixed[poolId];
+  return 'pool' + poolId.charAt(0).toUpperCase() + poolId.slice(1);
+}
+function getOrdinalPoolName(index) {
+  const names = ['第一组', '第二组', '第三组', '第四组', '第五组', '第六组', '第七组', '第八组', '第九组', '第十组'];
+  return names[index] || `第${index + 1}组`;
+}
+function createPoolTabs() {
+  return Object.keys(WORD_POOLS)
+    .filter(id => Array.isArray(WORD_POOLS[id]) && WORD_POOLS[id].length > 0)
+    .sort((a, b) => WORD_POOLS[a][0].position - WORD_POOLS[b][0].position)
+    .map((id, index) => {
+      const pool = WORD_POOLS[id];
+      return {
+        id,
+        el: getPoolElementId(id),
+        label: `${pool[0].position}—${pool[pool.length - 1].position}`,
+        name: getOrdinalPoolName(index),
+      };
+    });
+}
+const POOL_TABS = createPoolTabs();
+function renderPoolTabs() {
+  const switcher = document.getElementById('poolSwitch');
+  if (!switcher) return;
+  switcher.innerHTML = '';
+  POOL_TABS.forEach(pool => {
+    const tab = document.createElement('button');
+    tab.id = pool.el;
+    tab.type = 'button';
+    tab.setAttribute('role', 'tab');
+    tab.textContent = pool.label;
+    tab.onclick = function () { selectPool(pool.id); };
+    switcher.appendChild(tab);
+  });
+}
 function getPoolOrder() { return POOL_TABS.map(pool => pool.id).filter(id => WORD_POOLS[id]); }
 function getPoolMeta(poolId) { return POOL_TABS.find(pool => pool.id === poolId); }
 function getPoolLabel(poolId) { return getPoolMeta(poolId)?.label || poolId; }
@@ -439,7 +473,7 @@ function getPreviousPoolWords(poolId = ACTIVE_POOL_ID) {
 }
 var ACTIVE_POOL_ID = WORD_POOLS[localStorage.getItem(ACTIVE_POOL_KEY)]
   ? localStorage.getItem(ACTIVE_POOL_KEY)
-  : 'foundation';
+  : getPoolOrder()[0];
 var DIAGNOSTIC_WORDS = WORD_POOLS[ACTIVE_POOL_ID];
 var STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
 
@@ -508,6 +542,7 @@ function renderHome() {
 
   const btn = document.getElementById('startBtn');
   const hint = document.getElementById('homeHint');
+  renderPoolTabs();
   POOL_TABS.forEach(pool => {
     const tab = document.getElementById(pool.el);
     if (!tab) return;

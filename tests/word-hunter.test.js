@@ -14,13 +14,26 @@ if (inlineScripts.length === 0) {
   throw new Error('Could not find inline scripts in index.html');
 }
 
-function makeElement() {
-  return {
+function makeElement(initialId = '', registry = null) {
+  const element = {
     className: '',
     textContent: '',
     innerHTML: '',
     style: {},
     onclick: null,
+    children: [],
+    attributes: {},
+    appendChild(child) {
+      this.children.push(child);
+      if (registry && child.id) registry[child.id] = child;
+      return child;
+    },
+    setAttribute(name, value) {
+      this.attributes[name] = String(value);
+    },
+    getAttribute(name) {
+      return this.attributes[name];
+    },
     classList: {
       values: new Set(),
       add(...names) {
@@ -34,6 +47,18 @@ function makeElement() {
       },
     },
   };
+  let elementId = initialId;
+  Object.defineProperty(element, 'id', {
+    get() {
+      return elementId;
+    },
+    set(value) {
+      elementId = String(value);
+      if (registry && elementId) registry[elementId] = element;
+    },
+  });
+  if (registry && initialId) registry[initialId] = element;
+  return element;
 }
 
 function createHarness() {
@@ -44,9 +69,12 @@ function createHarness() {
     'reportTitle', 'reportSub', 'statNew', 'statHunting', 'statTotal',
     'progressBig', 'nextBtn', 'mapStats', 'masteryMap', 'cardArea',
     'quizPrep', 'audioPrepMessage', 'audioRetryBtn',
-    'poolFoundation', 'poolExpansion', 'poolUpgrade',
+    'poolSwitch', 'poolFoundation', 'poolExpansion', 'poolUpgrade',
   ];
-  const elements = Object.fromEntries(ids.map((id) => [id, makeElement()]));
+  const elements = {};
+  ids.forEach((id) => {
+    elements[id] = makeElement(id, elements);
+  });
   ['home', 'quiz', 'report', 'mappage'].forEach((id) => {
     elements[id].classList.add('page');
   });
@@ -66,7 +94,7 @@ function createHarness() {
     encodeURIComponent,
     document: {
       getElementById(id) {
-        if (!elements[id]) elements[id] = makeElement();
+        if (!elements[id]) elements[id] = makeElement(id, elements);
         return elements[id];
       },
       querySelectorAll(selector) {
@@ -74,7 +102,7 @@ function createHarness() {
         return ['home', 'quiz', 'report', 'mappage'].map((id) => elements[id]);
       },
       createElement() {
-        return makeElement();
+        return makeElement('', elements);
       },
     },
     localStorage: {
@@ -530,23 +558,24 @@ function testMalformedStoredDataFallsBackToEmptyState() {
   assert.equal(h.run('pickRoundWords(loadData()).length'), 200);
 }
 
-function testWordListHasSixHundredUniqueStorageKeys() {
+function testWordListHasEightHundredUniqueStorageKeys() {
   const h = createHarness();
   const result = h.run(`({
     count: WORDS.length,
     uniqueKeys: new Set(WORDS.map(getKey)).size
   })`);
 
-  assert.equal(result.count, 600);
-  assert.equal(result.uniqueKeys, 600);
+  assert.equal(result.count, 800);
+  assert.equal(result.uniqueKeys, 800);
 }
 
-function testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups() {
+function testVocabularyPoolsExposeDynamicTwoHundredWordGroups() {
   const h = createHarness();
   const result = h.run(`({
     foundation: WORD_POOLS.foundation.length,
     expansion: WORD_POOLS.expansion.length,
     upgrade: WORD_POOLS.upgrade.length,
+    group4: WORD_POOLS.group4.length,
     expansionGeneral: WORD_POOLS.expansion.filter((word) => word.source === '通用高频').length,
     expansionStory: WORD_POOLS.expansion.filter((word) => word.source === '故事高频').length,
     expansionPep: WORD_POOLS.expansion.filter((word) => word.source === 'PEP六上').length,
@@ -554,10 +583,20 @@ function testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups() {
     upgradeForm: WORD_POOLS.upgrade.filter((word) => word.source === '真实故事词形').length,
     upgradeLogic: WORD_POOLS.upgrade.filter((word) => word.source === '逻辑/线索词').length,
     upgradeEmotion: WORD_POOLS.upgrade.filter((word) => word.source === '情绪/人物变化').length,
+    group4Scene: WORD_POOLS.group4.filter((word) => word.source === '故事场景和物件词').length,
+    group4Relation: WORD_POOLS.group4.filter((word) => word.source === '人物关系和互动词').length,
+    group4Detail: WORD_POOLS.group4.filter((word) => word.source === '细节描写词').length,
+    group4Reading: WORD_POOLS.group4.filter((word) => word.source === '阅读理解逻辑词').length,
+    group4Bridge: WORD_POOLS.group4.filter((word) => word.source === '非虚构桥接词').length,
     expansionStartsAt: WORD_POOLS.expansion[0].position,
     expansionEndsAt: WORD_POOLS.expansion[199].position,
     upgradeStartsAt: WORD_POOLS.upgrade[0].position,
-    upgradeEndsAt: WORD_POOLS.upgrade[199].position
+    upgradeEndsAt: WORD_POOLS.upgrade[199].position,
+    group4StartsAt: WORD_POOLS.group4[0].position,
+    group4EndsAt: WORD_POOLS.group4[199].position,
+    poolTabCount: POOL_TABS.length,
+    poolTabLabels: POOL_TABS.map((pool) => pool.label),
+    poolOrder: getPoolOrder()
   })`);
 
   assert.deepEqual(
@@ -566,6 +605,7 @@ function testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups() {
       foundation: 200,
       expansion: 200,
       upgrade: 200,
+      group4: 200,
       expansionGeneral: 120,
       expansionStory: 50,
       expansionPep: 30,
@@ -573,12 +613,37 @@ function testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups() {
       upgradeForm: 50,
       upgradeLogic: 40,
       upgradeEmotion: 30,
+      group4Scene: 50,
+      group4Relation: 35,
+      group4Detail: 35,
+      group4Reading: 45,
+      group4Bridge: 35,
       expansionStartsAt: 201,
       expansionEndsAt: 400,
       upgradeStartsAt: 401,
       upgradeEndsAt: 600,
+      group4StartsAt: 601,
+      group4EndsAt: 800,
+      poolTabCount: 4,
+      poolTabLabels: ['1—200', '201—400', '401—600', '601—800'],
+      poolOrder: ['foundation', 'expansion', 'upgrade', 'group4'],
     }
   );
+}
+
+function testHomeRendersFourthPoolTabFromVocabularyData() {
+  const h = createHarness();
+  h.run('renderHome()');
+
+  assert.equal(h.elements.poolGroup4.textContent, '601—800');
+  assert.equal(h.elements.poolGroup4.getAttribute('aria-selected'), 'false');
+
+  h.run(`selectPool('group4')`);
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'group4');
+  assert.equal(h.run('DIAGNOSTIC_WORDS[0].position'), 601);
+  assert.equal(h.run('DIAGNOSTIC_WORDS[199].position'), 800);
+  assert.equal(h.storage.get('wordHunter_activePool'), 'group4');
+  assert.equal(h.elements.poolGroup4.classList.contains('active'), true);
 }
 
 function testSecondPoolCanBeSelectedWithoutFinishingFirstPool() {
@@ -628,6 +693,33 @@ function testExpansionCompletionReportButtonStartsThirdPool() {
   assert.equal(h.run('ACTIVE_POOL_ID'), 'upgrade');
   assert.equal(h.run('quizWords.length'), 20);
   assert.equal(h.run('quizWords.some((word) => word.poolId === "upgrade")'), true);
+}
+
+function testUpgradeCompletionReportButtonStartsFourthPool() {
+  const h = createHarness();
+  h.run(`
+    selectPool('upgrade');
+    const data = {};
+    WORD_POOLS.upgrade.forEach((word) => {
+      data[getKey(word)] = CAPTURE_THRESHOLD;
+    });
+    saveData(data);
+    quizWords = [WORD_POOLS.upgrade[199]];
+    quizIndex = quizWords.length;
+    roundResults = [{
+      word: WORD_POOLS.upgrade[199],
+      result: 'correct',
+      prevValue: CAPTURE_THRESHOLD - 1,
+      nextValue: CAPTURE_THRESHOLD,
+    }];
+    showReport();
+  `);
+
+  assert.match(h.elements.nextBtn.textContent, /进入 601—800/);
+  h.elements.nextBtn.onclick();
+  assert.equal(h.run('ACTIVE_POOL_ID'), 'group4');
+  assert.equal(h.run('quizWords.length'), 20);
+  assert.equal(h.run('quizWords.some((word) => word.poolId === "group4")'), true);
 }
 
 function testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured() {
@@ -794,6 +886,7 @@ function testStartupStageOnlyUsesStartupWords() {
 
 function testHomeUsesProjectLogoAsset() {
   assert.match(html, /<img class="home-logo" src="assets\/word-hunter-logo\.svg"/);
+  assert.match(html, /<link rel="icon" href="assets\/word-hunter-logo\.svg" type="image\/svg\+xml">/);
   assert.doesNotMatch(html, /<div class="home-icon">🎯<\/div>/);
   assert.equal(
     fs.existsSync(path.join(__dirname, '..', 'assets', 'word-hunter-logo.svg')),
@@ -819,11 +912,13 @@ const tests = [
   testReportNeverShowsNegativeNewCaptures,
   testLegacyDiagnosticFlagCannotSkipUnseenWords,
   testMalformedStoredDataFallsBackToEmptyState,
-  testWordListHasSixHundredUniqueStorageKeys,
-  testVocabularyPoolsExposeThreeFixedTwoHundredWordGroups,
+  testWordListHasEightHundredUniqueStorageKeys,
+  testVocabularyPoolsExposeDynamicTwoHundredWordGroups,
+  testHomeRendersFourthPoolTabFromVocabularyData,
   testSecondPoolCanBeSelectedWithoutFinishingFirstPool,
   testThirdPoolCanBeSelectedAfterVocabularyExpansion,
   testExpansionCompletionReportButtonStartsThirdPool,
+  testUpgradeCompletionReportButtonStartsFourthPool,
   testSecondPoolDynamicRoundUsesEightNewTenOldWeakTwoOldCaptured,
   testSecondPoolDynamicRoundUsesSixteenNewWhenOldPoolIsNearlyClear,
   testSecondPoolDynamicRoundUsesFourteenNewWhenOldPoolHasSomeGaps,
