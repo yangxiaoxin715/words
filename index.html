@@ -824,31 +824,26 @@ function preloadAudioWindow(startIndex = quizIndex) {
 function speakWord() {
   const word = quizWords[quizIndex];
   if (!word) return;
-  stopActiveWordAudio();
-  const key = getKey(word);
-  const cached = roundAudio.get(key);
-  if (cached) {
-    cached.currentTime = 0;
-    activeWordAudio = cached;
-    cached.play().catch(() => {});
-  } else {
-    // 还没加载好，等加载完立刻播
-    loadWordAudio(word).then((audio) => {
-      if (quizWords[quizIndex] !== word) return; // 已翻页，不播了
-      stopActiveWordAudio();
-      audio.currentTime = 0;
-      activeWordAudio = audio;
-      audio.play().catch(() => {});
-    }).catch(() => {});
-  }
+  if (!audioEl) audioEl = new Audio();
+  audioEl.src = getAudioUrl(word);
+  audioEl.currentTime = 0;
+  audioEl.play().catch(() => {});
 }
 
 function silentPreload() {
+  // 预加载：让浏览器缓存音频文件
   const end = Math.min(quizWords.length, quizIndex + 5);
-  for (let i = quizIndex; i < end; i++) {
-    loadWordAudio(quizWords[i]).catch(() => {});
+  for (let i = quizIndex + 1; i < end; i++) {
+    const url = getAudioUrl(quizWords[i]);
+    if (!preloadedUrls.has(url)) {
+      preloadedUrls.add(url);
+      const a = new Audio();
+      a.preload = 'auto';
+      a.src = url;
+    }
   }
 }
+const preloadedUrls = new Set();
 
 // ===== 捕猎 =====
 let quizWords = [];
@@ -988,9 +983,7 @@ function startHunt() {
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
-  // 先加载前5个词音频，第一个词就绪后再出卡片
-  silentPreload();
-  loadWordAudio(quizWords[0]).then(() => showCard()).catch(() => showCard());
+  showCard();
 }
 
 let cardFlipped = false;
@@ -1070,14 +1063,7 @@ function showCard() {
   document.getElementById('quizPrep').classList.add('hidden');
   document.getElementById('cardArea').classList.remove('hidden');
   silentPreload();
-
-  const key = getKey(w);
-  if (roundAudio.has(key)) {
-    renderCard(w);
-  } else {
-    // 音频还没好，等一下再出卡片（本地文件很快）
-    loadWordAudio(w).then(() => renderCard(w)).catch(() => renderCard(w));
-  }
+  renderCard(w);
 }
 
 function renderCard(w) {
