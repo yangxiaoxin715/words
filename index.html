@@ -330,12 +330,6 @@ body {
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="quiz-prep hidden" id="quizPrep">
-    <div class="quiz-prep-icon">🎧</div>
-    <div class="quiz-prep-message" id="audioPrepMessage">正在准备音频…</div>
-    <button class="audio-retry-btn hidden" id="audioRetryBtn"
-            onclick="retryAudioPreparation()">重新加载</button>
-  </div>
   <div class="card-area" id="cardArea" role="button" tabindex="0" aria-label="翻开单词卡片"
        onclick="flipCard()"
        onkeydown="if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); flipCard(); }">
@@ -745,74 +739,6 @@ async function loadWordAudio(word, token = audioPreparationToken, attemptsLeft =
   return loadPromise;
 }
 
-function showAudioPreparation(status) {
-  const prep = document.getElementById('quizPrep');
-  const card = document.getElementById('cardArea');
-  const retry = document.getElementById('audioRetryBtn');
-  const message = document.getElementById('audioPrepMessage');
-
-  prep.classList.remove('hidden');
-  card.classList.add('hidden');
-  document.getElementById('btnGroup').classList.add('hidden');
-  document.getElementById('countdown').classList.add('hidden');
-
-  if (status === 'failed') {
-    message.textContent = '音频加载失败，请重新加载';
-    retry.classList.remove('hidden');
-  } else {
-    message.textContent = '正在准备音频…';
-    retry.classList.add('hidden');
-  }
-}
-
-function showPreparedQuiz() {
-  document.getElementById('quizPrep').classList.add('hidden');
-  document.getElementById('audioRetryBtn').classList.add('hidden');
-  document.getElementById('cardArea').classList.remove('hidden');
-}
-
-function prepareRoundAudio() {
-  clearCountdown();
-  clearRevealTimer();
-  clearRoundAudio();
-  const token = audioPreparationToken;
-
-  showAudioPreparation('loading');
-  const initialWords = quizWords.slice(0, INITIAL_AUDIO_BATCH_SIZE);
-  Promise.all(initialWords.map((word) => loadWordAudio(word, token)))
-    .then(() => {
-      if (token !== audioPreparationToken) return;
-      showPreparedQuiz();
-      showCard();
-    })
-    .catch(() => {
-      if (token !== audioPreparationToken) return;
-      clearRoundAudio();
-      showAudioPreparation('failed');
-    });
-}
-
-function retryAudioPreparation() {
-  if (quizIndex > 0 && quizIndex < quizWords.length) {
-    // 中途重试：只加载当前词，不清掉已缓存的音频
-    const token = audioPreparationToken;
-    const w = quizWords[quizIndex];
-    showAudioPreparation('loading');
-    loadWordAudio(w, token)
-      .then(() => {
-        if (token !== audioPreparationToken || quizIndex >= quizWords.length) return;
-        showPreparedQuiz();
-        showCard();
-      })
-      .catch(() => {
-        if (token !== audioPreparationToken) return;
-        showAudioPreparation('failed');
-      });
-  } else {
-    prepareRoundAudio();
-  }
-}
-
 function preloadAudioWindow(startIndex = quizIndex) {
   const token = audioPreparationToken;
   const end = Math.min(quizWords.length, startIndex + AUDIO_LOOKAHEAD_SIZE);
@@ -1060,7 +986,6 @@ function showCard() {
   }
 
   const w = quizWords[quizIndex];
-  document.getElementById('quizPrep').classList.add('hidden');
   document.getElementById('cardArea').classList.remove('hidden');
   silentPreload();
   renderCard(w);
