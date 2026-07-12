@@ -825,9 +825,29 @@ function speakWord() {
   const word = quizWords[quizIndex];
   if (!word) return;
   stopActiveWordAudio();
-  const audio = new Audio(getAudioUrl(word));
-  activeWordAudio = audio;
-  audio.play().catch(() => {});
+  const key = getKey(word);
+  const cached = roundAudio.get(key);
+  if (cached) {
+    cached.currentTime = 0;
+    activeWordAudio = cached;
+    cached.play().catch(() => {});
+  } else {
+    // 还没加载好，等加载完立刻播
+    loadWordAudio(word).then((audio) => {
+      if (quizWords[quizIndex] !== word) return; // 已翻页，不播了
+      stopActiveWordAudio();
+      audio.currentTime = 0;
+      activeWordAudio = audio;
+      audio.play().catch(() => {});
+    }).catch(() => {});
+  }
+}
+
+function silentPreload() {
+  const end = Math.min(quizWords.length, quizIndex + 5);
+  for (let i = quizIndex; i < end; i++) {
+    loadWordAudio(quizWords[i]).catch(() => {});
+  }
 }
 
 // ===== 捕猎 =====
@@ -968,6 +988,7 @@ function startHunt() {
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
+  silentPreload();
   showCard();
 }
 
@@ -1047,6 +1068,7 @@ function showCard() {
   const w = quizWords[quizIndex];
   document.getElementById('quizPrep').classList.add('hidden');
   document.getElementById('cardArea').classList.remove('hidden');
+  silentPreload();
   renderCard(w);
 }
 
