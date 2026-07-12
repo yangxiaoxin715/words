@@ -824,12 +824,10 @@ function preloadAudioWindow(startIndex = quizIndex) {
 function speakWord() {
   const word = quizWords[quizIndex];
   if (!word) return;
-  const prepared = roundAudio.get(getKey(word));
-  if (!prepared) return;
   stopActiveWordAudio();
-  prepared.currentTime = 0;
-  activeWordAudio = prepared;
-  prepared.play().catch(() => {});
+  const audio = new Audio(getAudioUrl(word));
+  activeWordAudio = audio;
+  audio.play().catch(() => {});
 }
 
 // ===== 捕猎 =====
@@ -970,7 +968,7 @@ function startHunt() {
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
-  prepareRoundAudio();
+  showCard();
 }
 
 let cardFlipped = false;
@@ -1047,29 +1045,8 @@ function showCard() {
   }
 
   const w = quizWords[quizIndex];
-  const cardIndex = quizIndex;
-  if (!roundAudio.has(getKey(w))) {
-    showAudioPreparation('loading');
-    if (waitingForAudioIndex === cardIndex) return;
-    waitingForAudioIndex = cardIndex;
-    const token = audioPreparationToken;
-    loadWordAudio(w, token)
-      .then(() => {
-        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
-        waitingForAudioIndex = null;
-        showPreparedQuiz();
-        renderCard(w);
-      })
-      .catch(() => {
-        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
-        waitingForAudioIndex = null;
-        showAudioPreparation('failed');
-      });
-    return;
-  }
-
-  waitingForAudioIndex = null;
-  showPreparedQuiz();
+  document.getElementById('quizPrep').classList.add('hidden');
+  document.getElementById('cardArea').classList.remove('hidden');
   renderCard(w);
 }
 
@@ -1090,7 +1067,6 @@ function renderCard(w) {
   updateUndoBar();
   speakWord();
   startCountdown();
-  preloadAudioWindow();
 }
 
 function finishRoundIfPastEnd() {
