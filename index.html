@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单词猎人</title>
+<link rel="icon" href="assets/word-hunter-logo.svg" type="image/svg+xml">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+body {
+  font-family: -apple-system, "Helvetica Neue", "PingFang SC", sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ===== 首页 ===== */
+#home {
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.home-logo {
+  width: 132px; height: 132px;
+  display: block; margin-bottom: 8px;
+}
+#home h1 { font-size: 32px; font-weight: 800; margin-bottom: 32px; }
+
+.pool-switch {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  width: 100%; max-width: 320px;
+  padding: 4px; margin-bottom: 24px;
+  border-radius: 8px; background: #e5e5e7;
+}
+.pool-switch button {
+  min-height: 44px; border: none; border-radius: 6px;
+  background: transparent; color: #6c6c70;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.pool-switch button.active {
+  background: #fff; color: #1d1d1f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.progress-ring-wrap {
+  position: relative;
+  width: 200px; height: 200px;
+  margin-bottom: 16px;
+}
+.progress-ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #e5e5e7; stroke-width: 12; }
+.ring-fill { fill: none; stroke: #34c759; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+.progress-ring-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.ring-num { font-size: 48px; font-weight: 800; color: #1d1d1f; }
+.ring-label { font-size: 14px; color: #86868b; }
+
+.home-hint {
+  font-size: 16px; color: #86868b;
+  margin-bottom: 28px;
+}
+
+.start-btn {
+  width: 100%; max-width: 320px;
+  padding: 20px; border-radius: 16px; border: none;
+  font-size: 20px; font-weight: 800;
+  cursor: pointer; color: #fff;
+  background: linear-gradient(135deg, #ff9500, #ff3b30);
+  transition: transform 0.15s;
+  margin-bottom: 12px;
+}
+.start-btn:active { transform: scale(0.96); }
+.start-btn.all-done { background: linear-gradient(135deg, #34c759, #30d158); }
+
+.home-footer {
+  display: flex; gap: 24px; margin-top: 32px;
+}
+.home-footer button {
+  background: none; border: none;
+  font-size: 14px; color: #86868b; cursor: pointer;
+}
+.home-footer button:active { color: #1d1d1f; }
+
+/* ===== 闪卡页 ===== */
+#quiz { padding: 0; }
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; background: #fff;
+  border-bottom: 1px solid #e5e5e7;
+  position: sticky; top: 0; z-index: 10;
+}
+.quiz-header .back-btn {
+  font-size: 16px; color: #007aff;
+  background: none; border: none; cursor: pointer; font-weight: 600;
+}
+.quiz-header .progress-text { font-size: 14px; color: #86868b; }
+.quiz-header .day-label { font-size: 16px; font-weight: 700; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.undo-btn {
+  font-size: 14px; color: #ff9500;
+  background: none; border: none; cursor: pointer; font-weight: 600;
+}
+.undo-btn.hidden { display: none; }
+.undo-btn:active { opacity: 0.5; }
+
+.progress-bar-wrap {
+  height: 4px; background: #e5e5e7;
+  position: sticky; top: 57px; z-index: 10;
+}
+.progress-bar {
+  height: 100%; background: #ff9500;
+  transition: width 0.3s ease; border-radius: 2px;
+}
+
+.quiz-prep {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center;
+}
+.quiz-prep.hidden { display: none; }
+.quiz-prep-icon { font-size: 56px; margin-bottom: 16px; }
+.quiz-prep-message {
+  font-size: 18px; font-weight: 700;
+  color: #1d1d1f; margin-bottom: 20px;
+}
+.audio-retry-btn {
+  padding: 14px 28px; border-radius: 12px; border: none;
+  background: #ff9500; color: #fff;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.audio-retry-btn.hidden { display: none; }
+
+.card-area {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; min-height: 50vh; cursor: pointer;
+}
+.card-area.hidden { display: none; }
+.card-area:focus-visible {
+  outline: 3px solid #007aff;
+  outline-offset: -3px;
+}
+.card-word-wrap {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; margin-bottom: 16px;
+}
+.card-word {
+  font-size: 72px; font-weight: 800;
+  letter-spacing: -1px; text-align: center;
+  max-width: calc(100vw - 80px); overflow-wrap: break-word;
+}
+.speak-btn {
+  font-size: 32px; background: none; border: none;
+  cursor: pointer; padding: 4px; opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.speak-btn:active { opacity: 1; }
+.card-chinese {
+  font-size: 64px; font-weight: 700;
+  color: #1d1d1f; min-height: 72px;
+}
+.card-chinese.hidden { display: none; }
+
+.flip-hint {
+  font-size: 14px; color: #86868b; margin-top: 20px;
+}
+.flip-hint.hidden { display: none; }
+
+.countdown {
+  font-size: 48px; font-weight: 800; color: #e5e5e7;
+  margin-top: 16px; transition: color 0.3s;
+}
+.countdown.urgent { color: #ff3b30; }
+.countdown.hidden { display: none; }
+
+.btn-group {
+  display: flex; gap: 12px; padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  background: #fff; border-top: 1px solid #e5e5e7;
+}
+.btn-group.hidden { display: none; }
+.btn-group button {
+  flex: 1; padding: 16px; border-radius: 14px; border: none;
+  font-size: 17px; font-weight: 700; cursor: pointer;
+  transition: transform 0.1s;
+}
+.btn-group button:active { transform: scale(0.95); }
+.btn-correct { background: #34c759; color: #fff; }
+.btn-familiar { background: #ff9500; color: #fff; }
+
+/* ===== 战报页 ===== */
+#report {
+  align-items: center; justify-content: center; padding: 40px 20px;
+}
+#report h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+#report .report-sub { font-size: 14px; color: #86868b; margin-bottom: 32px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; width: 100%; max-width: 360px; margin-bottom: 32px;
+}
+.stat-card {
+  background: #fff; border-radius: 16px;
+  padding: 20px 8px; text-align: center;
+}
+.stat-num { font-size: 32px; font-weight: 800; }
+.stat-label { font-size: 12px; color: #86868b; margin-top: 4px; }
+.stat-captured .stat-num { color: #34c759; }
+.stat-hunting .stat-num { color: #ff9500; }
+.stat-total .stat-num { color: #007aff; }
+
+.progress-section {
+  width: 100%; max-width: 360px;
+  background: #fff; border-radius: 16px;
+  padding: 20px; margin-bottom: 24px;
+}
+.progress-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.progress-bar-big {
+  height: 28px; border-radius: 8px; overflow: hidden;
+  display: flex; background: #e5e5e7; margin-bottom: 8px;
+}
+.seg-captured { background: #34c759; transition: width 0.5s; }
+.seg-hunting { background: #ff9500; transition: width 0.5s; }
+.seg-new { background: #e5e5e7; }
+.progress-legend {
+  display: flex; gap: 16px; font-size: 12px; color: #86868b;
+}
+.progress-legend span::before {
+  content: ''; display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 4px; vertical-align: middle;
+}
+.legend-captured::before { background: #34c759; }
+.legend-hunting::before { background: #ff9500; }
+.legend-new::before { background: #e5e5e7; }
+
+.report-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  width: 100%; max-width: 360px;
+}
+.report-actions button {
+  padding: 14px; border-radius: 12px; border: none;
+  font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.btn-primary { background: #ff9500; color: #fff; }
+.btn-secondary { background: #e5e5e7; color: #1d1d1f; }
+.btn-primary:active, .btn-secondary:active { opacity: 0.8; }
+
+/* ===== 掌握地图页 ===== */
+#mappage {
+  padding: 20px; align-items: center;
+}
+#mappage h2 { font-size: 24px; font-weight: 700; margin: 20px 0 16px; }
+.map-stats {
+  font-size: 16px; color: #86868b; margin-bottom: 20px;
+}
+.mastery-map {
+  width: 100%; max-width: 400px;
+  background: #fff; border-radius: 16px;
+  padding: 20px; margin-bottom: 24px;
+}
+.mastery-section { margin-bottom: 16px; }
+.mastery-section h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.mastery-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.mastery-words span {
+  font-size: 13px; padding: 3px 8px; border-radius: 6px;
+}
+.mw-captured { background: #d1f5d3; color: #1b7a2b; }
+.mw-hunting { background: #fff3cd; color: #856404; }
+.mw-new { background: #e9ecef; color: #6c757d; }
+
+.btn-back-home {
+  padding: 14px 40px; border-radius: 12px; border: none;
+  background: #007aff; color: #fff;
+  font-size: 16px; font-weight: 600;
+  cursor: pointer; margin-bottom: 12px;
+}
+.btn-export {
+  padding: 14px 40px; border-radius: 12px;
+  border: 2px solid #007aff; background: #fff; color: #007aff;
+  font-size: 16px; font-weight: 600;
+  cursor: pointer; margin-bottom: 40px;
+}
+</style>
+</head>
+<body>
+
+<!-- 首页 -->
+<div id="home" class="page active">
+  <img class="home-logo" src="assets/word-hunter-logo.svg" alt="拿着放大镜寻找字母的小狐狸">
+  <h1>单词猎人</h1>
+  <div style="font-size:11px;color:#aaa;margin-top:-24px;margin-bottom:16px">v7.1 · 0703</div>
+  <div class="pool-switch" id="poolSwitch" role="tablist" aria-label="选择词汇组"></div>
+  <div class="progress-ring-wrap">
+    <svg width="200" height="200" aria-hidden="true">
+      <circle class="ring-bg" cx="100" cy="100" r="88"/>
+      <circle class="ring-fill" id="ringFill" cx="100" cy="100" r="88"/>
+    </svg>
+    <div class="progress-ring-center">
+      <div class="ring-num" id="ringNum">0</div>
+      <div class="ring-label">已捕获</div>
+    </div>
+  </div>
+  <div class="home-hint" id="homeHint"></div>
+  <button class="start-btn" id="startBtn" onclick="startHunt()">开始</button>
+  <div class="home-footer">
+    <button onclick="showMap()">🏆 战绩</button>
+    <button onclick="exportData()">📤 导出</button>
+    <button onclick="confirmReset()">⚙️ 重置</button>
+  </div>
+</div>
+
+<!-- 闪卡页 -->
+<div id="quiz" class="page">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="exitQuiz()">← 返回</button>
+    <span class="day-label" id="quizLabel">训练中</span>
+    <div class="header-right">
+      <button class="undo-btn hidden" id="undoBtn" onclick="undoLast()">↩ 撤销</button>
+      <span class="progress-text" id="progressText"></span>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="quiz-prep hidden" id="quizPrep">
+    <div class="quiz-prep-icon">🎧</div>
+    <div class="quiz-prep-message" id="audioPrepMessage">正在准备音频…</div>
+    <button class="audio-retry-btn hidden" id="audioRetryBtn"
+            onclick="retryAudioPreparation()">重新加载</button>
+  </div>
+  <div class="card-area" id="cardArea" role="button" tabindex="0" aria-label="翻开单词卡片"
+       onclick="flipCard()"
+       onkeydown="if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); flipCard(); }">
+    <div class="card-word-wrap">
+      <div class="card-word" id="cardWord"></div>
+      <button class="speak-btn" aria-label="播放单词发音"
+              onclick="event.stopPropagation(); speakWord()">🔊</button>
+    </div>
+    <div class="card-chinese hidden" id="cardChinese"></div>
+    <div class="flip-hint" id="flipHint">👆 孩子说出来了？点一下屏幕</div>
+    <div class="countdown" id="countdown">3</div>
+  </div>
+  <div class="btn-group hidden" id="btnGroup">
+    <button class="btn-correct" onclick="answer('correct')">✅ 已捕获</button>
+    <button class="btn-familiar" onclick="answer('familiar')">🎯 瞄准中</button>
+  </div>
+</div>
+
+<!-- 战报 -->
+<div id="report" class="page">
+  <h2 id="reportTitle">捕猎战报</h2>
+  <p class="report-sub" id="reportSub"></p>
+  <div class="stats-grid">
+    <div class="stat-card stat-captured">
+      <div class="stat-num" id="statNew">0</div>
+      <div class="stat-label">本轮新捕获</div>
+    </div>
+    <div class="stat-card stat-hunting">
+      <div class="stat-num" id="statHunting">0</div>
+      <div class="stat-label">瞄准中</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">累计捕获</div>
+    </div>
+  </div>
+  <div class="progress-section">
+    <h3>总进度</h3>
+    <div class="progress-bar-big" id="progressBig"></div>
+    <div class="progress-legend">
+      <span class="legend-captured">已捕获</span>
+      <span class="legend-hunting">瞄准中</span>
+      <span class="legend-new">潜伏中</span>
+    </div>
+  </div>
+  <div class="report-actions">
+    <button class="btn-primary" id="nextBtn" onclick="startHunt()">继续 →</button>
+    <button class="btn-secondary" onclick="goHome()">回到首页</button>
+  </div>
+</div>
+
+<!-- 掌握地图 -->
+<div id="mappage" class="page">
+  <h2>掌握地图</h2>
+  <div class="map-stats" id="mapStats"></div>
+  <div class="mastery-map" id="masteryMap"></div>
+  <button class="btn-export" onclick="exportData()">导出数据</button>
+  <button class="btn-back-home" onclick="goHome()">返回首页</button>
+</div>
+
+<script src="words-data.js?v=20260703-1000-tags-vocab"></script>
+<script>
+// 全局错误捕获
+window.onerror = function(msg, url, line) {
+  alert('JS错误 L' + line + ': ' + msg);
+  return false;
+};
+</script>
+<script>
+// ===== 固定词汇池 =====
+const WORDS = globalThis.WORDS;
+if (!Array.isArray(WORDS)) {
+  throw new Error('words-data.js did not initialize globalThis.WORDS');
+}
+const WORD_POOLS = globalThis.WORD_POOLS;
+if (!WORD_POOLS || !Array.isArray(WORD_POOLS.foundation)) {
+  throw new Error('words-data.js did not initialize globalThis.WORD_POOLS');
+}
+
+const ACTIVE_POOL_KEY = 'wordHunter_activePool';
+function getPoolElementId(poolId) {
+  const fixed = {
+    foundation: 'poolFoundation',
+    expansion: 'poolExpansion',
+    upgrade: 'poolUpgrade',
+  };
+  if (fixed[poolId]) return fixed[poolId];
+  return 'pool' + poolId.charAt(0).toUpperCase() + poolId.slice(1);
+}
+function getOrdinalPoolName(index) {
+  const names = ['第一组', '第二组', '第三组', '第四组', '第五组', '第六组', '第七组', '第八组', '第九组', '第十组'];
+  return names[index] || `第${index + 1}组`;
+}
+function createPoolTabs() {
+  return Object.keys(WORD_POOLS)
+    .filter(id => Array.isArray(WORD_POOLS[id]) && WORD_POOLS[id].length > 0)
+    .sort((a, b) => WORD_POOLS[a][0].position - WORD_POOLS[b][0].position)
+    .map((id, index) => {
+      const pool = WORD_POOLS[id];
+      return {
+        id,
+        el: getPoolElementId(id),
+        label: `${pool[0].position}—${pool[pool.length - 1].position}`,
+        name: getOrdinalPoolName(index),
+      };
+    });
+}
+const POOL_TABS = createPoolTabs();
+function renderPoolTabs() {
+  const switcher = document.getElementById('poolSwitch');
+  if (!switcher) return;
+  switcher.innerHTML = '';
+  POOL_TABS.forEach(pool => {
+    const tab = document.createElement('button');
+    tab.id = pool.el;
+    tab.type = 'button';
+    tab.setAttribute('role', 'tab');
+    tab.textContent = pool.label;
+    tab.onclick = function () { selectPool(pool.id); };
+    switcher.appendChild(tab);
+  });
+}
+function getPoolOrder() { return POOL_TABS.map(pool => pool.id).filter(id => WORD_POOLS[id]); }
+function getPoolMeta(poolId) { return POOL_TABS.find(pool => pool.id === poolId); }
+function getPoolLabel(poolId) { return getPoolMeta(poolId)?.label || poolId; }
+function getPoolName(poolId) { return getPoolMeta(poolId)?.name || getPoolLabel(poolId); }
+function getNextPoolId(poolId = ACTIVE_POOL_ID) {
+  const order = getPoolOrder();
+  return order[order.indexOf(poolId) + 1];
+}
+function getPreviousPoolWords(poolId = ACTIVE_POOL_ID) {
+  const order = getPoolOrder();
+  const currentIndex = order.indexOf(poolId);
+  return order.slice(0, Math.max(0, currentIndex)).flatMap(id => WORD_POOLS[id]);
+}
+var ACTIVE_POOL_ID = WORD_POOLS[localStorage.getItem(ACTIVE_POOL_KEY)]
+  ? localStorage.getItem(ACTIVE_POOL_KEY)
+  : getPoolOrder()[0];
+var DIAGNOSTIC_WORDS = WORD_POOLS[ACTIVE_POOL_ID];
+var STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
+
+var TOTAL = DIAGNOSTIC_WORDS.length;
+var CAPTURE_THRESHOLD = 3;
+
+// ===== 数据存储 =====
+// { wordKey: correctCount }  >= 3 = captured
+const STORAGE_KEY = 'wordHunter_data';
+
+function getKey(w) { return w.english.toLowerCase().replace(/[^a-z0-9]/g, '_'); }
+function hasWord(data, w) { return Object.prototype.hasOwnProperty.call(data, getKey(w)); }
+
+function loadData() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+function isCaptured(data, w) { return (data[getKey(w)] || 0) >= CAPTURE_THRESHOLD; }
+function isHunting(data, w) { const c = data[getKey(w)]; return c !== undefined && c > 0 && c < CAPTURE_THRESHOLD; }
+function isNew(data, w) { return !hasWord(data, w) || data[getKey(w)] === 0; }
+
+function getCapturedCount(data, pool = DIAGNOSTIC_WORDS) { return pool.filter(w => isCaptured(data, w)).length; }
+function getHuntingCount(data, pool = DIAGNOSTIC_WORDS) { return pool.filter(w => isHunting(data, w)).length; }
+
+// ===== 页面切换 =====
+function showPage(id) {
+  if (id !== 'quiz') {
+    clearCountdown();
+    clearRevealTimer();
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===== 首页 =====
+function selectPool(poolId) {
+  if (!WORD_POOLS[poolId]) return;
+  ACTIVE_POOL_ID = poolId;
+  DIAGNOSTIC_WORDS = WORD_POOLS[poolId];
+  STARTUP_WORDS = DIAGNOSTIC_WORDS.slice(0, 100);
+  TOTAL = DIAGNOSTIC_WORDS.length;
+  localStorage.setItem(ACTIVE_POOL_KEY, poolId);
+  renderHome();
+}
+
+function renderHome() {
+  const data = loadData();
+  const captured = getCapturedCount(data);
+  const hunting = getHuntingCount(data);
+  const startupCaptured = getCapturedCount(data, STARTUP_WORDS);
+  const startupRemaining = STARTUP_WORDS.length - startupCaptured;
+
+  // 进度环
+  const circumference = 2 * Math.PI * 88;
+  const ring = document.getElementById('ringFill');
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = circumference - (captured / TOTAL) * circumference;
+  document.getElementById('ringNum').textContent = captured;
+
+  const btn = document.getElementById('startBtn');
+  const hint = document.getElementById('homeHint');
+  renderPoolTabs();
+  POOL_TABS.forEach(pool => {
+    const tab = document.getElementById(pool.el);
+    if (!tab) return;
+    tab.classList.remove('active');
+    tab.style.display = WORD_POOLS[pool.id] ? '' : 'none';
+    tab.setAttribute?.('aria-selected', ACTIVE_POOL_ID === pool.id ? 'true' : 'false');
+    if (ACTIVE_POOL_ID === pool.id) tab.classList.add('active');
+  });
+
+  if (captured >= TOTAL) {
+    const nextPoolId = getNextPoolId();
+    if (nextPoolId) {
+      hint.textContent = '200 词已全部捕获！';
+      btn.textContent = `进入 ${getPoolLabel(nextPoolId)} →`;
+      btn.className = 'start-btn';
+      btn.onclick = function () {
+        selectPool(nextPoolId);
+        startHunt();
+      };
+    } else {
+      hint.textContent = '200 词已全部捕获 · 本轮复习 20 词';
+      btn.textContent = '继续复习';
+      btn.className = 'start-btn all-done';
+      btn.onclick = startHunt;
+    }
+  } else if (!isDiagnosticDone(data)) {
+    const seen = DIAGNOSTIC_WORDS.filter(w => hasWord(data, w)).length;
+    const left = TOTAL - seen;
+    if (ACTIVE_POOL_ID !== 'foundation') {
+      const nextWords = pickRoundWords(data);
+      hint.textContent = seen === 0
+        ? `${getPoolName(ACTIVE_POOL_ID)}首轮 · 本轮 ${nextWords.length} 词`
+        : `${getPoolName(ACTIVE_POOL_ID)}首轮 · 还剩 ${left} 词`;
+    } else {
+      hint.textContent = seen === 0 ? `先跑一遍 200 词，摸个底` : `首轮捕猎中 · 还剩 ${left} 词`;
+    }
+    btn.textContent = '开始';
+    btn.className = 'start-btn';
+    btn.onclick = startHunt;
+  } else if (!isStartupReady(data)) {
+    hint.textContent = `启动100补词中 · 还差 ${startupRemaining} 词`;
+    btn.textContent = '继续';
+    btn.className = 'start-btn';
+    btn.onclick = startHunt;
+  } else {
+    const nextWords = pickRoundWords(data);
+    hint.textContent = `已捕获 ${captured} · 瞄准中 ${hunting} · 本轮 ${nextWords.length} 词`;
+    btn.textContent = '开始';
+    btn.className = 'start-btn';
+    btn.onclick = startHunt;
+  }
+
+  showPage('home');
+}
+
+// ===== 语音（有道词典 TTS） =====
+let audioEl = null;
+let roundAudio = new Map();
+let pendingAudioLoads = new Map();
+let loadingAudio = new Set();
+let audioPreparationToken = 0;
+let activeWordAudio = null;
+let waitingForAudioIndex = null;
+
+const INITIAL_AUDIO_BATCH_SIZE = 10;
+const AUDIO_LOOKAHEAD_SIZE = 10;
+const AUDIO_LOAD_ATTEMPTS = 2;
+
+function initAudio() {
+  if (!audioEl) {
+    audioEl = new Audio();
+    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    audioEl.play().catch(() => {});
+  }
+}
+
+function getAudioUrl(word) {
+  return 'assets/audio-us/' + encodeURIComponent(word.english) + '.mp3';
+}
+
+function stopActiveWordAudio() {
+  if (!activeWordAudio) return;
+  activeWordAudio.pause();
+  activeWordAudio.currentTime = 0;
+  activeWordAudio = null;
+}
+
+function discardAudio(audio) {
+  audio.pause();
+  if (typeof audio.removeAttribute === 'function') {
+    audio.removeAttribute('src');
+  } else {
+    audio.src = '';
+  }
+}
+
+function clearRoundAudio() {
+  audioPreparationToken++;
+  waitingForAudioIndex = null;
+  stopActiveWordAudio();
+  roundAudio.forEach(discardAudio);
+  loadingAudio.forEach((audio) => {
+    if (typeof audio.cancelPreparation === 'function') {
+      audio.cancelPreparation();
+    } else {
+      discardAudio(audio);
+    }
+  });
+  roundAudio = new Map();
+  pendingAudioLoads = new Map();
+  loadingAudio = new Set();
+}
+
+function createAudioAttempt(word, token) {
+  const audio = new Audio();
+  audio.preload = 'auto';
+  loadingAudio.add(audio);
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+
+    function cleanup() {
+      audio.removeEventListener('canplaythrough', handleReady);
+      audio.removeEventListener('error', handleError);
+      loadingAudio.delete(audio);
+      delete audio.cancelPreparation;
+    }
+
+    function fail(error) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      discardAudio(audio);
+      reject(error);
+    }
+
+    function handleReady() {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (token !== audioPreparationToken) {
+        discardAudio(audio);
+        reject(new Error('stale audio preparation'));
+        return;
+      }
+      resolve(audio);
+    }
+
+    function handleError() {
+      fail(new Error(`audio failed: ${word.english}`));
+    }
+
+    audio.cancelPreparation = () => {
+      fail(new Error('audio preparation cancelled'));
+    };
+    audio.addEventListener('canplaythrough', handleReady);
+    audio.addEventListener('error', handleError);
+    audio.src = getAudioUrl(word);
+    audio.load();
+  });
+}
+
+async function loadWordAudio(word, token = audioPreparationToken, attemptsLeft = AUDIO_LOAD_ATTEMPTS) {
+  const key = getKey(word);
+  if (roundAudio.has(key)) return roundAudio.get(key);
+  if (pendingAudioLoads.has(key)) return pendingAudioLoads.get(key);
+
+  const loadPromise = (async () => {
+    let lastError;
+    for (let attempt = 0; attempt < attemptsLeft; attempt++) {
+      try {
+        const audio = await createAudioAttempt(word, token);
+        if (token !== audioPreparationToken) {
+          discardAudio(audio);
+          throw new Error('stale audio preparation');
+        }
+        roundAudio.set(key, audio);
+        return audio;
+      } catch (error) {
+        lastError = error;
+        if (token !== audioPreparationToken) throw error;
+      }
+    }
+    throw lastError;
+  })();
+
+  pendingAudioLoads.set(key, loadPromise);
+  loadPromise.then(
+    () => {
+      if (pendingAudioLoads.get(key) === loadPromise) {
+        pendingAudioLoads.delete(key);
+      }
+    },
+    () => {
+      if (pendingAudioLoads.get(key) === loadPromise) {
+        pendingAudioLoads.delete(key);
+      }
+    }
+  );
+  return loadPromise;
+}
+
+function showAudioPreparation(status) {
+  const prep = document.getElementById('quizPrep');
+  const card = document.getElementById('cardArea');
+  const retry = document.getElementById('audioRetryBtn');
+  const message = document.getElementById('audioPrepMessage');
+
+  prep.classList.remove('hidden');
+  card.classList.add('hidden');
+  document.getElementById('btnGroup').classList.add('hidden');
+  document.getElementById('countdown').classList.add('hidden');
+
+  if (status === 'failed') {
+    message.textContent = '音频加载失败，请重新加载';
+    retry.classList.remove('hidden');
+  } else {
+    message.textContent = '正在准备音频…';
+    retry.classList.add('hidden');
+  }
+}
+
+function showPreparedQuiz() {
+  document.getElementById('quizPrep').classList.add('hidden');
+  document.getElementById('audioRetryBtn').classList.add('hidden');
+  document.getElementById('cardArea').classList.remove('hidden');
+}
+
+function prepareRoundAudio() {
+  clearCountdown();
+  clearRevealTimer();
+  clearRoundAudio();
+  const token = audioPreparationToken;
+
+  showAudioPreparation('loading');
+  const initialWords = quizWords.slice(0, INITIAL_AUDIO_BATCH_SIZE);
+  Promise.all(initialWords.map((word) => loadWordAudio(word, token)))
+    .then(() => {
+      if (token !== audioPreparationToken) return;
+      showPreparedQuiz();
+      showCard();
+    })
+    .catch(() => {
+      if (token !== audioPreparationToken) return;
+      clearRoundAudio();
+      showAudioPreparation('failed');
+    });
+}
+
+function retryAudioPreparation() {
+  if (quizIndex > 0 && quizIndex < quizWords.length) {
+    // 中途重试：只加载当前词，不清掉已缓存的音频
+    const token = audioPreparationToken;
+    const w = quizWords[quizIndex];
+    showAudioPreparation('loading');
+    loadWordAudio(w, token)
+      .then(() => {
+        if (token !== audioPreparationToken || quizIndex >= quizWords.length) return;
+        showPreparedQuiz();
+        showCard();
+      })
+      .catch(() => {
+        if (token !== audioPreparationToken) return;
+        showAudioPreparation('failed');
+      });
+  } else {
+    prepareRoundAudio();
+  }
+}
+
+function preloadAudioWindow(startIndex = quizIndex) {
+  const token = audioPreparationToken;
+  const end = Math.min(quizWords.length, startIndex + AUDIO_LOOKAHEAD_SIZE);
+  for (let index = startIndex; index < end; index++) {
+    loadWordAudio(quizWords[index], token).catch(() => {});
+  }
+}
+
+function speakWord() {
+  const word = quizWords[quizIndex];
+  if (!word) return;
+  const prepared = roundAudio.get(getKey(word));
+  if (!prepared) return;
+  stopActiveWordAudio();
+  prepared.currentTime = 0;
+  activeWordAudio = prepared;
+  prepared.play().catch(() => {});
+}
+
+// ===== 捕猎 =====
+let quizWords = [];
+let quizIndex = 0;
+let roundResults = []; // [{word, result: 'correct'|'familiar'|'timeout', prevValue, nextValue}]
+
+const ROUND_SIZE = 20; // 每组卡片数
+const SPOT_CHECK_COUNT = 5; // 每组从已捕获池随机抽查的数量
+
+function isDiagnosticDone(data = loadData()) {
+  return DIAGNOSTIC_WORDS.every(w => hasWord(data, w));
+}
+
+function isStartupReady(data = loadData()) {
+  if (ACTIVE_POOL_ID !== 'foundation') return true;
+  return STARTUP_WORDS.every(w => isCaptured(data, w));
+}
+
+function pickWordsFromPool(pool, data) {
+  const captured = pool.filter(w => isCaptured(data, w));
+  const hunting = pool.filter(w => isHunting(data, w));
+  const unseen = pool.filter(w => isNew(data, w));
+
+  captured.sort(() => Math.random() - 0.5);
+  hunting.sort(() => Math.random() - 0.5);
+  unseen.sort(() => Math.random() - 0.5);
+
+  const picked = [];
+  const spotCount = Math.min(SPOT_CHECK_COUNT, captured.length);
+  picked.push(...captured.slice(0, spotCount));
+  const slotsLeft = ROUND_SIZE - picked.length;
+  if (slotsLeft > 0) {
+    picked.push(...hunting.slice(0, slotsLeft));
+  }
+  if (picked.length < ROUND_SIZE) {
+    picked.push(...unseen.slice(0, ROUND_SIZE - picked.length));
+  }
+  if (picked.length < ROUND_SIZE) {
+    picked.push(...captured.slice(spotCount, spotCount + ROUND_SIZE - picked.length));
+  }
+
+  return picked;
+}
+
+function shuffleWords(words) {
+  return words.slice().sort(() => Math.random() - 0.5);
+}
+
+function pickPriorityWords(pool, data, count, excluded = new Set()) {
+  const available = pool.filter(word => !excluded.has(getKey(word)));
+  const hunting = shuffleWords(available.filter(word => isHunting(data, word)));
+  const unseen = shuffleWords(available.filter(word => isNew(data, word)));
+  const captured = shuffleWords(available.filter(word => isCaptured(data, word)));
+  return [...hunting, ...unseen, ...captured].slice(0, count);
+}
+
+function pickAdvancedRound(data) {
+  const oldPool = getPreviousPoolWords();
+  const oldWeak = oldPool.filter(word => !isCaptured(data, word));
+  const oldCaptured = oldPool.filter(word => isCaptured(data, word));
+
+  let currentTarget = 16;
+  let oldWeakTarget = 2;
+  if (oldWeak.length > 40) {
+    currentTarget = 8;
+    oldWeakTarget = 10;
+  } else if (oldWeak.length > 10) {
+    currentTarget = 14;
+    oldWeakTarget = 4;
+  }
+
+  const picked = [];
+  const pickedKeys = new Set();
+  function add(words) {
+    words.forEach(word => {
+      const key = getKey(word);
+      if (!pickedKeys.has(key)) {
+        pickedKeys.add(key);
+        picked.push(word);
+      }
+    });
+  }
+
+  add(pickPriorityWords(DIAGNOSTIC_WORDS, data, currentTarget, pickedKeys));
+  add(pickPriorityWords(oldWeak, data, oldWeakTarget, pickedKeys));
+  add(shuffleWords(oldCaptured)
+    .filter(word => !pickedKeys.has(getKey(word)))
+    .slice(0, 2));
+
+  if (picked.length < ROUND_SIZE) {
+    add(pickPriorityWords(
+      [...DIAGNOSTIC_WORDS, ...oldWeak, ...oldCaptured],
+      data,
+      ROUND_SIZE - picked.length,
+      pickedKeys
+    ));
+  }
+
+  return picked.slice(0, ROUND_SIZE);
+}
+
+function pickRoundWords(data) {
+  if (ACTIVE_POOL_ID !== 'foundation') {
+    return pickAdvancedRound(data);
+  }
+
+  if (!isDiagnosticDone(data)) {
+    // 首轮诊断未完成：只出还没见过的词
+    return DIAGNOSTIC_WORDS.filter(w => !hasWord(data, w));
+  }
+
+  if (!isStartupReady(data)) {
+    // 启动未达标：只在启动100里轮动
+    return pickWordsFromPool(STARTUP_WORDS, data);
+  }
+
+  // 启动通过后：回到整个诊断池轮动
+  return pickWordsFromPool(DIAGNOSTIC_WORDS, data);
+}
+
+function startHunt() {
+  initAudio();
+  const data = loadData();
+  quizWords = pickRoundWords(data);
+
+  if (quizWords.length === 0) {
+    showMap();
+    return;
+  }
+
+  // 打乱顺序
+  quizWords.sort(() => Math.random() - 0.5);
+  quizIndex = 0;
+  roundResults = [];
+  answerLock = false;
+
+  const label = `捕猎中 · ${quizWords.length} 词`;
+  document.getElementById('quizLabel').textContent = label;
+  showPage('quiz');
+  prepareRoundAudio();
+}
+
+let cardFlipped = false;
+let countdownTimer = null;
+let revealTimer = null;
+let countdownValue = 3;
+
+function clearCountdown() {
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+}
+
+function clearRevealTimer() {
+  if (revealTimer) { clearTimeout(revealTimer); revealTimer = null; }
+}
+
+function startCountdown() {
+  countdownValue = 3;
+  const el = document.getElementById('countdown');
+  el.textContent = '3';
+  el.classList.remove('hidden', 'urgent');
+
+  countdownTimer = setInterval(() => {
+    countdownValue--;
+    if (countdownValue > 0) {
+      el.textContent = countdownValue;
+      if (countdownValue === 1) el.classList.add('urgent');
+    } else {
+      // 超时：自动算不认识
+      clearCountdown();
+      autoSkip();
+    }
+  }, 1000);
+}
+
+function autoSkip() {
+  if (cardFlipped || quizIndex >= quizWords.length) return;
+  const w = quizWords[quizIndex];
+  const data = loadData();
+  const key = getKey(w);
+  const prevValue = data[key];
+
+  if (!hasWord(data, w)) {
+    data[key] = 0;
+  }
+  saveData(data);
+
+  roundResults.push({ word: w, result: 'timeout', prevValue, nextValue: data[key] || 0 });
+  quizIndex++;
+  updateUndoBar();
+
+  // 超时前亮中文，听觉和视觉对一下
+  cardFlipped = true;
+  const ch = document.getElementById('cardChinese');
+  ch.textContent = w.chinese;
+  ch.classList.remove('hidden');
+  document.getElementById('cardWord').style.color = '#86868b';
+  document.getElementById('flipHint').classList.add('hidden');
+  document.getElementById('countdown').classList.add('hidden');
+  document.getElementById('btnGroup').classList.add('hidden');
+
+  clearRevealTimer();
+  revealTimer = setTimeout(() => {
+    revealTimer = null;
+    showCard();
+  }, 1000);
+}
+
+function showCard() {
+  clearCountdown();
+  clearRevealTimer();
+  if (quizIndex >= quizWords.length) {
+    showReport();
+    return;
+  }
+
+  const w = quizWords[quizIndex];
+  const cardIndex = quizIndex;
+  if (!roundAudio.has(getKey(w))) {
+    showAudioPreparation('loading');
+    if (waitingForAudioIndex === cardIndex) return;
+    waitingForAudioIndex = cardIndex;
+    const token = audioPreparationToken;
+    loadWordAudio(w, token)
+      .then(() => {
+        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
+        waitingForAudioIndex = null;
+        showPreparedQuiz();
+        renderCard(w);
+      })
+      .catch(() => {
+        if (token !== audioPreparationToken || quizIndex !== cardIndex) return;
+        waitingForAudioIndex = null;
+        showAudioPreparation('failed');
+      });
+    return;
+  }
+
+  waitingForAudioIndex = null;
+  showPreparedQuiz();
+  renderCard(w);
+}
+
+function renderCard(w) {
+  cardFlipped = false;
+  document.getElementById('cardChinese').textContent = '';
+  document.getElementById('cardChinese').classList.add('hidden');
+  document.getElementById('cardChinese').style.display = '';  // 清除 autoSkip 设的 inline
+  document.getElementById('btnGroup').classList.add('hidden');
+  const cardEl = document.getElementById('cardWord');
+  cardEl.textContent = w.english;
+  cardEl.style.color = '#1d1d1f';
+  const len = w.english.length;
+  cardEl.style.fontSize = len <= 5 ? '72px' : len <= 8 ? '56px' : len <= 11 ? '44px' : '36px';
+  document.getElementById('flipHint').classList.remove('hidden');
+  document.getElementById('progressText').textContent = `${quizIndex + 1} / ${quizWords.length}`;
+  document.getElementById('progressBar').style.width = `${(quizIndex / quizWords.length) * 100}%`;
+  updateUndoBar();
+  speakWord();
+  startCountdown();
+  preloadAudioWindow();
+}
+
+function finishRoundIfPastEnd() {
+  if (quizIndex < quizWords.length) return false;
+  clearCountdown();
+  clearRevealTimer();
+  if (quizWords.length > 0) showReport();
+  return true;
+}
+
+function flipCard() {
+  if (cardFlipped) return;
+  if (finishRoundIfPastEnd()) return;
+  cardFlipped = true;
+  clearCountdown();
+  document.getElementById('countdown').classList.add('hidden');
+  const w = quizWords[quizIndex];
+  document.getElementById('cardChinese').textContent = w.chinese;
+  document.getElementById('cardChinese').classList.remove('hidden');
+  document.getElementById('flipHint').classList.add('hidden');
+  document.getElementById('btnGroup').classList.remove('hidden');
+}
+
+let answerLock = false;
+function answer(result) {
+  if (answerLock) return;
+  if (finishRoundIfPastEnd()) return;
+  answerLock = true;
+  try {
+    const w = quizWords[quizIndex];
+    const data = loadData();
+    const key = getKey(w);
+    const prevValue = data[key];
+    const firstEncounter = !hasWord(data, w);
+
+    if (isCaptured(data, w)) {
+      // 已捕获词只做复核，不回退状态
+    } else if (result === 'correct') {
+      // 第一次见到且答对直接捕获；旧词每次只增加一次
+      data[key] = firstEncounter
+        ? CAPTURE_THRESHOLD
+        : Math.min(CAPTURE_THRESHOLD, (data[key] || 0) + 1);
+    } else if (result === 'familiar') {
+      // 第一次有印象设为1；旧词保持原状态
+      data[key] = firstEncounter ? 1 : (data[key] || 0);
+    }
+    saveData(data);
+
+    roundResults.push({ word: w, result, prevValue, nextValue: data[key] || 0 });
+    quizIndex++;
+    updateUndoBar();
+    showCard();
+  } catch (e) {
+    console.error('answer() error:', e);
+    alert('出错了: ' + e.message);
+  } finally {
+    answerLock = false;
+  }
+}
+
+function undoLast() {
+  if (roundResults.length === 0) return;
+  clearCountdown();
+  const last = roundResults.pop();
+  const data = loadData();
+  const key = getKey(last.word);
+
+  if (last.prevValue === undefined) {
+    delete data[key];
+  } else {
+    data[key] = last.prevValue;
+  }
+  saveData(data);
+
+  quizIndex--;
+  updateUndoBar();
+  showCard();
+}
+
+function updateUndoBar() {
+  const btn = document.getElementById('undoBtn');
+  if (roundResults.length > 0) {
+    btn.classList.remove('hidden');
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function exitQuiz() {
+  if (quizIndex > 0 && quizIndex < quizWords.length) {
+    clearCountdown();
+    if (!confirm(`已完成 ${quizIndex}/${quizWords.length}，确定退出吗？进度已保存。`)) {
+      if (!cardFlipped) startCountdown();
+      return;
+    }
+  }
+  clearCountdown();
+  clearRevealTimer();
+  clearRoundAudio();
+  goHome();
+}
+
+// ===== 战报 =====
+function showReport() {
+  try {
+  clearRoundAudio();
+  const data = loadData();
+  const capturedNow = getCapturedCount(data);
+  const hunting = getHuntingCount(data);
+  const remaining = TOTAL - capturedNow;
+
+  function resultCount(r) {
+    return r.nextValue !== undefined ? r.nextValue : (data[getKey(r.word)] || 0);
+  }
+
+  const newCaptured = roundResults.filter(r =>
+    (r.prevValue || 0) < CAPTURE_THRESHOLD &&
+    resultCount(r) >= CAPTURE_THRESHOLD
+  ).length;
+  const roundCaptured = roundResults.filter(r => resultCount(r) >= CAPTURE_THRESHOLD).length;
+  const roundHunting = roundResults.filter(r => {
+    const c = resultCount(r);
+    return c > 0 && c < CAPTURE_THRESHOLD;
+  }).length;
+  const roundNew = roundResults.filter(r => resultCount(r) === 0).length;
+
+  // 已捕获抽查统计
+  const spotChecked = roundResults.filter(r => (r.prevValue || 0) >= CAPTURE_THRESHOLD);
+  const spotPassed = spotChecked.filter(r => r.result === 'correct').length;
+  const spotTotal = spotChecked.length;
+
+  document.getElementById('reportTitle').textContent = remaining === 0 ? '🎉 全部捕获！' : '捕猎战报';
+  let subText = `本轮结束 · 已捕获 ${roundCaptured} · 瞄准中 ${roundHunting} · 潜伏中 ${roundNew}`;
+  if (spotTotal > 0) {
+    subText += ` · 抽查 ${spotPassed}/${spotTotal}`;
+  }
+  document.getElementById('reportSub').textContent = subText;
+  document.getElementById('statNew').textContent = newCaptured;
+  document.getElementById('statHunting').textContent = hunting;
+  document.getElementById('statTotal').textContent = capturedNow;
+
+  // 进度条
+  const activePool = !isDiagnosticDone(data)
+    ? DIAGNOSTIC_WORDS
+    : (!isStartupReady(data) ? STARTUP_WORDS : DIAGNOSTIC_WORDS);
+  const newCount = activePool.filter(w => isNew(data, w)).length;
+  document.getElementById('progressBig').innerHTML = `
+    <div class="seg-captured" style="width:${capturedNow/TOTAL*100}%"></div>
+    <div class="seg-hunting" style="width:${hunting/TOTAL*100}%"></div>
+    <div class="seg-new" style="width:${newCount/TOTAL*100}%"></div>
+  `;
+
+  // 按钮
+  const nextBtn = document.getElementById('nextBtn');
+  if (remaining === 0) {
+    const nextPoolId = getNextPoolId();
+    if (nextPoolId) {
+      nextBtn.textContent = `进入 ${getPoolLabel(nextPoolId)} →`;
+      nextBtn.onclick = function () {
+        selectPool(nextPoolId);
+        startHunt();
+      };
+    } else {
+      nextBtn.textContent = '继续复习（20 词）→';
+      nextBtn.onclick = startHunt;
+    }
+  } else {
+    nextBtn.textContent = `继续（剩 ${remaining} 词）→`;
+    nextBtn.onclick = startHunt;
+  }
+
+  showPage('report');
+  } catch (e) {
+    console.error('showReport() error:', e);
+    alert('战报出错: ' + e.message);
+    showPage('report');
+  }
+}
+
+// ===== 掌握地图 =====
+function showMap() {
+  const data = loadData();
+  const captured = DIAGNOSTIC_WORDS.filter(w => isCaptured(data, w));
+  const hunting = DIAGNOSTIC_WORDS.filter(w => isHunting(data, w));
+  const unseen = DIAGNOSTIC_WORDS.filter(w => isNew(data, w));
+
+  document.getElementById('mapStats').textContent =
+    `已捕获 ${captured.length} · 瞄准中 ${hunting.length} · 潜伏中 ${unseen.length}`;
+
+  function tags(words, cls) {
+    return words.map(w => {
+      const c = data[getKey(w)] || 0;
+      const label = cls === 'mw-hunting' ? `${w.english}(${c}/${CAPTURE_THRESHOLD})` : w.english;
+      return `<span class="${cls}">${label}</span>`;
+    }).join('');
+  }
+
+  let html = '';
+  if (captured.length > 0)
+    html += `<div class="mastery-section"><h4>✅ 已捕获（${captured.length}）</h4><div class="mastery-words">${tags(captured, 'mw-captured')}</div></div>`;
+  if (hunting.length > 0)
+    html += `<div class="mastery-section"><h4>🎯 瞄准中（${hunting.length}）</h4><div class="mastery-words">${tags(hunting, 'mw-hunting')}</div></div>`;
+  if (unseen.length > 0)
+    html += `<div class="mastery-section"><h4>🫣 潜伏中（${unseen.length}）</h4><div class="mastery-words" style="max-height:200px;overflow-y:auto">${tags(unseen, 'mw-new')}</div></div>`;
+
+  document.getElementById('masteryMap').innerHTML = html || '<p>还没有数据</p>';
+  showPage('mappage');
+}
+
+function exportData() {
+  const data = loadData();
+  let csv = 'English,Chinese,Tier,段位,使用阶段,故事作用,正确次数,状态\n';
+  DIAGNOSTIC_WORDS.forEach(w => {
+    const c = data[getKey(w)] || 0;
+    const status = c >= CAPTURE_THRESHOLD ? '已捕获' : c > 0 ? '瞄准中' : '潜伏中';
+    csv += `${w.english},${w.chinese},${w.tier},${w.stageLabel},${w.useStage},${w.storyRole},${c},${status}\n`;
+  });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = '单词猎人掌握地图.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ===== 工具 =====
+function goHome() { renderHome(); }
+function confirmReset() {
+  if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('wordHunter_diagDone');
+    renderHome();
+  }
+}
+
+// ===== 启动 =====
+localStorage.removeItem('wordHunter_diagDone');
+renderHome();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+include:
+  - .nojekyll
+exclude:
+  - tests
+  - package.json
+  - docs
+  - 词表
