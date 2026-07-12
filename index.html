@@ -988,8 +988,9 @@ function startHunt() {
   const label = `捕猎中 · ${quizWords.length} 词`;
   document.getElementById('quizLabel').textContent = label;
   showPage('quiz');
+  // 先加载前5个词音频，第一个词就绪后再出卡片
   silentPreload();
-  showCard();
+  loadWordAudio(quizWords[0]).then(() => showCard()).catch(() => showCard());
 }
 
 let cardFlipped = false;
@@ -1069,7 +1070,14 @@ function showCard() {
   document.getElementById('quizPrep').classList.add('hidden');
   document.getElementById('cardArea').classList.remove('hidden');
   silentPreload();
-  renderCard(w);
+
+  const key = getKey(w);
+  if (roundAudio.has(key)) {
+    renderCard(w);
+  } else {
+    // 音频还没好，等一下再出卡片（本地文件很快）
+    loadWordAudio(w).then(() => renderCard(w)).catch(() => renderCard(w));
+  }
 }
 
 function renderCard(w) {
