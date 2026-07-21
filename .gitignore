@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+word_hunter.db
+audio-cache/
+.env
+.venv/

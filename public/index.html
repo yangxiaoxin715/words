@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>和单词交朋友</title>
+  <meta name="description" content="英语词汇闪卡与学习记录工具">
+  <link rel="stylesheet" href="/styles.css?v=20260720-53">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-main">
+      <div class="brand">和单词交朋友</div>
+      <div class="subtle">英语词汇闪卡与学习记录工具</div>
+      <div id="accountCodeLine" class="account-code english-signal hidden">Welcome to make friends with words!</div>
+    </div>
+    <div class="topbar-actions">
+      <span id="visibleLearningCode" class="visible-learning-code hidden"></span>
+      <button id="logoutBtn" class="ghost-button hidden" type="button">退出</button>
+    </div>
+  </header>
+
+  <main id="loginView" class="app-shell">
+    <section class="login-panel">
+      <h1>登录后开始刷词</h1>
+      <form id="loginForm">
+        <label for="loginCode">编号</label>
+        <input id="loginCode" name="loginCode" type="text" autocomplete="username" placeholder="例如 00001">
+
+        <label for="loginPassword">密码</label>
+        <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password">
+
+        <button class="primary-button" type="submit">进入</button>
+        <p id="loginError" class="error-text"></p>
+      </form>
+      <div class="login-divider">或</div>
+      <button id="startVocabTestBtn" class="ghost-button vocab-test-entry" type="button">词汇测试（入营摸底）</button>
+    </section>
+  </main>
+
+  <main id="vocabTestView" class="app-shell hidden">
+    <section id="vocabTestPanel" class="session-panel">
+      <div class="session-shell">
+        <header class="session-header">
+          <button id="vocabTestBackBtn" class="session-back-button" type="button">退出</button>
+          <strong class="session-title">词汇测试</strong>
+          <span id="vocabTestCounter" class="session-counter">
+            <span id="vocabTestCount">0 / 196</span>
+            <span id="vocabTestTimer" class="countdown-toggle">10:00</span>
+          </span>
+        </header>
+        <div class="progress-track session-progress-track" aria-hidden="true">
+          <div id="vocabTestProgress" class="progress-fill"></div>
+        </div>
+        <div class="session-status-line">
+          <span id="vocabTestStatus" class="subtle"></span>
+          <span id="vocabTestHuntStatus" class="hunt-status"></span>
+        </div>
+        <div class="session-card-area">
+          <button id="vocabTestCard" class="word-card" type="button">
+            <span id="vocabTestWord" class="word-text">准备中</span>
+            <span id="vocabTestMeaning" class="meaning-text hidden"></span>
+          </button>
+        </div>
+        <div id="vocabTestResponse" class="response-grid response-dock hidden">
+          <button class="response known" data-vt-response="known" type="button">老朋友</button>
+          <button class="response vague" data-vt-response="vague" type="button">有点眼熟</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="vocabTestResult" class="home-panel hidden">
+      <h2 class="vocab-result-title">词汇测试结果</h2>
+      <div class="home-stats-grid">
+        <div class="stat-card">
+          <span id="vocabResultTotal" class="stat-value">0</span>
+          <span class="stat-label">老朋友</span>
+        </div>
+        <div class="stat-card">
+          <span id="vocabResultL1" class="stat-value">0/112</span>
+          <span class="stat-label">一级词</span>
+        </div>
+        <div class="stat-card">
+          <span id="vocabResultL2" class="stat-value">0/31</span>
+          <span class="stat-label">二级词</span>
+        </div>
+        <div class="stat-card">
+          <span id="vocabResultL3" class="stat-value">0/57</span>
+          <span class="stat-label">三级词</span>
+        </div>
+      </div>
+      <details class="data-details">
+        <summary>详细数据</summary>
+        <div class="detail-stats-grid">
+          <div class="stat-card">
+            <span id="vocabResultVague" class="stat-value">0</span>
+            <span class="stat-label">有点眼熟</span>
+          </div>
+          <div class="stat-card">
+            <span id="vocabResultNew" class="stat-value">0</span>
+            <span class="stat-label">新朋友</span>
+          </div>
+          <div class="stat-card">
+            <span id="vocabResultTested" class="stat-value">0</span>
+            <span class="stat-label">已测词数</span>
+          </div>
+          <div class="stat-card">
+            <span id="vocabResultTime" class="stat-value">0秒</span>
+            <span class="stat-label">用时</span>
+          </div>
+        </div>
+      </details>
+      <div class="vocab-result-actions">
+        <button id="vocabTestExportBtn" class="home-action-button home-action-primary" type="button">导出结果</button>
+        <button id="vocabTestRetryBtn" class="home-action-button home-action-secondary" type="button">重新测试</button>
+      </div>
+      <button id="vocabTestExitBtn" class="ghost-button vocab-test-exit" type="button">返回登录</button>
+    </section>
+  </main>
+
+  <main id="learningView" class="app-shell hidden">
+    <section id="homePanel" class="home-panel">
+      <section class="home-stats-grid" aria-label="学习数据">
+        <div class="stat-card">
+          <span id="knownTotal" class="stat-value">0</span>
+          <span class="stat-label">老朋友</span>
+        </div>
+        <div class="stat-card">
+          <span id="todayNew" class="stat-value">0</span>
+          <span class="stat-label">今日交友</span>
+        </div>
+        <div class="stat-card">
+          <span id="todayTime" class="stat-value">0秒</span>
+          <span class="stat-label">今日陪伴</span>
+        </div>
+        <div class="stat-card">
+          <span id="streakDays" class="stat-value">0</span>
+          <span class="stat-label">连续来玩</span>
+        </div>
+      </section>
+
+      <details class="data-details">
+        <summary>数据详情</summary>
+        <div class="detail-stats-grid">
+          <div class="stat-card">
+            <span id="coreTodaySeen" class="stat-value">0</span>
+            <span class="stat-label">核心今日</span>
+          </div>
+          <div class="stat-card">
+            <span id="coreTodayTime" class="stat-value">0秒</span>
+            <span class="stat-label">核心用时</span>
+          </div>
+          <div class="stat-card">
+            <span id="customTodaySeen" class="stat-value">0</span>
+            <span class="stat-label">导入今日</span>
+          </div>
+          <div class="stat-card">
+            <span id="customTodayTime" class="stat-value">0秒</span>
+            <span class="stat-label">导入用时</span>
+          </div>
+          <div class="stat-card">
+            <span id="detailKnownTotal" class="stat-value">0</span>
+            <span class="stat-label">老朋友</span>
+          </div>
+          <div class="stat-card">
+            <span id="newFriendTotal" class="stat-value">0</span>
+            <span class="stat-label">新朋友</span>
+          </div>
+          <div class="stat-card">
+            <span id="familiarTotal" class="stat-value">0</span>
+            <span class="stat-label">有点眼熟</span>
+          </div>
+        </div>
+        <div id="dashboardWordMap" class="word-map"></div>
+      </details>
+
+      <section class="stage-panel" aria-label="阶段捕获">
+        <div class="stage-header">
+          <div>
+            <span id="stageLabel" class="stage-label">一级词</span>
+            <span id="stageRemaining" class="subtle">还差 506 个</span>
+          </div>
+          <strong class="stage-count">
+            <span id="stageCaptured">0</span>
+            <span>/</span>
+            <span id="stageTarget">506</span>
+          </strong>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="stageProgressFill" class="progress-fill"></div>
+        </div>
+        <div class="stage-actions">
+          <button id="advanceStageBtn" class="primary-button hidden" type="button">进入二级词</button>
+        </div>
+      </section>
+
+      <div class="home-action-pair">
+        <button id="startSessionBtn" class="home-action-button home-action-primary" type="button">开始交朋友</button>
+        <button id="reviewStageBtn" class="home-action-button home-action-secondary" type="button">再见一面</button>
+      </div>
+
+      <input id="customPackFile" class="file-input-native" type="file" accept=".csv,text/csv,text/plain">
+
+      <div id="customPackEmpty" class="bottom-action-pair">
+        <label id="importCustomPackBtn" class="ghost-button file-import-button" for="customPackFile">导入词包</label>
+        <button id="exportDataBtn" class="ghost-button" type="button">导出数据</button>
+      </div>
+
+      <section id="customPackLoaded" class="custom-pack-panel hidden">
+        <div class="custom-pack-info">
+          <div>
+            <span id="customPackName" class="custom-pack-name">词包</span>
+            <span id="customPackProgress" class="subtle">0 / 0</span>
+          </div>
+          <button id="loadCustomPackBtn" class="ghost-button" type="button">开始刷</button>
+        </div>
+        <div class="progress-track custom-pack-progress-track">
+          <div id="customPackProgressFill" class="progress-fill"></div>
+        </div>
+        <div class="custom-pack-bottom">
+          <label class="custom-pack-reimport" for="customPackFile">重新导入</label>
+          <button id="exportDataBtnAlt" class="custom-pack-reimport-style" type="button">导出数据</button>
+        </div>
+        <p id="customPackStatus" class="subtle tool-status"></p>
+      </section>
+
+      <p id="exportStatus" class="subtle export-status"></p>
+    </section>
+
+    <section id="sessionPanel" class="session-panel hidden" aria-label="刷词">
+      <div class="session-shell">
+        <header class="session-header">
+          <button id="sessionBackBtn" class="session-back-button" type="button">返回</button>
+          <strong id="sessionTitle" class="session-title">刷词中 · 第一组</strong>
+          <span id="sessionCounter" class="session-counter">
+            <span id="sessionProgress">0 / 100</span>
+            <button id="countdownToggle" class="countdown-toggle" type="button">3s</button>
+          </span>
+        </header>
+
+        <div class="progress-track session-progress-track" aria-hidden="true">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <div class="session-status-line">
+          <span id="wordPosition">还剩 100 个</span>
+          <span id="huntStatus" class="hunt-status"></span>
+          <button id="speakBtn" class="icon-button" type="button" aria-label="播放单词音频">播放</button>
+        </div>
+
+        <div id="countdownTrack" class="countdown-track countdown-idle" aria-hidden="true">
+          <div id="countdownFill" class="countdown-fill"></div>
+        </div>
+
+        <div class="session-card-area">
+          <button id="cardFace" class="word-card" type="button">
+            <span id="wordText" class="word-text">加载中</span>
+            <span id="meaningText" class="meaning-text hidden"></span>
+          </button>
+          <div id="sessionComplete" class="session-complete hidden">
+            <div class="complete-icon">✓</div>
+            <div class="complete-actions">
+              <button id="retryRoundBtn" class="home-action-button home-action-primary" type="button">再来一轮</button>
+              <button id="backHomeBtn" class="home-action-button home-action-secondary" type="button">返回</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="responseButtons" class="response-grid response-dock hidden">
+          <button class="response known" data-response="known" type="button">老朋友</button>
+          <button class="response vague" data-response="vague" type="button">有点眼熟</button>
+          <button class="response new" data-response="new" type="button">新朋友</button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a href="/privacy.html">隐私说明</a>
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025176350号-2</a>
+  </footer>
+
+  <script src="/words-data.js?v=20260720-53"></script>
+  <script src="/test-words.js?v=20260720-53"></script>
+  <script src="/app.js?v=20260720-53"></script>
+</body>
+</html>

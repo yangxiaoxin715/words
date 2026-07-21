@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>产品数据 - 和单词交朋友</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">和单词交朋友</div>
+      <div class="subtle">产品数据</div>
+    </div>
+    <a class="ghost-button" href="/">首页</a>
+  </header>
+
+  <main class="content-page">
+    <h1>产品数据</h1>
+    <form id="adminForm" class="progress-band">
+      <label for="adminKey">后台口令</label>
+      <input id="adminKey" type="password" autocomplete="current-password">
+      <button class="primary-button" type="submit">查看</button>
+    </form>
+
+    <section id="createAccountPanel" class="admin-panel hidden">
+      <h2>创建学习账号</h2>
+      <form id="createLearnerForm" class="admin-form">
+        <label for="newCode">学习编号</label>
+        <input id="newCode" type="text" placeholder="不填则自动生成 00001">
+
+        <label for="newPassword">初始密码</label>
+        <input id="newPassword" type="text" placeholder="不填则自动生成">
+
+        <button class="primary-button" type="submit">创建</button>
+      </form>
+      <p id="createResult" class="copy-result"></p>
+    </section>
+
+    <table class="admin-table">
+      <tbody>
+        <tr>
+          <th>学习用户数</th>
+          <td id="learnerCount">-</td>
+        </tr>
+        <tr>
+          <th>总点击记录</th>
+          <td id="eventCount">-</td>
+        </tr>
+        <tr>
+          <th>今日活跃</th>
+          <td id="activeToday">-</td>
+        </tr>
+        <tr>
+          <th>词状态</th>
+          <td id="statusCounts">-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>账号列表</h2>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>学习编号</th>
+          <th>状态</th>
+          <th>今日见面</th>
+          <th>新朋友</th>
+          <th>有点眼熟</th>
+          <th>老朋友</th>
+          <th>连续见面</th>
+          <th>总点击</th>
+          <th>最后学习</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="learnerRows">
+        <tr><td colspan="10">输入后台口令后查看</td></tr>
+      </tbody>
+    </table>
+
+    <section id="learnerDetailPanel" class="admin-panel hidden">
+      <h2 id="detailTitle">账号明细</h2>
+      <pre id="exportOutput" class="export-output hidden"></pre>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>单词</th>
+            <th>中文</th>
+            <th>状态</th>
+            <th>见过</th>
+            <th>最后学习</th>
+          </tr>
+        </thead>
+        <tbody id="wordRows">
+          <tr><td colspan="6">选择一个账号查看</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <p id="adminError" class="error-text"></p>
+  </main>
+
+  <script>
+    const form = document.getElementById("adminForm");
+    const error = document.getElementById("adminError");
+    const createForm = document.getElementById("createLearnerForm");
+    const createPanel = document.getElementById("createAccountPanel");
+    const createResult = document.getElementById("createResult");
+    const detailPanel = document.getElementById("learnerDetailPanel");
+    const detailTitle = document.getElementById("detailTitle");
+    const exportOutput = document.getElementById("exportOutput");
+    const wordRows = document.getElementById("wordRows");
+    const statusLabels = {
+      new_friend: "新朋友",
+      familiar: "有点眼熟",
+      known: "老朋友",
+      stable: "老朋友",
+    };
+
+    let currentAdminKey = "";
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function statusText(statusCounts) {
+      const parts = [];
+      for (const [key, value] of Object.entries(statusCounts || {})) {
+        parts.push(`${statusLabels[key] || key} ${value}`);
+      }
+      return parts.length ? parts.join(" ｜ ") : "-";
+    }
+
+    function renderLearners(learners) {
+      const tbody = document.getElementById("learnerRows");
+      if (!learners.length) {
+        tbody.innerHTML = '<tr><td colspan="10">还没有学习账号</td></tr>';
+        return;
+      }
+      tbody.innerHTML = learners.map((learner) => `
+        <tr>
+          <td>${esc(learner.learning_code)}</td>
+          <td>${learner.is_active ? "启用" : "停用"}</td>
+          <td>${learner.today_seen}</td>
+          <td>${learner.new_friend_total}</td>
+          <td>${learner.familiar_total}</td>
+          <td>${learner.known_total}</td>
+          <td>${learner.streak_days}</td>
+          <td>${learner.event_count}</td>
+          <td>${esc(learner.last_seen_at || "-")}</td>
+          <td class="admin-actions">
+            <button type="button" data-action="words" data-code="${esc(learner.learning_code)}">词明细</button>
+            <button type="button" data-action="export" data-code="${esc(learner.learning_code)}">导出</button>
+            <button type="button" data-action="reset" data-code="${esc(learner.learning_code)}">重置密码</button>
+            <button type="button" data-action="toggle" data-code="${esc(learner.learning_code)}" data-active="${learner.is_active ? "1" : "0"}">${learner.is_active ? "停用" : "启用"}</button>
+            <button type="button" data-action="delete" data-code="${esc(learner.learning_code)}">删除</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderWordRows(words) {
+      if (!words.length) {
+        wordRows.innerHTML = '<tr><td colspan="6">这个账号还没有刷词记录</td></tr>';
+        return;
+      }
+      wordRows.innerHTML = words.map((item) => `
+        <tr>
+          <td>${item.position}</td>
+          <td>${esc(item.word)}</td>
+          <td>${esc(item.meaning)}</td>
+          <td>${esc(item.status_label)}</td>
+          <td>${item.seen_count}</td>
+          <td>${esc(item.last_seen_at || "-")}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function adminFetch(path, options = {}) {
+      const response = await fetch(`${path}${path.includes("?") ? "&" : "?"}key=${encodeURIComponent(currentAdminKey)}`, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || "操作失败");
+      }
+      return data;
+    }
+
+    async function showWords(code) {
+      error.textContent = "";
+      exportOutput.classList.add("hidden");
+      const data = await adminFetch(`/api/admin/learners/${encodeURIComponent(code)}/words`);
+      detailPanel.classList.remove("hidden");
+      detailTitle.textContent = `账号明细：${data.learner.learning_code}`;
+      renderWordRows(data.words || []);
+    }
+
+    async function showExport(code) {
+      error.textContent = "";
+      const data = await adminFetch(`/api/admin/learners/${encodeURIComponent(code)}/export`);
+      detailPanel.classList.remove("hidden");
+      detailTitle.textContent = `导出数据：${data.learning_code}`;
+      exportOutput.textContent = JSON.stringify(data, null, 2);
+      exportOutput.classList.remove("hidden");
+      renderWordRows([]);
+    }
+
+    async function resetPassword(code) {
+      const password = window.prompt(`给 ${code} 设置新密码，留空则自动生成`);
+      const data = await adminFetch(`/api/admin/learners/${encodeURIComponent(code)}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: password || "" }),
+      });
+      createResult.textContent = `学习编号：${data.learning_code} ｜ 新密码：${data.initial_password}`;
+    }
+
+    async function toggleAccount(code, isActive) {
+      await adminFetch(`/api/admin/learners/${encodeURIComponent(code)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: !isActive }),
+      });
+      await loadSummary();
+    }
+
+    async function deleteAccount(code) {
+      const confirmed = window.confirm(`确认删除 ${code}？这个账号的学习记录也会删除。`);
+      if (!confirmed) return;
+      await adminFetch(`/api/admin/learners/${encodeURIComponent(code)}`, {
+        method: "DELETE",
+      });
+      detailPanel.classList.add("hidden");
+      await loadSummary();
+    }
+
+    async function loadSummary() {
+      error.textContent = "";
+      const key = document.getElementById("adminKey").value;
+      currentAdminKey = key;
+      const response = await fetch(`/api/admin/summary?key=${encodeURIComponent(key)}`);
+      if (!response.ok) {
+        error.textContent = "口令不正确";
+        return;
+      }
+      const data = await response.json();
+      createPanel.classList.remove("hidden");
+      document.getElementById("learnerCount").textContent = data.learner_count;
+      document.getElementById("eventCount").textContent = data.event_count;
+      document.getElementById("activeToday").textContent = data.active_today;
+      document.getElementById("statusCounts").textContent = statusText(data.status_counts);
+      renderLearners(data.learners || []);
+    }
+
+    document.getElementById("learnerRows").addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const code = button.dataset.code;
+      const action = button.dataset.action;
+      try {
+        error.textContent = "";
+        if (action === "words") await showWords(code);
+        if (action === "export") await showExport(code);
+        if (action === "reset") {
+          await resetPassword(code);
+          await loadSummary();
+        }
+        if (action === "toggle") await toggleAccount(code, button.dataset.active === "1");
+        if (action === "delete") await deleteAccount(code);
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loadSummary();
+    });
+
+    createForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      createResult.textContent = "";
+      error.textContent = "";
+      const payload = {
+        learning_code: document.getElementById("newCode").value,
+        password: document.getElementById("newPassword").value,
+      };
+      const response = await fetch(`/api/admin/learners?key=${encodeURIComponent(currentAdminKey)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        error.textContent = data.detail || "创建失败";
+        return;
+      }
+      createResult.textContent = `学习编号：${data.learning_code} ｜ 初始密码：${data.initial_password}`;
+      createForm.reset();
+      await loadSummary();
+    });
+  </script>
+</body>
+</html>
